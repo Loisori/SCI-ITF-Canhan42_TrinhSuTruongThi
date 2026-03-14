@@ -1,0 +1,27 @@
+{
+  "name": "dacn",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "client": "cd client && npm run dev",
+    "server": "cd server && npm run start:dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Loisori/SCI-ITF-Canhan42_TrinhSuTruongThi.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Loisori/SCI-ITF-Canhan42_TrinhSuTruongThi/issues"
+  },
+  "homepage": "https://github.com/Loisori/SCI-ITF-Canhan42_TrinhSuTruongThi#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
