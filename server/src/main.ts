@@ -7,6 +7,7 @@ async function bootstrap() {
   // Turn on CORS to Client (3000) can call Server (3001)
   app.enableCors({
     origin: 'http://localhost:3000',
+    // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
 
