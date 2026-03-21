@@ -1,0 +1,17 @@
+// src/scss/main.scss
+@use "tailwindcss";
+
+// _generic
+@use "_generic/container";
+@use "_generic/global";
+@use "_generic/typography";
+@use "_generic/animation";
+
+// _object
+@use "_object/button";
+
+// component
+// @use "component/";
+
+// section
+@use "section/header";

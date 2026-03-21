@@ -1,0 +1,35 @@
+// h1,
+// h2,
+// h3,
+// h4,
+// h5,
+// h6,
+// p,
+// a,
+// span {
+//   font-family: "Poppins", sans-serif;
+// }
+
+// h1 {
+//   @apply text-h1;
+// }
+// h2 {
+//   @apply text-smaller sm:text-h3 lg:text-h2;
+// }
+// h3 {
+//   @apply text-h3;
+// }
+h5 {
+  @apply text-small;
+}
+// span,
+// a,
+// p,
+// button {
+//   @apply text-small;
+// }
+
+
+// span {
+//   @apply text-small;
+// }

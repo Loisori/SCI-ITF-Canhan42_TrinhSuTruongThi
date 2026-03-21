@@ -1,0 +1,11 @@
+html {
+  scroll-behavior: smooth;
+  @apply text-[62.5%];
+}
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+section{
+  @apply py-10 md:py-16 lg:py-20 overflow-hidden;
+}

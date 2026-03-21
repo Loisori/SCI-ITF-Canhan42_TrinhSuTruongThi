@@ -1,0 +1,84 @@
+// .reveal {
+//     opacity: 0;
+//     transform: translate3d(0, 100px, 0);
+//     transition: opacity 0.8s, transform 0.8s;
+//     &_visible {
+//       opacity: 1;
+//       transform: translate3d(0, 0, 0);
+//     }
+//   }
+//   .side-article.down{
+//     @apply top-4;
+//   }
+
+//   .process-content.down {
+//     @apply top-8;
+//   }
+
+// @keyframes fadeInUp {
+//   from {
+//       opacity: 0;
+//       transform: translateY(20px);
+//   }
+//   to {
+//       opacity: 1;
+//       transform: translateY(0);
+//   }
+// }
+
+// .animation {
+//   &-fade-up{
+//     @apply opacity-0 ;
+//     transform: translateY(20px);
+//     transition: opacity 0.8s ease-out, transform 0.8s ease-out, all 0.3s ease-out, border 0.3s ease-out, box-shadow 0.3s ease-out;
+//     &.is-fade-up{
+//       @apply opacity-100 ;
+//       transform: translateY(0);
+//     //   animation: fadeInUp 0.8s ease-out forwards; /* Animation forwards ensures it stays */
+//     }
+//   }
+//   &-fade-right{
+//     @apply opacity-0 ;
+//     transform: translateX(-20px);
+//     transition: opacity 0.8s ease-out, transform 0.8s ease-out, all 0.3s ease-out;
+//     &.is-fade-right{
+//       @apply opacity-100 ;
+//       transform: translateX(0);
+//     }
+//   }
+//   &-fade-left{
+//     @apply opacity-0 ;
+//     transform: translateX(20px);
+//     transition: opacity 0.8s ease-out, transform 0.8s ease-out, all 0.3s ease-out;
+//     &.is-fade-left{
+//       @apply opacity-100 ;
+//       transform: translateX(0);
+//     }
+//   }
+//   &-pop-up {
+//     @apply opacity-0;
+//     transform: scale(0.8); /* Initial small state */
+//     transition: opacity 0.4s ease-out, transform 0.4s ease-out, all 0.3s ease-out;
+//     &.is-pop-up {
+//       @apply opacity-100;
+//       transform: scale(1);
+//     }
+//   }
+// }
+
+// .effect-underline{
+//   @apply relative;
+//   &::after{
+//     @apply content-[''] absolute left-0 bottom-0 inline-block h-[.2rem] w-full opacity-0;
+//     border-bottom: 1px solid;
+//     -webkit-transition: opacity 0.35s, -webkit-transform 0.35s;
+//     transition: opacity 0.35s, transform 0.35s;
+//     -webkit-transform: scale(0,1);
+//     transform: scale(0,1);
+//   }
+//   &:hover::after{
+//     @apply opacity-100;
+//     -webkit-transform: scale(1);
+//     transform: scale(1);
+//   }
+// }
