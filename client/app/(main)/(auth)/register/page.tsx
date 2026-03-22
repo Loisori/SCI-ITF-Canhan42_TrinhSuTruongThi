@@ -1,0 +1,204 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+
+export default function RegisterPage() {
+  const [showPassword, setShowPassword] = useState(false);
+
+  return (
+    <main className="flex-grow flex flex-col md:flex-row min-h-screen font-display bg-background">
+      {/* Visual Section (Split Screen Left) */}
+      <section className="hidden md:flex md:w-1/2 bg-primary relative overflow-hidden items-center justify-center p-12">
+        {/* Decorative Pattern Overlay */}
+        <div
+          className="absolute inset-0 opacity-10 pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 2px 2px, #ffffff 1px, transparent 0)",
+            backgroundSize: "32px 32px",
+          }}
+        ></div>
+
+        <div className="relative z-10 max-w-lg">
+          <div className="mb-8">
+            <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-[10px] uppercase tracking-widest font-bold">
+              Institutional Grade
+            </span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-6">
+            The Sovereign Architect of Your Wealth.
+          </h1>
+          <p className="text-lg text-slate-300 mb-10 leading-relaxed font-light">
+            Tham gia cộng đồng các nhà đầu tư ưu tú, sử dụng các công cụ được
+            thiết kế chính xác để mang lại sự minh bạch tài chính.
+          </p>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div className="p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+              <div className="text-2xl font-bold text-white mb-1">256-bit</div>
+              <div className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">
+                Encryption
+              </div>
+            </div>
+            <div className="p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+              <div className="text-2xl font-bold text-white mb-1">SEC</div>
+              <div className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">
+                Compliant
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Abstract Background Visuals */}
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px]"></div>
+        <div className="absolute top-1/2 -left-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px]"></div>
+      </section>
+
+      {/* Form Section (Split Screen Right) */}
+      <section className="flex-grow md:w-1/2 flex items-center justify-center p-6 md:p-12 bg-white dark:bg-slate-950">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo Only */}
+          <div className="md:hidden flex items-center gap-2 mb-10">
+            <span
+              className="material-symbols-outlined text-primary text-3xl"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              rocket_launch
+            </span>
+            <span className="text-xl font-bold tracking-tight text-primary dark:text-white">
+              InvestPro
+            </span>
+          </div>
+
+          <div className="mb-10 text-center md:text-left">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+              Tạo tài khoản mới
+            </h2>
+            <p className="text-slate-500 text-sm">
+              Bắt đầu hành trình đầu tư thông minh cùng InvestPro ngay hôm nay.
+            </p>
+          </div>
+
+          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+            {/* Full Name */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase tracking-widest font-bold text-slate-500 ml-1">
+                Họ và tên
+              </label>
+              <div className="relative group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-primary transition-colors">
+                  person
+                </span>
+                <input
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl ring-1 ring-slate-200 dark:ring-slate-800 focus:ring-2 focus:ring-primary transition-all text-sm outline-none placeholder:text-slate-400"
+                  placeholder="Nhập họ và tên của bạn"
+                  type="text"
+                />
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase tracking-widest font-bold text-slate-500 ml-1">
+                Email của bạn
+              </label>
+              <div className="relative group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-primary transition-colors">
+                  mail
+                </span>
+                <input
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl ring-1 ring-slate-200 dark:ring-slate-800 focus:ring-2 focus:ring-primary transition-all text-sm outline-none placeholder:text-slate-400"
+                  placeholder="name@company.com"
+                  type="email"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase tracking-widest font-bold text-slate-500 ml-1">
+                Mật khẩu
+              </label>
+              <div className="relative group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-primary transition-colors">
+                  lock
+                </span>
+                <input
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl ring-1 ring-slate-200 dark:ring-slate-800 focus:ring-2 focus:ring-primary transition-all text-sm outline-none placeholder:text-slate-400"
+                  placeholder="••••••••"
+                  type={showPassword ? "text" : "password"}
+                />
+              </div>
+              {/* Strength Indicator */}
+              <div className="mt-2 px-1 flex items-center justify-between">
+                <div className="flex gap-1 flex-1 max-w-[120px]">
+                  <div className="h-1 w-full bg-green-500 rounded-full"></div>
+                  <div className="h-1 w-full bg-green-500 rounded-full"></div>
+                  <div className="h-1 w-full bg-green-500 rounded-full"></div>
+                  <div className="h-1 w-full bg-slate-200 dark:bg-slate-800 rounded-full"></div>
+                </div>
+                <span className="text-[10px] font-bold text-green-500 uppercase tracking-wider ml-3">
+                  Mạnh
+                </span>
+              </div>
+            </div>
+
+            {/* Terms Checkbox */}
+            <div className="flex items-start gap-3 pt-2">
+              <input
+                className="mt-1 w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary bg-white transition-all"
+                id="terms"
+                type="checkbox"
+              />
+              <label
+                className="text-xs text-slate-500 leading-relaxed"
+                htmlFor="terms"
+              >
+                Tôi đồng ý với các{" "}
+                <Link
+                  className="text-primary font-semibold hover:underline"
+                  href="#"
+                >
+                  Điều khoản dịch vụ
+                </Link>{" "}
+                và{" "}
+                <Link
+                  className="text-primary font-semibold hover:underline"
+                  href="#"
+                >
+                  Chính sách bảo mật
+                </Link>{" "}
+                của InvestPro.
+              </label>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              className="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-sm hover:opacity-90 transition-all flex items-center justify-center gap-2 group"
+              type="submit"
+            >
+              Tạo tài khoản
+              <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">
+                arrow_forward
+              </span>
+            </button>
+          </form>
+
+          <div className="mt-8 text-center">
+            <p className="text-sm text-slate-500">
+              Đã có tài khoản?{" "}
+              <Link
+                className="text-primary font-bold hover:underline"
+                href="/login"
+              >
+                Đăng nhập ngay
+              </Link>
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}

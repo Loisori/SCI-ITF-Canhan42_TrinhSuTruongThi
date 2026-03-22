@@ -44,14 +44,12 @@ export default function Navbar() {
             </Link>
           </nav>
 
-          {/* Right Actions */}
           <div className="flex items-center gap-3">
-            {/* Nút chuyển đổi Theme */}
             <ThemeToggle />
 
-            <button className="hidden sm:block px-4 py-2 text-smaller font-bold text-primary dark:text-slate-100 hover:bg-primary/5 dark:hover:bg-white/5 rounded-lg transition-colors">
+            <Link href="/login" className="hidden sm:block px-4 py-2 text-smaller font-bold text-primary dark:text-slate-100 hover:bg-primary/5 dark:hover:bg-white/5 rounded-lg transition-colors">
               Đăng nhập
-            </button>
+            </Link>
             <button className="px-5 py-2 text-smaller font-bold bg-primary dark:bg-slate-100 dark:text-primary text-white rounded-lg hover:shadow-lg transition-all">
               Bắt đầu ngay
             </button>
