@@ -182,13 +182,13 @@ import Navbar from "@/components/client/Navbar";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  
+
   // 1. Thêm State để quản lý Form
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  
+
   const router = useRouter();
 
   // 2. Hàm xử lý đăng nhập
@@ -199,22 +199,26 @@ export default function LoginPage() {
 
     try {
       // Gọi API đến NestJS (đảm bảo NestJS đang chạy ở port 3001 và đã bật CORS)
-      const response = await axios.post("http://localhost:3001/auth/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+        {
+          email,
+          password,
+        },
+      );
 
       if (response.data.access_token) {
         // Lưu token vào Cookie (hết hạn sau 1 ngày)
         Cookies.set("access_token", response.data.access_token, { expires: 1 });
-        
+
         // Chuyển hướng sang trang Dashboard
         router.push("/dashboard");
         router.refresh(); // Làm mới dữ liệu route
       }
     } catch (err: any) {
       // Xử lý lỗi từ NestJS trả về
-      const message = err.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại.";
+      const message =
+        err.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại.";
       setError(Array.isArray(message) ? message[0] : message);
     } finally {
       setIsLoading(false);
@@ -227,28 +231,49 @@ export default function LoginPage() {
       <main className="w-full min-h-screen flex flex-col md:flex-row font-display bg-background">
         {/* Left Side: Branding (Giữ nguyên phần UI của bạn) */}
         <section className="hidden md:flex md:w-1/2 lg:w-3/5 bg-primary relative overflow-hidden items-center justify-center p-12">
-            {/* ... Nội dung cũ ... */}
-            <div className="relative z-10 max-w-lg text-left">
-                <Link href="/" className="mb-12 flex items-center gap-2 group">
-                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center transition-transform group-hover:scale-110">
-                        <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>rocket_launch</span>
-                    </div>
-                    <span className="text-2xl font-bold tracking-tight text-white">InvestPro</span>
-                </Link>
-                <h1 className="text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight mb-6">Secure your financial future.</h1>
-                <p className="text-lg text-slate-400 font-medium leading-relaxed mb-10 max-w-md">Truy cập công cụ đầu tư cấp độ tổ chức và thông tin chi tiết với độ chính xác tuyệt đối.</p>
-            </div>
-            <div className="absolute inset-0 z-0 opacity-30 mix-blend-overlay">
-                <Image src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1000&q=80" alt="Financial Grid" fill className="object-cover" />
-            </div>
+          {/* ... Nội dung cũ ... */}
+          <div className="relative z-10 max-w-lg text-left">
+            <Link href="/" className="mb-12 flex items-center gap-2 group">
+              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center transition-transform group-hover:scale-110">
+                <span
+                  className="material-symbols-outlined text-primary"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
+                  rocket_launch
+                </span>
+              </div>
+              <span className="text-2xl font-bold tracking-tight text-white">
+                InvestPro
+              </span>
+            </Link>
+            <h1 className="text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight mb-6">
+              Secure your financial future.
+            </h1>
+            <p className="text-lg text-slate-400 font-medium leading-relaxed mb-10 max-w-md">
+              Truy cập công cụ đầu tư cấp độ tổ chức và thông tin chi tiết với
+              độ chính xác tuyệt đối.
+            </p>
+          </div>
+          <div className="absolute inset-0 z-0 opacity-30 mix-blend-overlay">
+            <Image
+              src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1000&q=80"
+              alt="Financial Grid"
+              fill
+              className="object-cover"
+            />
+          </div>
         </section>
 
         {/* Right Side: Login Form */}
         <section className="flex-1 bg-white dark:bg-slate-950 flex flex-col items-center justify-center p-6 md:p-12 lg:p-20 relative">
           <div className="w-full max-w-md">
             <header className="mb-10 text-left">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Đăng nhập hệ thống</h2>
-              <p className="text-sm text-slate-500 font-medium">Nhập thông tin xác thực để quản lý danh mục đầu tư.</p>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                Đăng nhập hệ thống
+              </h2>
+              <p className="text-sm text-slate-500 font-medium">
+                Nhập thông tin xác thực để quản lý danh mục đầu tư.
+              </p>
             </header>
 
             {/* Hiển thị lỗi nếu có */}
@@ -261,7 +286,12 @@ export default function LoginPage() {
             <form className="space-y-6" onSubmit={handleLogin}>
               {/* Email Field */}
               <div className="space-y-2">
-                <label className="text-[10px] uppercase tracking-widest font-bold text-slate-500" htmlFor="email">Địa chỉ Email</label>
+                <label
+                  className="text-[10px] uppercase tracking-widest font-bold text-slate-500"
+                  htmlFor="email"
+                >
+                  Địa chỉ Email
+                </label>
                 <input
                   className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 rounded-lg border-none focus:ring-2 focus:ring-primary text-slate-900 dark:text-white transition-all outline-none"
                   id="email"
@@ -276,8 +306,18 @@ export default function LoginPage() {
               {/* Password Field */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] uppercase tracking-widest font-bold text-slate-500" htmlFor="password">Mật khẩu</label>
-                  <Link href="/forgot-password" className="text-[10px] uppercase tracking-widest font-bold text-primary hover:underline">Quên mật khẩu?</Link>
+                  <label
+                    className="text-[10px] uppercase tracking-widest font-bold text-slate-500"
+                    htmlFor="password"
+                  >
+                    Mật khẩu
+                  </label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-[10px] uppercase tracking-widest font-bold text-primary hover:underline"
+                  >
+                    Quên mật khẩu?
+                  </Link>
                 </div>
                 <div className="relative group">
                   <input
@@ -302,7 +342,7 @@ export default function LoginPage() {
               </div>
 
               {/* Action Button */}
-              <button 
+              <button
                 type="submit"
                 disabled={isLoading}
                 className={`w-full py-4 bg-primary text-white font-bold rounded-lg shadow-sm transition-all active:scale-[0.98] flex justify-center items-center ${isLoading ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"}`}
@@ -318,7 +358,12 @@ export default function LoginPage() {
             <footer className="mt-12 text-center">
               <p className="text-sm text-slate-500 font-medium">
                 Chưa có tài khoản?
-                <Link className="text-primary font-bold hover:underline ml-1" href="/register">Đăng ký ngay</Link>
+                <Link
+                  className="text-primary font-bold hover:underline ml-1"
+                  href="/register"
+                >
+                  Đăng ký ngay
+                </Link>
               </p>
             </footer>
           </div>

@@ -30,12 +30,15 @@ export default function RegisterPage() {
 
     try {
       // Send registration data to backend
-      const response = await axios.post("http://localhost:3001/auth/register", {
-        email: email.toLowerCase(),
-        password,
-        fullName,
-        role,
-      });
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
+        {
+          email: email.toLowerCase(),
+          password,
+          fullName,
+          role,
+        },
+      );
 
       if (response.data) {
         setSuccess(true);
