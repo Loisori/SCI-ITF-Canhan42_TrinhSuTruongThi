@@ -1,19 +1,34 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
-  // Turn on CORS to Client (3000) can call Server (3001)
+  // 1. Cấu hình Validation toàn cục
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  // 2. Cấu hình CORS linh hoạt
+  // Khi deploy, CORS_ORIGIN sẽ là link Vercel của bạn
+  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
   app.enableCors({
-    origin: 'http://localhost:3000',
-    // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: corsOrigin,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
 
-  // const port = process.env.PORT || 3001;
-  // await app.listen(port);
-  await app.listen(process.env.PORT ?? 3001);
-  console.log(`🚀 Server đang chạy tại: http://localhost:${process.env.PORT ?? 3001}`);
+  // 3. Lắng nghe trên 0.0.0.0 (Bắt buộc cho các Cloud Hosting)
+  const port = process.env.PORT || 3001;
+  await app.listen(port, '0.0.0.0'); 
+  
+  logger.log(`🚀 InvestPro Backend is running on: ${await app.getUrl()}`);
+  logger.log(`🌍 Accepting requests from: ${corsOrigin}`);
 }
 bootstrap();
