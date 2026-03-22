@@ -3,9 +3,56 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
+
+  // Form state
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("investor");
+
+  // UI state
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  const router = useRouter();
+
+  // Handle form submission
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    try {
+      // Send registration data to backend
+      const response = await axios.post("http://localhost:3001/auth/register", {
+        email: email.toLowerCase(),
+        password,
+        fullName,
+        role,
+      });
+
+      if (response.data) {
+        setSuccess(true);
+        // Redirect to login page after successful registration
+        setTimeout(() => {
+          router.push("/login");
+        }, 2000);
+      }
+    } catch (err: any) {
+      // Handle different error types
+      const message =
+        err.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại.";
+      setError(Array.isArray(message) ? message[0] : message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <main className="flex-grow flex flex-col md:flex-row min-h-screen font-display bg-background">
@@ -81,7 +128,21 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+          {/* Success Message */}
+          {success && (
+            <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 text-sm">
+              Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+
+          <form className="space-y-5" onSubmit={handleRegister}>
             {/* Full Name */}
             <div className="space-y-1.5">
               <label className="text-[10px] uppercase tracking-widest font-bold text-slate-500 ml-1">
@@ -95,6 +156,9 @@ export default function RegisterPage() {
                   className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl ring-1 ring-slate-200 dark:ring-slate-800 focus:ring-2 focus:ring-primary transition-all text-sm outline-none placeholder:text-slate-400"
                   placeholder="Nhập họ và tên của bạn"
                   type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                 />
               </div>
             </div>
@@ -112,6 +176,9 @@ export default function RegisterPage() {
                   className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl ring-1 ring-slate-200 dark:ring-slate-800 focus:ring-2 focus:ring-primary transition-all text-sm outline-none placeholder:text-slate-400"
                   placeholder="name@company.com"
                   type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
@@ -129,7 +196,20 @@ export default function RegisterPage() {
                   className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl ring-1 ring-slate-200 dark:ring-slate-800 focus:ring-2 focus:ring-primary transition-all text-sm outline-none placeholder:text-slate-400"
                   placeholder="••••••••"
                   type={showPassword ? "text" : "password"}
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary"
+                >
+                  <span className="material-symbols-outlined text-small">
+                    {showPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
               </div>
               {/* Strength Indicator */}
               <div className="mt-2 px-1 flex items-center justify-between">
@@ -145,12 +225,58 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Role Selection */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase tracking-widest font-bold text-slate-500 ml-1">
+                Vai trò của bạn
+              </label>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <input
+                    id="investor"
+                    name="role"
+                    type="radio"
+                    value="investor"
+                    checked={role === "investor"}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="w-4 h-4 text-primary border-slate-300 focus:ring-primary"
+                  />
+                  <label
+                    htmlFor="investor"
+                    className="text-sm text-slate-700 dark:text-slate-300 cursor-pointer"
+                  >
+                    <span className="font-semibold">Nhà đầu tư</span> - Tôi muốn
+                    đầu tư vào các dự án
+                  </label>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    id="owner"
+                    name="role"
+                    type="radio"
+                    value="owner"
+                    checked={role === "owner"}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="w-4 h-4 text-primary border-slate-300 focus:ring-primary"
+                  />
+                  <label
+                    htmlFor="owner"
+                    className="text-sm text-slate-700 dark:text-slate-300 cursor-pointer"
+                  >
+                    <span className="font-semibold">Chủ dự án</span> - Tôi muốn
+                    huy động vốn cho dự án của mình
+                  </label>
+                </div>
+              </div>
+            </div>
+
             {/* Terms Checkbox */}
             <div className="flex items-start gap-3 pt-2">
               <input
                 className="mt-1 w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary bg-white transition-all"
                 id="terms"
                 type="checkbox"
+                required
               />
               <label
                 className="text-xs text-slate-500 leading-relaxed"
@@ -176,13 +302,25 @@ export default function RegisterPage() {
 
             {/* Submit Button */}
             <button
-              className="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-sm hover:opacity-90 transition-all flex items-center justify-center gap-2 group"
+              className={`w-full bg-primary text-white font-bold py-4 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 group ${
+                isLoading ? "opacity-70 cursor-not-allowed" : "hover:opacity-90"
+              }`}
               type="submit"
+              disabled={isLoading}
             >
-              Tạo tài khoản
-              <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">
-                arrow_forward
-              </span>
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Đang tạo tài khoản...
+                </>
+              ) : (
+                <>
+                  Tạo tài khoản
+                  <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">
+                    arrow_forward
+                  </span>
+                </>
+              )}
             </button>
           </form>
 
