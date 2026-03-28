@@ -123,6 +123,14 @@ export default function DashboardPage() {
           <p className="text-body text-slate-600 dark:text-slate-400">
             Tổng quan tài sản và các khoản đầu tư của bạn.
           </p>
+          <div className="mt-4">
+            <a
+              href="/dashboard/deposit"
+              className="inline-flex px-5 py-2 rounded-lg bg-primary text-white text-smaller font-bold"
+            >
+              Nạp tiền qua VNPay
+            </a>
+          </div>
         </section>
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">

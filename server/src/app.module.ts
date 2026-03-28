@@ -8,6 +8,7 @@ import { UsersModule } from './modules/users/users.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { InvestmentsModule } from './modules/investments/investments.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { PaymentModule } from './modules/payment/payment.module';
 import { createTypeOrmConfig } from './config/typeorm.config';
 
 @Module({
@@ -28,6 +29,7 @@ import { createTypeOrmConfig } from './config/typeorm.config';
     ProjectsModule,
     InvestmentsModule,
     TransactionsModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
