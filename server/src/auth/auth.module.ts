@@ -9,6 +9,8 @@ import { UserEntity } from '../users/user.entity';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
+import { IsOwnerGuard } from './guards/is-owner.guard';
+import { IsInvestorGuard } from './guards/is-investor.guard';
 
 @Module({
   imports: [
@@ -31,7 +33,7 @@ import { RolesGuard } from './guards/roles.guard';
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, RolesGuard],
-  exports: [AuthService, RolesGuard],
+  providers: [AuthService, JwtStrategy, RolesGuard, IsOwnerGuard, IsInvestorGuard],
+  exports: [AuthService, RolesGuard, IsOwnerGuard, IsInvestorGuard],
 })
 export class AuthModule {}
