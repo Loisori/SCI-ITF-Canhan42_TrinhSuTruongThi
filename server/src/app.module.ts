@@ -3,10 +3,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-<<<<<<< Updated upstream
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { UserEntity } from './users/user.entity';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { ProjectsModule } from './modules/projects/projects.module';
+import { InvestmentsModule } from './modules/investments/investments.module';
+import { TransactionsModule } from './modules/transactions/transactions.module';
+import { createTypeOrmConfig } from './config/typeorm.config';
 
 @Module({
   imports: [
@@ -23,6 +25,9 @@ import { UserEntity } from './users/user.entity';
     }),
     UsersModule,
     AuthModule,
+    ProjectsModule,
+    InvestmentsModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
