@@ -28,7 +28,7 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 255, select: false }) // select: false để không vô tình trả về pass khi query
   password: string;
 
-  @Column({ name: 'full_name', type: 'varchar', length: 100 })
+  @Column({ name: 'fullName', type: 'varchar', length: 100 })
   fullName: string;
 
   @Column({
@@ -50,21 +50,21 @@ export class UserEntity {
   })
   balance: number;
 
-  @Column({ name: 'avatar_url', type: 'varchar', length: 255, nullable: true })
+  @Column({ name: 'avatarUrl', type: 'varchar', length: 255, nullable: true })
   avatarUrl: string | null;
 
-  @Column({ name: 'is_verified', type: 'boolean', default: false })
+  @Column({ name: 'isVerified', type: 'boolean', default: false })
   isVerified: boolean;
 
   @CreateDateColumn({
     type: 'timestamp',
-    name: 'created_at',
+    name: 'createdAt',
   })
   createdAt: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',
-    name: 'updated_at',
+    name: 'updatedAt',
   })
   updatedAt: Date;
 
