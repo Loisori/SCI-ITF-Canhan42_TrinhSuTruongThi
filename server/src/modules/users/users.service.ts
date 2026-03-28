@@ -12,16 +12,40 @@ export class UsersService {
   ) {}
 
 async findByEmail(email: string): Promise<UserEntity | null> {
-    // Thay vì dùng findOne mặc định, ta dùng Query Builder để addSelect('password')
     return this.usersRepository
       .createQueryBuilder('user')
-      .addSelect('user.password') // Ép lấy cột password dù entity có để select: false
+      .select([
+        'user.id',
+        'user.email',
+        'user.fullName',
+        'user.role',
+        'user.balance',
+        'user.avatarUrl',
+        'user.isVerified',
+        'user.createdAt',
+        'user.updatedAt',
+      ])
+      .addSelect('user.password')
       .where('user.email = :email', { email: email.toLowerCase() })
       .getOne();
   }
 
   async findById(id: number): Promise<UserEntity | null> {
-    return this.usersRepository.findOne({ where: { id } });
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .select([
+        'user.id',
+        'user.email',
+        'user.fullName',
+        'user.role',
+        'user.balance',
+        'user.avatarUrl',
+        'user.isVerified',
+        'user.createdAt',
+        'user.updatedAt',
+      ])
+      .where('user.id = :id', { id })
+      .getOne();
   }
 
   async create(registerDto: RegisterDto): Promise<UserEntity> {
