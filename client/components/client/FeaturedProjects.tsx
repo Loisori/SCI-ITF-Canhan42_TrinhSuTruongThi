@@ -1,3 +1,4 @@
+import Link from "next/link";
 export default function FeaturedProjects() {
   return (
     <section className="py-24 max-w-screen-lg mx-auto px-4 font-display">
@@ -10,10 +11,10 @@ export default function FeaturedProjects() {
             Cơ hội đầu tư được sàng lọc kỹ lưỡng bởi đội ngũ chuyên gia.
           </p>
         </div>
-        <button className="hidden md:flex items-center gap-2 text-primary dark:text-slate-100 font-bold hover:underline">
-          Xem tất cả dự án{" "}
+        <Link href="/projects" className="hidden md:flex items-center gap-2 text-primary dark:text-slate-100 font-bold">
+          Xem tất cả dự án
           <span className="material-symbols-outlined">arrow_right_alt</span>
-        </button>
+        </Link>
       </div>
       <div className="grid md:grid-cols-3 gap-8">
         <ProjectCard
