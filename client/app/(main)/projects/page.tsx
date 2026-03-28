@@ -2,28 +2,47 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import Cookies from "js-cookie";
-import axios from "axios";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
+import api from "@/lib/axios";
+
+type ProjectCategory = {
+  id: number;
+  name: string;
+  slug: string;
+  iconUrl: string | null;
+};
 
 type Project = {
   id: number;
   title: string;
   shortDescription: string | null;
   thumbnailUrl: string | null;
-  contentSlug: string | null;
-  targetCapital: number;
-  currentCapital: number;
+  targetCapital: number | string;
+  currentCapital: number | string;
   fundingProgress: number;
-  interestRate: number;
+  interestRate: number | string;
   durationMonths: number;
   status: string;
+  category?: ProjectCategory | null;
 };
 
-type Me = {
+type Profile = {
   role: string;
 };
+
+function ProjectCardSkeleton() {
+  return (
+    <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-pulse">
+      <div className="w-full aspect-[16/10] bg-slate-200 dark:bg-slate-800" />
+      <div className="p-5 space-y-3">
+        <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded" />
+        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-4/5" />
+        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/5" />
+      </div>
+    </div>
+  );
+}
 
 export default function ProjectList() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -34,9 +53,7 @@ export default function ProjectList() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await axios.get<Project[]>(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/projects`,
-        );
+        const res = await api.get<Project[]>("/api/projects");
         setProjects(res.data);
       } catch {
         setError("Không thể tải danh sách dự án.");
@@ -45,17 +62,9 @@ export default function ProjectList() {
       }
     };
 
-    const fetchMe = async () => {
-      const token = Cookies.get("access_token");
-      if (!token) {
-        setRole(null);
-        return;
-      }
-
+    const fetchProfile = async () => {
       try {
-        const res = await axios.get<Me>(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get<Profile>("/auth/profile");
         setRole(res.data.role);
       } catch {
         setRole(null);
@@ -63,7 +72,7 @@ export default function ProjectList() {
     };
 
     void fetchProjects();
-    void fetchMe();
+    void fetchProfile();
   }, []);
 
   const ownerMode = useMemo(() => role === "owner", [role]);
@@ -94,7 +103,11 @@ export default function ProjectList() {
         </div>
 
         {loading && (
-          <div className="text-slate-600 dark:text-slate-400">Đang tải dự án...</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <ProjectCardSkeleton key={index} />
+            ))}
+          </div>
         )}
 
         {error && <div className="text-red-500">{error}</div>}
@@ -102,12 +115,21 @@ export default function ProjectList() {
         {!loading && !error && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.map((project) => {
-              const slug = project.contentSlug || String(project.id);
+              const progress =
+                Number(project.fundingProgress) ||
+                (Number(project.targetCapital) > 0
+                  ? Number(
+                      (
+                        (Number(project.currentCapital) / Number(project.targetCapital)) *
+                        100
+                      ).toFixed(2),
+                    )
+                  : 0);
 
               return (
                 <Link
                   key={project.id}
-                  href={`/projects/${slug}`}
+                  href={`/projects/${project.id}`}
                   className="group flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300"
                 >
                   <div className="relative w-full aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-800">
@@ -123,15 +145,18 @@ export default function ProjectList() {
                         Không có ảnh
                       </div>
                     )}
-                    <div className="absolute top-4 left-4 bg-green-500 text-white text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider">
-                      Đang mở
-                    </div>
                   </div>
 
                   <div className="p-5 flex flex-col flex-1">
-                    <h3 className="text-h6 font-bold text-slate-900 dark:text-white leading-tight mb-3">
+                    <h3 className="text-h6 font-bold text-slate-900 dark:text-white leading-tight mb-2">
                       {project.title}
                     </h3>
+
+                    {project.category?.name && (
+                      <p className="text-[11px] uppercase tracking-wider font-bold text-primary mb-2">
+                        {project.category.name}
+                      </p>
+                    )}
 
                     <p className="text-smaller text-slate-500 dark:text-slate-400 mb-5 line-clamp-2">
                       {project.shortDescription || "Dự án đang cập nhật mô tả chi tiết."}
@@ -160,14 +185,14 @@ export default function ProjectList() {
                       <div className="flex justify-between text-smaller mb-1.5">
                         <span className="text-slate-600 dark:text-slate-400">Tiến độ huy động</span>
                         <span className="font-bold text-primary dark:text-white">
-                          {project.fundingProgress}%
+                          {progress}%
                         </span>
                       </div>
                       <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <div
                           className="bg-primary h-full"
-                          style={{ width: `${Math.min(project.fundingProgress, 100)}%` }}
-                        ></div>
+                          style={{ width: `${Math.min(progress, 100)}%` }}
+                        />
                       </div>
                     </div>
 

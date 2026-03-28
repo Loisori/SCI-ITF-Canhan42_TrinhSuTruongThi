@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import api from "@/lib/axios";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -30,15 +30,12 @@ export default function RegisterPage() {
 
     try {
       // Send registration data to backend
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
-        {
-          email: email.toLowerCase(),
-          password,
-          fullName,
-          role,
-        },
-      );
+      const response = await api.post("/auth/register", {
+        email: email.toLowerCase(),
+        password,
+        fullName,
+        role,
+      });
 
       if (response.data) {
         setSuccess(true);
