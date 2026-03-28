@@ -8,6 +8,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import Navbar from "@/components/client/Navbar";
 
+const AUTH_CHANGED_EVENT = "auth-changed";
+
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -37,7 +39,11 @@ export default function LoginPage() {
 
       if (response.data.access_token) {
         // Lưu token vào Cookie (hết hạn sau 1 ngày)
-        Cookies.set("access_token", response.data.access_token, { expires: 1 });
+        Cookies.set("access_token", response.data.access_token, {
+          expires: 1,
+          path: "/",
+        });
+        window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
 
         // Chuyển hướng sang trang Dashboard
         // router.push("/dashboard");

@@ -1,3 +1,4 @@
+import Link from "next/link";
 export default function Hero() {
   return (
     <section className="relative py-20 lg:py-32 overflow-hidden bg-background-light dark:bg-background-dark">
@@ -16,9 +17,9 @@ export default function Hero() {
               ưu hóa lợi nhuận và xây dựng giá trị bền vững.
             </p>
             <div className="flex flex-wrap gap-4 pt-4">
-              <button className="px-8 py-4 bg-primary text-white font-bold rounded-xl shadow-xl hover:translate-y-[-2px] transition-all">
+              <Link href="/projects" className="block px-8 py-4 bg-primary text-white font-bold rounded-xl shadow-xl hover:translate-y-[-2px] transition-all">
                 Khám phá dự án
-              </button>
+              </Link>
               <button className="px-8 py-4 bg-white dark:bg-white/5 border border-primary/10 font-bold rounded-xl flex items-center gap-2">
                 <span className="material-symbols-outlined">play_circle</span>{" "}
                 Xem quy trình
