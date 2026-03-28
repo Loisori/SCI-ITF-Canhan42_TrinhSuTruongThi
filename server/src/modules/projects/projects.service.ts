@@ -1,0 +1,427 @@
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+import { ProjectEntity, ProjectStatus } from './entities/project.entity';
+import { InvestProjectDto } from './dto/invest-project.dto';
+import { UserEntity } from '../users/entities/user.entity';
+import { CreateProjectDto } from './dto/create-project.dto';
+import { ProjectMediaEntity, MediaType } from './entities/media.entity';
+import { UpdateProjectDto } from './dto/update-project.dto';
+import { ProjectCategoryEntity } from './entities/category.entity';
+
+@Injectable()
+export class ProjectsService {
+  constructor(
+    @InjectRepository(ProjectEntity)
+    private readonly projectsRepository: Repository<ProjectEntity>,
+    @InjectRepository(ProjectMediaEntity)
+    private readonly projectMediaRepository: Repository<ProjectMediaEntity>,
+    @InjectRepository(ProjectCategoryEntity)
+    private readonly projectCategoriesRepository: Repository<ProjectCategoryEntity>,
+    private readonly dataSource: DataSource,
+  ) {}
+
+  async getProjectCategories() {
+    const categories = await this.projectCategoriesRepository.find({
+      select: ['id', 'name', 'slug'],
+      order: { name: 'ASC' },
+    });
+
+    return categories.map((category) => ({
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+    }));
+  }
+
+  async getFundingProjects() {
+    const projects = await this.projectsRepository.find({
+      where: {
+        status: ProjectStatus.FUNDING,
+      },
+      relations: ['media', 'category'],
+      order: { createdAt: 'DESC' },
+    });
+
+    return projects.map((project) => this.serializeProject(project));
+  }
+
+  async getProjectDetail(projectId: number) {
+    const project = await this.projectsRepository.findOne({
+      where: { id: projectId },
+      relations: ['media', 'category'],
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found.');
+    }
+
+    const markdownContent = await this.readProjectMarkdown(project.slug);
+
+    return {
+      ...this.serializeProject(project),
+      content: project.content ?? markdownContent,
+    };
+  }
+
+  async getProjectDetailBySlug(slug: string) {
+    const project = await this.projectsRepository.findOne({
+      where: { slug },
+      relations: ['media', 'category'],
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found.');
+    }
+
+    const markdownContent = await this.readProjectMarkdown(project.slug);
+
+    return {
+      ...this.serializeProject(project),
+      content: project.content ?? markdownContent,
+    };
+  }
+
+  async createProject(ownerId: number, dto: CreateProjectDto) {
+    return this.dataSource.transaction(async (manager) => {
+      const projectRepo = manager.getRepository(ProjectEntity);
+      const mediaRepo = manager.getRepository(ProjectMediaEntity);
+      const categoriesRepo = manager.getRepository(ProjectCategoryEntity);
+
+      const category = await categoriesRepo.findOne({
+        where: { id: dto.categoryId },
+      });
+
+      if (!category) {
+        throw new BadRequestException('Danh mục dự án không hợp lệ.');
+      }
+
+      const project = projectRepo.create({
+        ownerId,
+        categoryId: dto.categoryId,
+        title: dto.title,
+        slug: dto.contentSlug,
+        shortDescription: dto.shortDescription ?? null,
+        content: null,
+        goalAmount: dto.targetCapital,
+        currentAmount: 0,
+        minInvestment: 1,
+        interestRate: dto.interestRate,
+        durationMonths: dto.durationMonths,
+        status: ProjectStatus.FUNDING,
+      });
+
+      const created = await projectRepo.save(project);
+
+      const additionalImages = (dto.additional_images ?? [])
+        .map((url) => url.trim())
+        .filter((url) => url.length > 0);
+
+      const mediaRows: ProjectMediaEntity[] = [];
+
+      if (dto.thumbnailUrl?.trim()) {
+        mediaRows.push(
+          mediaRepo.create({
+            projectId: created.id,
+            url: dto.thumbnailUrl.trim(),
+            type: MediaType.IMAGE,
+            isThumbnail: true,
+            sortOrder: 0,
+          }),
+        );
+      }
+
+      additionalImages.forEach((url, index) => {
+        mediaRows.push(
+          mediaRepo.create({
+            projectId: created.id,
+            url,
+            type: MediaType.IMAGE,
+            isThumbnail: false,
+            sortOrder: index + 1,
+          }),
+        );
+      });
+
+      if (mediaRows.length > 0) {
+        await mediaRepo.save(mediaRows);
+      }
+
+      return this.getProjectDetailInTransaction(manager, created.id);
+    });
+  }
+
+  async deleteProject(projectId: number) {
+    const project = await this.projectsRepository.findOne({ where: { id: projectId } });
+
+    if (!project) {
+      throw new NotFoundException('Project not found.');
+    }
+
+    await this.projectsRepository.remove(project);
+
+    return {
+      message: 'Project deleted successfully.',
+      id: projectId,
+    };
+  }
+
+  async updateProject(projectId: number, ownerId: number, dto: UpdateProjectDto) {
+    return this.dataSource.transaction(async (manager) => {
+      const projectRepo = manager.getRepository(ProjectEntity);
+      const mediaRepo = manager.getRepository(ProjectMediaEntity);
+      const categoriesRepo = manager.getRepository(ProjectCategoryEntity);
+
+      const project = await projectRepo.findOne({
+        where: { id: projectId },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!project) {
+        throw new NotFoundException('Project not found.');
+      }
+
+      if (project.ownerId !== ownerId) {
+        throw new ForbiddenException('Bạn chỉ có thể chỉnh sửa dự án của chính mình.');
+      }
+
+      if (dto.title !== undefined) {
+        project.title = dto.title;
+      }
+      if (dto.shortDescription !== undefined) {
+        project.shortDescription = dto.shortDescription;
+      }
+      if (dto.interestRate !== undefined) {
+        project.interestRate = Number(dto.interestRate);
+      }
+      if (dto.durationMonths !== undefined) {
+        project.durationMonths = Number(dto.durationMonths);
+      }
+      if (dto.targetCapital !== undefined) {
+        project.goalAmount = Number(dto.targetCapital);
+      }
+      if (dto.categoryId !== undefined) {
+        const category = await categoriesRepo.findOne({
+          where: { id: Number(dto.categoryId) },
+        });
+
+        if (!category) {
+          throw new BadRequestException('Danh mục dự án không hợp lệ.');
+        }
+
+        project.categoryId = Number(dto.categoryId);
+      }
+      if (dto.contentSlug !== undefined) {
+        project.slug = dto.contentSlug;
+      }
+
+      await projectRepo.save(project);
+
+      const hasGalleryPayload =
+        dto.thumbnailUrl !== undefined || dto.additional_images !== undefined;
+
+      if (hasGalleryPayload) {
+        await mediaRepo.delete({ projectId: project.id });
+
+        const mediaRows: ProjectMediaEntity[] = [];
+
+        if (dto.thumbnailUrl?.trim()) {
+          mediaRows.push(
+            mediaRepo.create({
+              projectId: project.id,
+              url: dto.thumbnailUrl.trim(),
+              type: MediaType.IMAGE,
+              isThumbnail: true,
+              sortOrder: 0,
+            }),
+          );
+        }
+
+        const additionalImages = (dto.additional_images ?? [])
+          .map((url) => url.trim())
+          .filter((url) => url.length > 0);
+
+        additionalImages.forEach((url, index) => {
+          mediaRows.push(
+            mediaRepo.create({
+              projectId: project.id,
+              url,
+              type: MediaType.IMAGE,
+              isThumbnail: false,
+              sortOrder: index + 1,
+            }),
+          );
+        });
+
+        if (mediaRows.length > 0) {
+          await mediaRepo.save(mediaRows);
+        }
+      }
+
+      return this.getProjectDetailInTransaction(manager, project.id);
+    });
+  }
+
+  async invest(userId: number, dto: InvestProjectDto) {
+    return this.dataSource.transaction(async (manager) => {
+      const projectsRepo = manager.getRepository(ProjectEntity);
+      const usersRepo = manager.getRepository(UserEntity);
+
+      const project = await projectsRepo.findOne({
+        where: { id: dto.projectId },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!project) {
+        throw new NotFoundException('Project not found.');
+      }
+
+      if (project.status !== ProjectStatus.FUNDING) {
+        throw new BadRequestException('Project is not accepting investments.');
+      }
+
+      const user = await usersRepo.findOne({
+        where: { id: userId },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found.');
+      }
+
+      const amount = Number(dto.amount);
+      const userBalance = Number(user.balance);
+      const targetCapital = Number(project.goalAmount);
+      const currentCapital = Number(project.currentAmount);
+      const remainingCapital = Math.max(targetCapital - currentCapital, 0);
+
+      if (amount > userBalance) {
+        throw new BadRequestException('Insufficient balance.');
+      }
+
+      if (amount > remainingCapital) {
+        throw new BadRequestException(
+          `Investment exceeds remaining capital (${remainingCapital}).`,
+        );
+      }
+
+      user.balance = userBalance - amount;
+      project.currentAmount = currentCapital + amount;
+
+      if (project.currentAmount >= targetCapital) {
+        project.status = ProjectStatus.ACTIVE;
+      }
+
+      await usersRepo.save(user);
+      await projectsRepo.save(project);
+
+      return {
+        message: 'Investment successful.',
+        investedAmount: amount,
+        userBalance: user.balance,
+        project: this.serializeProject(project),
+      };
+    });
+  }
+
+  private serializeProject(project: ProjectEntity) {
+    const targetCapital = Number(project.goalAmount);
+    const currentCapital = Number(project.currentAmount);
+    const fundingProgress =
+      targetCapital > 0
+        ? Number(((currentCapital / targetCapital) * 100).toFixed(2))
+        : 0;
+
+    const thumbnail =
+      project.media?.find((media) => media.isThumbnail)?.url ??
+      project.media?.[0]?.url ??
+      null;
+
+    const images = (project.media ?? [])
+      .filter((media) => !media.isThumbnail)
+      .map((media) => media.url);
+
+    return {
+      id: project.id,
+      title: project.title,
+      thumbnailUrl: thumbnail,
+      shortDescription: project.shortDescription,
+      contentSlug: project.slug,
+      targetCapital,
+      currentCapital,
+      interestRate: Number(project.interestRate),
+      durationMonths: project.durationMonths,
+      minInvestment: Number(project.minInvestment),
+      fundingProgress,
+      status: project.status,
+      category: project.category
+        ? {
+            id: project.category.id,
+            name: project.category.name,
+            slug: project.category.slug,
+            iconUrl: project.category.iconUrl,
+          }
+        : null,
+      images,
+      createdAt: project.createdAt,
+    };
+  }
+
+  private async getProjectDetailInTransaction(
+    manager: EntityManager,
+    projectId: number,
+  ) {
+    const projectRepo = manager.getRepository(ProjectEntity);
+
+    const project = await projectRepo.findOne({
+      where: { id: projectId },
+      relations: ['media', 'category'],
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found.');
+    }
+
+    const markdownContent = await this.readProjectMarkdown(project.slug);
+
+    return {
+      ...this.serializeProject(project),
+      content: project.content ?? markdownContent,
+    };
+  }
+
+  private async readProjectMarkdown(slug: string | null) {
+    if (!slug) {
+      return null;
+    }
+
+    if (!/^[a-zA-Z0-9-_]+$/.test(slug)) {
+      throw new BadRequestException('Invalid slug format.');
+    }
+
+    const fileName = `${slug}.md`;
+    const candidatePaths = [
+      path.join(process.cwd(), 'content', 'projects', fileName),
+      path.join(process.cwd(), '..', 'content', 'projects', fileName),
+      path.join(process.cwd(), 'server', 'content', 'projects', fileName),
+    ];
+
+    for (const filePath of candidatePaths) {
+      try {
+        await fs.access(filePath);
+        return await fs.readFile(filePath, 'utf-8');
+      } catch {
+        // thử path tiếp theo
+      }
+    }
+
+    return null;
+  }
+}

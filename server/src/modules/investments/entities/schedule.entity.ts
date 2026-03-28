@@ -1,0 +1,53 @@
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { InvestmentEntity } from './investment.entity';
+
+export enum PaymentScheduleStatus {
+  UNPAID = 'unpaid',
+  PAID = 'paid',
+  OVERDUE = 'overdue',
+}
+
+@Entity({ name: 'payment_schedules' })
+export class PaymentScheduleEntity {
+  @PrimaryGeneratedColumn('increment')
+  id: number;
+
+  @Column({ name: 'investment_id', type: 'int' })
+  investmentId: number;
+
+  @Column({ name: 'due_date', type: 'date' })
+  dueDate: Date;
+
+  @Column({
+    type: 'decimal',
+    precision: 15,
+    scale: 2,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    },
+  })
+  amount: number;
+
+  @Column({
+    type: 'enum',
+    enum: PaymentScheduleStatus,
+    default: PaymentScheduleStatus.UNPAID,
+  })
+  status: PaymentScheduleStatus;
+
+  @Column({ name: 'paid_at', type: 'timestamp', nullable: true })
+  paidAt: Date | null;
+
+  @ManyToOne(() => InvestmentEntity, (investment) => investment.paymentSchedules, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'investment_id' })
+  investment: InvestmentEntity;
+}
