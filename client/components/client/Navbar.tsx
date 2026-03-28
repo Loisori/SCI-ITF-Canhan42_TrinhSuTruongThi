@@ -3,7 +3,7 @@ import { useCallback, useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import axios from "axios";
+import api from "@/lib/axios";
 import ThemeToggle from "./ThemeToggle";
 
 const AUTH_CHANGED_EVENT = "auth-changed";
@@ -11,6 +11,7 @@ const AUTH_CHANGED_EVENT = "auth-changed";
 type UserProfile = {
   fullName?: string;
   balance?: number | string;
+  role?: string;
 };
 
 export default function Navbar() {
@@ -27,19 +28,10 @@ export default function Navbar() {
     }
 
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const response = await api.get("/auth/profile");
       setUser(response.data as UserProfile);
     } catch (error) {
-      // Chỉ xóa token nếu backend xác nhận token không hợp lệ/hết hạn.
-      if (
-        axios.isAxiosError(error) &&
-        (error.response?.status === 401 || error.response?.status === 403)
-      ) {
+      if ((error as { response?: { status?: number } })?.response?.status === 403) {
         Cookies.remove("access_token", { path: "/" });
         setUser(null);
       }
@@ -74,12 +66,12 @@ export default function Navbar() {
   };
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuRef = useRef(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   // Close menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
       }
     };
@@ -195,6 +187,17 @@ export default function Navbar() {
                           settings
                         </span>
                         Cài đặt
+                      </Link>
+
+                      <Link
+                        href="/transactions"
+                        className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <span className="material-symbols-outlined text-lg">
+                          receipt_long
+                        </span>
+                        Giao dịch
                       </Link>
 
                       <div className="my-1 border-t border-slate-100 dark:border-slate-800"></div>

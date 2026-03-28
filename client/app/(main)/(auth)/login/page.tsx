@@ -4,9 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import Cookies from "js-cookie";
 import Navbar from "@/components/client/Navbar";
+import api from "@/lib/axios";
 
 const AUTH_CHANGED_EVENT = "auth-changed";
 
@@ -29,13 +29,10 @@ export default function LoginPage() {
 
     try {
       // Gọi API đến NestJS (đảm bảo NestJS đang chạy ở port 3001 và đã bật CORS)
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
-        {
-          email,
-          password,
-        },
-      );
+      const response = await api.post("/auth/login", {
+        email,
+        password,
+      });
 
       if (response.data.access_token) {
         // Lưu token vào Cookie (hết hạn sau 1 ngày)

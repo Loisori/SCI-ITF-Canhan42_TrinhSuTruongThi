@@ -1,12 +1,12 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 import api from "@/lib/axios";
 
-type Me = {
+type Profile = {
   role: string;
 };
 
@@ -16,28 +16,47 @@ type ProjectCategory = {
   slug: string;
 };
 
-export default function CreateProjectPage() {
+type ProjectDetail = {
+  id: number;
+  title: string;
+  shortDescription: string | null;
+  interestRate: number | string;
+  thumbnailUrl: string | null;
+  images: string[];
+  category?: {
+    id: number;
+    name: string;
+    slug: string;
+  } | null;
+};
+
+type ToastState = {
+  type: "success" | "error";
+  message: string;
+} | null;
+
+export default function EditProjectPage() {
+  const params = useParams<{ id: string }>();
   const router = useRouter();
-  const [loadingAuth, setLoadingAuth] = useState(true);
+
+  const [loading, setLoading] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState<ToastState>(null);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<ProjectCategory[]>([]);
 
-  const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState(0);
-  const [interestRate, setInterestRate] = useState(12);
-  const [durationMonths, setDurationMonths] = useState(12);
-  const [targetCapital, setTargetCapital] = useState(1000000000);
-  const [contentSlug, setContentSlug] = useState("");
+  const [title, setTitle] = useState("");
   const [shortDescription, setShortDescription] = useState("");
+  const [interestRate, setInterestRate] = useState(0);
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [additionalImages, setAdditionalImages] = useState<string[]>([""]);
 
   useEffect(() => {
     const init = async () => {
       try {
-        const profileRes = await api.get<Me>("/auth/profile");
+        const profileRes = await api.get<Profile>("/auth/profile");
 
         if (profileRes.data.role !== "owner") {
           router.replace("/");
@@ -51,17 +70,44 @@ export default function CreateProjectPage() {
           setCategories([]);
           setError("Không thể tải danh mục dự án.");
         }
+
+        const detailRes = await api.get<ProjectDetail>(`/api/projects/${params.id}`);
+        const project = detailRes.data;
+
+        setCategoryId(project.category?.id ?? 0);
+        setTitle(project.title);
+        setShortDescription(project.shortDescription ?? "");
+        setInterestRate(Number(project.interestRate));
+        setThumbnailUrl(project.thumbnailUrl ?? "");
+        setAdditionalImages(project.images?.length ? project.images : [""]);
       } catch {
-        router.replace("/");
-        return;
+        setError("Không thể tải dữ liệu dự án để chỉnh sửa.");
       } finally {
-        setLoadingAuth(false);
+        setLoading(false);
         setLoadingCategories(false);
       }
     };
 
     void init();
-  }, [router]);
+  }, [params.id, router]);
+
+  useEffect(() => {
+    if (!toast) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setToast(null), 2600);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const normalizedGallery = useMemo(
+    () =>
+      additionalImages
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0),
+    [additionalImages],
+  );
+  const hasNoCategories = !loadingCategories && categories.length === 0;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -69,68 +115,75 @@ export default function CreateProjectPage() {
     setError(null);
 
     if (categoryId <= 0) {
-      setError("Vui lòng chọn danh mục dự án.");
+      const message = "Vui lòng chọn danh mục dự án.";
+      setError(message);
+      setToast({ type: "error", message });
       setSubmitting(false);
       return;
     }
 
     try {
-      const payload = {
-        title,
+      await api.put(`/api/projects/${params.id}`, {
         categoryId: Number(categoryId),
-        interestRate: Number(interestRate),
-        durationMonths: Number(durationMonths),
-        targetCapital: Number(targetCapital),
-        contentSlug,
+        title,
         shortDescription,
+        interestRate: Number(interestRate),
         thumbnailUrl,
-        additional_images: additionalImages
-          .map((item) => item.trim())
-          .filter((item) => item.length > 0),
-      };
+        additional_images: normalizedGallery,
+      });
 
-      await api.post("/api/projects", payload);
-
-      router.push("/projects");
+      setToast({ type: "success", message: "Cập nhật dự án thành công." });
       router.refresh();
-    } catch (error: unknown) {
-      const rawMessage = (
-        error as {
-          response?: {
-            data?: { message?: string | string[] };
-          };
-        }
-      )?.response?.data?.message;
+    } catch (err: unknown) {
+      const message =
+        (
+          err as {
+            response?: { data?: { message?: string | string[] } };
+          }
+        )?.response?.data?.message ?? "Cập nhật dự án thất bại.";
 
-      const message = rawMessage ?? "Tạo dự án thất bại. Vui lòng thử lại.";
-      const normalizedMessage = Array.isArray(message)
-        ? (message[0] ?? "Tạo dự án thất bại. Vui lòng thử lại.")
-        : message;
-      setError(normalizedMessage);
+      const normalized = Array.isArray(message) ? message[0] : message;
+      setError(normalized);
+      setToast({ type: "error", message: normalized });
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loadingAuth) {
+  if (loading) {
     return (
       <div className="bg-background-light dark:bg-background-dark min-h-screen font-display">
         <Navbar />
-        <main className="wrapper wrapper--md py-16">Đang kiểm tra quyền...</main>
+        <main className="wrapper wrapper--md py-14 animate-pulse space-y-4">
+          <div className="h-8 rounded bg-slate-200 dark:bg-slate-800" />
+          <div className="h-64 rounded-xl bg-slate-200 dark:bg-slate-800" />
+        </main>
       </div>
     );
   }
-
-  const hasNoCategories = !loadingCategories && categories.length === 0;
 
   return (
     <div className="bg-background-light dark:bg-background-dark min-h-screen font-display">
       <Navbar />
 
+      {toast && (
+        <div className="fixed top-20 right-5 z-[60]">
+          <div
+            className={`px-4 py-3 rounded-lg shadow-lg text-sm font-semibold ${
+              toast.type === "success"
+                ? "bg-green-600 text-white"
+                : "bg-red-600 text-white"
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
+      )}
+
       <main className="wrapper wrapper--md py-10">
-        <h1 className="text-h3 font-black mb-2">Tạo dự án mới</h1>
+        <h1 className="text-h3 font-black mb-2">Chỉnh sửa dự án</h1>
         <p className="text-slate-600 dark:text-slate-400 mb-8">
-          Khu vực dành riêng cho Owner.
+          Cập nhật thông tin và gallery để tăng sức hút với nhà đầu tư.
         </p>
 
         {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
@@ -143,7 +196,10 @@ export default function CreateProjectPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800"
+        >
           <div>
             <label className="block text-smaller font-semibold mb-2">Danh mục dự án</label>
             <select
@@ -172,70 +228,31 @@ export default function CreateProjectPage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-smaller font-semibold mb-2">Lãi suất (%)</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                max="100"
-                value={interestRate}
-                onChange={(e) => setInterestRate(Number(e.target.value))}
-                required
-                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
-              />
-            </div>
-
-            <div>
-              <label className="block text-smaller font-semibold mb-2">Thời hạn (tháng)</label>
-              <input
-                type="number"
-                min="1"
-                value={durationMonths}
-                onChange={(e) => setDurationMonths(Number(e.target.value))}
-                required
-                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-smaller font-semibold mb-2">Vốn mục tiêu</label>
-            <input
-              type="number"
-              step="0.01"
-              min="1"
-              value={targetCapital}
-              onChange={(e) => setTargetCapital(Number(e.target.value))}
-              required
-              className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-smaller font-semibold mb-2">content_slug</label>
-            <input
-              value={contentSlug}
-              onChange={(e) => setContentSlug(e.target.value)}
-              required
-              placeholder="vd: can-ho-vista-q2"
-              className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
-            />
-          </div>
-
           <div>
             <label className="block text-smaller font-semibold mb-2">Mô tả ngắn</label>
             <textarea
               value={shortDescription}
               onChange={(e) => setShortDescription(e.target.value)}
-              rows={3}
+              rows={4}
               className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
             />
           </div>
 
           <div>
-            <label className="block text-smaller font-semibold mb-2">URL ảnh bìa</label>
+            <label className="block text-smaller font-semibold mb-2">Lãi suất (%)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              value={interestRate}
+              onChange={(e) => setInterestRate(Number(e.target.value))}
+              className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-smaller font-semibold mb-2">Ảnh chính (Thumbnail)</label>
             <input
               value={thumbnailUrl}
               onChange={(e) => setThumbnailUrl(e.target.value)}
@@ -283,7 +300,9 @@ export default function CreateProjectPage() {
                     type="button"
                     disabled={additionalImages.length === 1}
                     onClick={() =>
-                      setAdditionalImages((prev) => prev.filter((_, itemIndex) => itemIndex !== index))
+                      setAdditionalImages((prev) =>
+                        prev.filter((_, itemIndex) => itemIndex !== index),
+                      )
                     }
                     className="px-3 py-2 rounded-md text-red-600 border border-red-200 disabled:opacity-40"
                   >
@@ -293,31 +312,37 @@ export default function CreateProjectPage() {
               ))}
             </div>
 
-            {additionalImages.some((item) => item.trim()) && (
+            {normalizedGallery.length > 0 && (
               <div className="flex flex-wrap gap-3 mt-4">
-                {additionalImages
-                  .map((item) => item.trim())
-                  .filter((item) => item.length > 0)
-                  .map((item) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      key={item}
-                      src={item}
-                      alt="gallery preview"
-                      className="h-20 w-28 object-cover rounded-lg border border-slate-200 dark:border-slate-700"
-                    />
-                  ))}
+                {normalizedGallery.map((image) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={image}
+                    src={image}
+                    alt="gallery preview"
+                    className="h-20 w-28 object-cover rounded-lg border border-slate-200 dark:border-slate-700"
+                  />
+                ))}
               </div>
             )}
           </div>
 
-          <button
-            type="submit"
-            disabled={submitting || loadingCategories || hasNoCategories}
-            className="px-6 py-2 rounded-lg bg-primary text-white font-bold disabled:opacity-60"
-          >
-            {submitting ? "Đang tạo..." : "Tạo dự án"}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={submitting || loadingCategories || hasNoCategories}
+              className="px-6 py-2 rounded-lg bg-primary text-white font-bold disabled:opacity-60"
+            >
+              {submitting ? "Đang lưu..." : "Lưu thay đổi"}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push("/projects")}
+              className="px-6 py-2 rounded-lg border border-slate-300 dark:border-slate-700 font-semibold"
+            >
+              Quay lại
+            </button>
+          </div>
         </form>
       </main>
 

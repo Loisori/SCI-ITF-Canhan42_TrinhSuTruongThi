@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Cookies from "js-cookie";
-import axios from "axios";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
+import api from "@/lib/axios";
 
 interface User {
   id: string;
@@ -25,24 +24,11 @@ export default function SettingsPage() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const token = Cookies.get("access_token");
-
-        if (!token) {
-          router.push("/login");
-          return;
-        }
-
-        const response = await axios.get<User>(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
+        const response = await api.get<User>("/auth/profile");
 
         setUser(response.data);
         setLoading(false);
-      } catch (err) {
-        Cookies.remove("access_token", { path: "/" });
+      } catch {
         setLoading(false);
         router.push("/login");
       }

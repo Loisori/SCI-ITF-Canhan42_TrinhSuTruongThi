@@ -2,28 +2,49 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Cookies from "js-cookie";
-import axios from "axios";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
+import api from "@/lib/axios";
 
 type ProjectDetail = {
   id: number;
   title: string;
   shortDescription: string | null;
   thumbnailUrl: string | null;
-  contentSlug: string | null;
-  targetCapital: number;
-  currentCapital: number;
+  images: string[];
+  targetCapital: number | string;
+  currentCapital: number | string;
   fundingProgress: number;
-  interestRate: number;
+  interestRate: number | string;
   durationMonths: number;
+  minInvestment: number | string;
   content: string | null;
 };
 
-type Me = {
+type Profile = {
   role: string;
 };
+
+type ToastState = {
+  type: "success" | "error";
+  message: string;
+} | null;
+
+function DetailSkeleton() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse">
+      <section className="lg:col-span-2 space-y-6">
+        <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded" />
+        <div className="w-full aspect-video bg-slate-200 dark:bg-slate-800 rounded-xl" />
+        <div className="h-24 bg-slate-200 dark:bg-slate-800 rounded" />
+      </section>
+      <aside className="space-y-5">
+        <div className="h-56 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+        <div className="h-44 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+      </aside>
+    </div>
+  );
+}
 
 export default function ProjectDetailPage() {
   const params = useParams<{ slug: string }>();
@@ -32,21 +53,26 @@ export default function ProjectDetailPage() {
   const [project, setProject] = useState<ProjectDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [role, setRole] = useState<string | null>(null);
-  const [amount, setAmount] = useState(1000000);
+  const [amount, setAmount] = useState(0);
   const [investing, setInvesting] = useState(false);
-  const [investMessage, setInvestMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
-    const slug = params.slug;
+    const fetchProject = async () => {
+      const slugParam = params.slug;
 
-    const fetchDetail = async () => {
       try {
-        const res = await axios.get<ProjectDetail>(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/projects/slug/${slug}`,
-        );
+        const isNumericId = /^\d+$/.test(slugParam);
+        const endpoint = isNumericId
+          ? `/api/projects/${slugParam}`
+          : `/api/projects/slug/${slugParam}`;
+        const res = await api.get<ProjectDetail>(endpoint);
+
         setProject(res.data);
+        setSelectedImage(res.data.thumbnailUrl ?? res.data.images?.[0] ?? null);
+        setAmount(Number(res.data.minInvestment || 1));
       } catch {
         setError("Không tìm thấy dự án.");
       } finally {
@@ -54,26 +80,27 @@ export default function ProjectDetailPage() {
       }
     };
 
-    const fetchMe = async () => {
-      const token = Cookies.get("access_token");
-      if (!token) {
-        setRole(null);
-        return;
-      }
-
+    const fetchProfile = async () => {
       try {
-        const me = await axios.get<Me>(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const me = await api.get<Profile>("/auth/profile");
         setRole(me.data.role);
       } catch {
         setRole(null);
       }
     };
 
-    void fetchDetail();
-    void fetchMe();
+    void fetchProject();
+    void fetchProfile();
   }, [params.slug]);
+
+  useEffect(() => {
+    if (!toast) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setToast(null), 2600);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
 
   const canInvest = useMemo(() => role === "investor", [role]);
 
@@ -84,51 +111,82 @@ export default function ProjectDetailPage() {
       return;
     }
 
-    const token = Cookies.get("access_token");
-    if (!token) {
-      router.push("/login");
+    const minInvestment = Number(project.minInvestment || 1);
+    if (Number(amount) < minInvestment) {
+      setToast({
+        type: "error",
+        message: `Số tiền tối thiểu là ${minInvestment.toLocaleString("vi-VN")}.`,
+      });
       return;
     }
 
     setInvesting(true);
-    setInvestMessage(null);
 
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/projects/invest`,
-        {
-          projectId: project.id,
-          amount,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      await api.post("/api/investments", {
+        projectId: project.id,
+        amount: Number(amount),
+      });
 
-      setInvestMessage("Đầu tư thành công.");
+      setToast({
+        type: "success",
+        message: "Chúc mừng bạn đã trở thành nhà đầu tư!",
+      });
 
-      const refreshed = await axios.get<ProjectDetail>(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/projects/slug/${params.slug}`,
-      );
+      const refreshed = await api.get<ProjectDetail>(`/api/projects/${project.id}`);
       setProject(refreshed.data);
+      setSelectedImage(refreshed.data.thumbnailUrl ?? refreshed.data.images?.[0] ?? null);
+      setAmount(Number(refreshed.data.minInvestment || 1));
+
+      window.dispatchEvent(new Event("auth-changed"));
+      router.refresh();
     } catch (error: unknown) {
       const message =
-        axios.isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "Đầu tư thất bại.";
-      setInvestMessage(Array.isArray(message) ? message[0] : message);
+        (
+          error as {
+            response?: { data?: { message?: string | string[] } };
+          }
+        )?.response?.data?.message ?? "Đầu tư thất bại.";
+
+      setToast({
+        type: "error",
+        message: Array.isArray(message) ? message[0] : message,
+      });
     } finally {
       setInvesting(false);
     }
   };
 
+  const galleryImages = useMemo(() => {
+    if (!project) {
+      return [];
+    }
+
+    return [project.thumbnailUrl, ...(project.images ?? [])]
+      .filter((item): item is string => Boolean(item))
+      .filter((item, index, arr) => arr.indexOf(item) === index);
+  }, [project]);
+
   return (
     <div className="bg-background-light dark:bg-background-dark min-h-screen font-display">
       <Navbar />
 
-      <main className="wrapper wrapper--lg py-10">
-        {loading && <div>Đang tải chi tiết dự án...</div>}
+      {toast && (
+        <div className="fixed top-20 right-5 z-[60]">
+          <div
+            className={`px-4 py-3 rounded-lg shadow-lg text-sm font-semibold ${
+              toast.type === "success"
+                ? "bg-green-600 text-white"
+                : "bg-red-600 text-white"
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
+      )}
 
+      <main className="wrapper wrapper--lg py-10">
+        {loading && <DetailSkeleton />}
         {!loading && error && <div className="text-red-500">{error}</div>}
 
         {!loading && !error && project && (
@@ -138,13 +196,37 @@ export default function ProjectDetailPage() {
                 {project.title}
               </h1>
 
-              {project.thumbnailUrl && (
+              {selectedImage && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={project.thumbnailUrl}
+                  src={selectedImage}
                   alt={project.title}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 aspect-video object-cover"
                 />
+              )}
+
+              {galleryImages.length > 1 && (
+                <div className="flex flex-wrap gap-3">
+                  {galleryImages.map((image) => (
+                    <button
+                      type="button"
+                      key={image}
+                      onClick={() => setSelectedImage(image)}
+                      className={`rounded-lg overflow-hidden border-2 ${
+                        selectedImage === image
+                          ? "border-primary"
+                          : "border-slate-200 dark:border-slate-700"
+                      }`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={image}
+                        alt="project gallery"
+                        className="h-20 w-28 object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
               )}
 
               <p className="text-slate-600 dark:text-slate-400">
@@ -172,16 +254,28 @@ export default function ProjectDetailPage() {
                     <span className="font-bold">{project.durationMonths} tháng</span>
                   </div>
                   <div className="flex justify-between">
+                    <span>Tối thiểu</span>
+                    <span className="font-bold">
+                      {Number(project.minInvestment).toLocaleString("vi-VN")} đ
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
                     <span>Đã huy động</span>
-                    <span className="font-bold">{Number(project.currentCapital).toLocaleString()} đ</span>
+                    <span className="font-bold">
+                      {Number(project.currentCapital).toLocaleString("vi-VN")} đ
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Mục tiêu</span>
-                    <span className="font-bold">{Number(project.targetCapital).toLocaleString()} đ</span>
+                    <span className="font-bold">
+                      {Number(project.targetCapital).toLocaleString("vi-VN")} đ
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tiến độ</span>
-                    <span className="font-bold text-primary">{project.fundingProgress}%</span>
+                    <span className="font-bold text-primary">
+                      {Number(project.fundingProgress).toFixed(2)}%
+                    </span>
                   </div>
                 </div>
               </div>
@@ -194,7 +288,8 @@ export default function ProjectDetailPage() {
                   <label className="block text-smaller font-semibold">Số tiền đầu tư</label>
                   <input
                     type="number"
-                    min="1"
+                    // min={Number(project.minInvestment || 1)}
+                    min={Number(project.minInvestment)}
                     value={amount}
                     onChange={(e) => setAmount(Number(e.target.value))}
                     className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
@@ -205,12 +300,8 @@ export default function ProjectDetailPage() {
                     disabled={investing}
                     className="w-full py-2 rounded-lg bg-primary text-white font-bold disabled:opacity-60"
                   >
-                    {investing ? "Đang xử lý..." : "Đầu tư vào dự án này"}
+                    {investing ? "Đang xử lý..." : "Xác nhận đầu tư"}
                   </button>
-
-                  {investMessage && (
-                    <p className="text-smaller text-slate-600 dark:text-slate-400">{investMessage}</p>
-                  )}
                 </form>
               ) : (
                 <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 text-smaller text-slate-600 dark:text-slate-400">

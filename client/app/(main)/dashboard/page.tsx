@@ -1,87 +1,113 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
-import axios from "axios";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
+import api from "@/lib/axios";
 
-interface User {
-  id: string;
+type UserProfile = {
+  id: number;
   fullName: string;
   email: string;
-  balance: number;
+  balance: number | string;
   role: string;
   createdAt: string;
-}
+};
+
+type PaymentSchedule = {
+  id: number;
+  dueDate: string;
+  amount: number | string;
+  status: string;
+  paidAt: string | null;
+};
+
+type Investment = {
+  id: number;
+  amount: number | string;
+  status: string;
+  investedAt: string;
+  project: {
+    id: number;
+    title: string;
+    slug: string;
+    thumbnailUrl: string | null;
+    interestRate: number | string;
+    durationMonths: number;
+  } | null;
+  paymentSchedules: PaymentSchedule[];
+};
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [investments, setInvestments] = useState<Investment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const token = Cookies.get("access_token");
+        const [profileRes, investmentsRes] = await Promise.all([
+          api.get<UserProfile>("/auth/profile"),
+          api.get<Investment[]>("/api/investments/my-investments"),
+        ]);
 
-        // Redirect to login if no token
-        if (!token) {
-          router.push("/login");
-          return;
-        }
-
-        const response = await axios.get<User>(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-
-        setUser(response.data);
+        setUser(profileRes.data);
+        setInvestments(investmentsRes.data);
+      } catch {
+        setError("Không thể tải dữ liệu dashboard.");
+        router.push("/login");
+      } finally {
         setLoading(false);
-      } catch (err) {
-        // Token expired or invalid
-        Cookies.remove("access_token", { path: "/" });
-        setError("Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại.");
-        setLoading(false);
-        setTimeout(() => {
-          router.push("/login");
-        }, 2000);
       }
     };
 
-    fetchUserProfile();
+    void fetchDashboardData();
   }, [router]);
+
+  const totalInvested = useMemo(
+    () => investments.reduce((sum, item) => sum + Number(item.amount), 0),
+    [investments],
+  );
+
+  const upcomingSchedules = useMemo(() => {
+    return investments
+      .flatMap((investment) =>
+        investment.paymentSchedules.map((schedule) => ({
+          ...schedule,
+          projectTitle: investment.project?.title ?? "Dự án",
+        })),
+      )
+      .sort(
+        (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
+      )
+      .slice(0, 12);
+  }, [investments]);
 
   if (loading) {
     return (
       <div className="bg-background-light dark:bg-background-dark min-h-screen font-display">
         <Navbar />
-        <main className="flex items-center justify-center min-h-[calc(100vh-64px)]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-slate-600 dark:text-slate-400">Đang tải...</p>
+        <main className="wrapper wrapper--lg py-12 animate-pulse space-y-6">
+          <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+            <div className="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+            <div className="h-28 bg-slate-200 dark:bg-slate-800 rounded-xl" />
           </div>
+          <div className="h-72 bg-slate-200 dark:bg-slate-800 rounded-xl" />
         </main>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !user) {
     return (
       <div className="bg-background-light dark:bg-background-dark min-h-screen font-display">
         <Navbar />
-        <main className="flex items-center justify-center min-h-[calc(100vh-64px)]">
-          <div className="text-center">
-            <p className="text-red-500 mb-4">{error}</p>
-            <p className="text-slate-600 dark:text-slate-400 text-smaller">
-              Chuyển hướng đến trang đăng nhập...
-            </p>
-          </div>
-        </main>
+        <main className="wrapper wrapper--lg py-16 text-red-500">{error || "Vui lòng đăng nhập lại."}</main>
       </div>
     );
   }
@@ -89,136 +115,101 @@ export default function DashboardPage() {
   return (
     <div className="bg-background-light dark:bg-background-dark min-h-screen font-display">
       <Navbar />
-      <main className="wrapper wrapper--lg py-12">
-        {/* Greeting Section */}
-        <section className="mb-12">
+      <main className="wrapper wrapper--lg py-12 space-y-10">
+        <section>
           <h1 className="text-h2 font-bold text-slate-900 dark:text-white mb-2">
-            Chào mừng trở lại,{" "}
-            <span className="text-primary">{user?.fullName}!</span>
+            Chào mừng trở lại, <span className="text-primary">{user.fullName}</span>
           </h1>
           <p className="text-body text-slate-600 dark:text-slate-400">
-            Quản lý tài chính và theo dõi các khoản đầu tư của bạn
+            Tổng quan tài sản và các khoản đầu tư của bạn.
           </p>
         </section>
 
-        {/* Quick Stats */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {/* Total Balance */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="text-smaller font-semibold text-slate-600 dark:text-slate-400">
-                Số dư hiện tại
-              </h3>
-              <span className="material-symbols-outlined text-primary text-xl">
-                account_balance_wallet
-              </span>
-            </div>
-            <p className="text-h4 font-bold text-slate-900 dark:text-white">
-              ${Number(user?.balance).toLocaleString()}
-            </p>
-            <p className="text-smallest text-green-600 dark:text-green-400 mt-2">
-              +5.2% từ tuần trước
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+            <p className="text-smaller text-slate-500 mb-1">Số dư ví</p>
+            <p className="text-h4 font-bold text-green-600 dark:text-green-400">
+              {Number(user.balance).toLocaleString("vi-VN")} đ
             </p>
           </div>
 
-          {/* Investments */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="text-smaller font-semibold text-slate-600 dark:text-slate-400">
-                Số dự án đầu tư
-              </h3>
-              <span className="material-symbols-outlined text-blue-500 text-xl">
-                trending_up
-              </span>
-            </div>
-            <p className="text-h4 font-bold text-slate-900 dark:text-white">
-              3
-            </p>
-            <p className="text-smallest text-slate-500 dark:text-slate-400 mt-2">
-              Đang theo dõi
-            </p>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+            <p className="text-smaller text-slate-500 mb-1">Số khoản đầu tư</p>
+            <p className="text-h4 font-bold text-slate-900 dark:text-white">{investments.length}</p>
           </div>
 
-          {/* Total Invested */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="text-smaller font-semibold text-slate-600 dark:text-slate-400">
-                Tổng đã đầu tư
-              </h3>
-              <span className="material-symbols-outlined text-orange-500 text-xl">
-                money
-              </span>
-            </div>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+            <p className="text-smaller text-slate-500 mb-1">Tổng đã đầu tư</p>
             <p className="text-h4 font-bold text-slate-900 dark:text-white">
-              $45,000
-            </p>
-            <p className="text-smallest text-slate-500 dark:text-slate-400 mt-2">
-              Từ 6 tháng trước
-            </p>
-          </div>
-
-          {/* Returns */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-lg transition-shadow">
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="text-smaller font-semibold text-slate-600 dark:text-slate-400">
-                Lợi suất
-              </h3>
-              <span className="material-symbols-outlined text-green-500 text-xl">
-                percent
-              </span>
-            </div>
-            <p className="text-h4 font-bold text-slate-900 dark:text-white">
-              +12.5%
-            </p>
-            <p className="text-smallest text-green-600 dark:text-green-400 mt-2">
-              Tăng thêm 2.3%
+              {Number(totalInvested).toLocaleString("vi-VN")} đ
             </p>
           </div>
         </section>
 
-        {/* User Info Card */}
-        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-8">
-          <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-6">
-            Thông tin tài khoản
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <label className="text-smaller font-semibold text-slate-600 dark:text-slate-400 block mb-2">
-                Tên đầy đủ
-              </label>
-              <p className="text-body font-medium text-slate-900 dark:text-white">
-                {user?.fullName}
-              </p>
+        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+          <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-4">Danh sách khoản đầu tư</h2>
+
+          {investments.length === 0 ? (
+            <p className="text-smaller text-slate-500">Bạn chưa có khoản đầu tư nào.</p>
+          ) : (
+            <div className="space-y-3">
+              {investments.map((investment) => (
+                <div
+                  key={investment.id}
+                  className="p-4 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4"
+                >
+                  <div>
+                    <p className="font-semibold text-slate-900 dark:text-white">
+                      {investment.project?.title || "Dự án"}
+                    </p>
+                    <p className="text-smaller text-slate-500">
+                      Đầu tư ngày {new Date(investment.investedAt).toLocaleDateString("vi-VN")}
+                    </p>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="font-bold text-primary">
+                      {Number(investment.amount).toLocaleString("vi-VN")} đ
+                    </p>
+                    <p className="text-smaller text-slate-500">{investment.status}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div>
-              <label className="text-smaller font-semibold text-slate-600 dark:text-slate-400 block mb-2">
-                Email
-              </label>
-              <p className="text-body font-medium text-slate-900 dark:text-white">
-                {user?.email}
-              </p>
+          )}
+        </section>
+
+        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+          <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-4">Lịch trả lãi</h2>
+
+          {upcomingSchedules.length === 0 ? (
+            <p className="text-smaller text-slate-500">Chưa có lịch trả lãi.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800">
+                    <th className="py-2 pr-4">Dự án</th>
+                    <th className="py-2 pr-4">Ngày trả</th>
+                    <th className="py-2 pr-4">Số tiền</th>
+                    <th className="py-2">Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {upcomingSchedules.map((schedule) => (
+                    <tr key={schedule.id} className="border-b border-slate-100 dark:border-slate-800">
+                      <td className="py-2 pr-4">{schedule.projectTitle}</td>
+                      <td className="py-2 pr-4">
+                        {new Date(schedule.dueDate).toLocaleDateString("vi-VN")}
+                      </td>
+                      <td className="py-2 pr-4">{Number(schedule.amount).toLocaleString("vi-VN")} đ</td>
+                      <td className="py-2">{schedule.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div>
-              <label className="text-smaller font-semibold text-slate-600 dark:text-slate-400 block mb-2">
-                Vai trò
-              </label>
-              <div className="flex items-center gap-2">
-                <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-smaller font-semibold">
-                  {user?.role === "INVESTOR" ? "Nhà đầu tư" : user?.role}
-                </span>
-              </div>
-            </div>
-            <div>
-              <label className="text-smaller font-semibold text-slate-600 dark:text-slate-400 block mb-2">
-                Tham gia từ
-              </label>
-              <p className="text-body font-medium text-slate-900 dark:text-white">
-                {user?.createdAt
-                  ? new Date(user.createdAt).toLocaleDateString("vi-VN")
-                  : "N/A"}
-              </p>
-            </div>
-          </div>
+          )}
         </section>
       </main>
       <Footer />
