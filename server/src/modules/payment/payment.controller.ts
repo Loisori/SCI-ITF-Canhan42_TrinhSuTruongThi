@@ -39,8 +39,8 @@ export class PaymentController {
       this.configService.get<string>('CLIENT_URL') || 'http://localhost:3000';
 
     const targetUrl = result.success
-      ? `${clientBaseUrl}/dashboard/deposit/success?status=success&txnRef=${encodeURIComponent(result.txnRef ?? '')}&amount=${encodeURIComponent(String(result.amount ?? '0'))}`
-      : `${clientBaseUrl}/dashboard/deposit/success?status=failed&code=${encodeURIComponent(result.code ?? 'unknown')}`;
+      ? `${clientBaseUrl}/dashboard?payment=success&amount=${encodeURIComponent(String(result.amount ?? '0'))}`
+      : `${clientBaseUrl}/dashboard?payment=failed&code=${encodeURIComponent(result.code ?? 'unknown')}`;
 
     return res.redirect(targetUrl);
   }

@@ -125,6 +125,8 @@ export default function ProjectList() {
                       ).toFixed(2),
                     )
                   : 0);
+              const baseProgress = Math.min(progress, 100);
+              const overProgress = Math.max(progress - 100, 0);
 
               return (
                 <Link
@@ -191,9 +193,22 @@ export default function ProjectList() {
                       <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <div
                           className="bg-primary h-full"
-                          style={{ width: `${Math.min(progress, 100)}%` }}
+                          style={{ width: `${baseProgress}%` }}
                         />
                       </div>
+                      {overProgress > 0 && (
+                        <div className="mt-1.5">
+                          <div className="w-full bg-orange-100 dark:bg-orange-900/30 h-2 rounded-full overflow-hidden">
+                            <div
+                              className="bg-orange-500 h-full"
+                              style={{ width: `${Math.min(overProgress, 100)}%` }}
+                            />
+                          </div>
+                          <p className="mt-1 text-[11px] font-semibold text-orange-600 dark:text-orange-300">
+                            Vượt mục tiêu +{overProgress.toFixed(2)}%
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="mt-auto w-full py-3 bg-primary text-white font-bold rounded-lg text-center">

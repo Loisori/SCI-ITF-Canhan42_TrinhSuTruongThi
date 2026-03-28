@@ -62,6 +62,15 @@ export class ProjectsController {
     return this.projectsService.updateProject(id, ownerId, dto);
   }
 
+  @UseGuards(JwtAuthGuard, IsOwnerGuard)
+  @Put(':id/stop-funding')
+  stopFunding(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser('id') ownerId: number,
+  ) {
+    return this.projectsService.stopFunding(id, ownerId);
+  }
+
   @UseGuards(JwtAuthGuard, IsInvestorGuard)
   @Post('invest')
   investInProject(

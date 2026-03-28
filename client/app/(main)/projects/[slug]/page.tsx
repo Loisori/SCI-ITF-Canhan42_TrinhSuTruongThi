@@ -18,6 +18,8 @@ type ProjectDetail = {
   interestRate: number | string;
   durationMonths: number;
   minInvestment: number | string;
+  status: string;
+  endDate: string | null;
   content: string | null;
 };
 
@@ -102,7 +104,27 @@ export default function ProjectDetailPage() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  const canInvest = useMemo(() => role === "investor", [role]);
+  const isFundingOpen = useMemo(() => {
+    if (!project) {
+      return false;
+    }
+
+    if (project.status !== "funding") {
+      return false;
+    }
+
+    if (!project.endDate) {
+      return true;
+    }
+
+    const deadline = new Date(project.endDate).getTime();
+    return deadline >= Date.now();
+  }, [project]);
+
+  const canInvest = useMemo(
+    () => role === "investor" && isFundingOpen,
+    [role, isFundingOpen],
+  );
 
   const handleInvest = async (e: FormEvent) => {
     e.preventDefault();
@@ -166,6 +188,16 @@ export default function ProjectDetailPage() {
       .filter((item): item is string => Boolean(item))
       .filter((item, index, arr) => arr.indexOf(item) === index);
   }, [project]);
+
+  const progress = useMemo(() => {
+    if (!project) {
+      return 0;
+    }
+    return Number(project.fundingProgress) || 0;
+  }, [project]);
+
+  const baseProgress = Math.min(progress, 100);
+  const overProgress = Math.max(progress - 100, 0);
 
   return (
     <div className="bg-background-light dark:bg-background-dark min-h-screen font-display">
@@ -277,6 +309,27 @@ export default function ProjectDetailPage() {
                       {Number(project.fundingProgress).toFixed(2)}%
                     </span>
                   </div>
+                  <div className="pt-1">
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <div
+                        className="bg-primary h-full"
+                        style={{ width: `${baseProgress}%` }}
+                      />
+                    </div>
+                    {overProgress > 0 && (
+                      <div className="mt-1.5">
+                        <div className="w-full bg-orange-100 dark:bg-orange-900/30 h-2 rounded-full overflow-hidden">
+                          <div
+                            className="bg-orange-500 h-full"
+                            style={{ width: `${Math.min(overProgress, 100)}%` }}
+                          />
+                        </div>
+                        <p className="mt-1 text-[11px] font-semibold text-orange-600 dark:text-orange-300">
+                          Vượt mục tiêu +{overProgress.toFixed(2)}%
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -305,7 +358,9 @@ export default function ProjectDetailPage() {
                 </form>
               ) : (
                 <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 text-smaller text-slate-600 dark:text-slate-400">
-                  Chỉ tài khoản Investor mới có thể đầu tư dự án.
+                  {role !== "investor"
+                    ? "Chỉ tài khoản Investor mới có thể đầu tư dự án."
+                    : "Dự án đã đóng cổng nhận vốn (đã dừng hoặc quá deadline)."}
                 </div>
               )}
             </aside>

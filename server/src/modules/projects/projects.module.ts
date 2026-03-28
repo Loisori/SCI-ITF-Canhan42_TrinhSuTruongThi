@@ -7,6 +7,7 @@ import { ProjectEntity } from './entities/project.entity';
 import { AuthModule } from '../auth/auth.module';
 import { ProjectCategoryEntity } from './entities/category.entity';
 import { ProjectMediaEntity } from './entities/media.entity';
+import { AdminProjectsController } from './admin-projects.controller';
 
 @Module({
   imports: [
@@ -17,7 +18,11 @@ import { ProjectMediaEntity } from './entities/media.entity';
     ]),
     AuthModule,
   ],
-  controllers: [ProjectsController, ProjectCategoriesController],
+  controllers: [
+    ProjectsController,
+    ProjectCategoriesController,
+    AdminProjectsController,
+  ],
   providers: [ProjectsService],
 })
 export class ProjectsModule {}

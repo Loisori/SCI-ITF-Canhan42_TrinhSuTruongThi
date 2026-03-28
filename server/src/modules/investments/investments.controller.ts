@@ -1,9 +1,18 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { InvestmentsService } from './investments.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { IsInvestorGuard } from '../../common/guards/is-investor.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { CreateInvestmentDto } from './dto/create-investment.dto';
+import { IsOwnerGuard } from '../../common/guards/is-owner.guard';
 
 @Controller('api/investments')
 export class InvestmentsController {
@@ -22,5 +31,18 @@ export class InvestmentsController {
     @Body() dto: CreateInvestmentDto,
   ) {
     return this.investmentsService.invest(userId, dto);
+  }
+
+  @UseGuards(JwtAuthGuard, IsOwnerGuard)
+  @Post('handle-project-timeout')
+  handleProjectTimeout(@Query('projectId') projectId?: string) {
+    const normalizedProjectId = projectId ? Number(projectId) : undefined;
+    if (
+      normalizedProjectId !== undefined &&
+      (!Number.isInteger(normalizedProjectId) || normalizedProjectId <= 0)
+    ) {
+      throw new BadRequestException('projectId không hợp lệ.');
+    }
+    return this.investmentsService.handleProjectTimeout(normalizedProjectId);
   }
 }

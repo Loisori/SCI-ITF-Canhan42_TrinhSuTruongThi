@@ -21,6 +21,7 @@ type ProjectDetail = {
   title: string;
   shortDescription: string | null;
   interestRate: number | string;
+  status?: string;
   thumbnailUrl: string | null;
   images: string[];
   category?: {
@@ -52,6 +53,7 @@ export default function EditProjectPage() {
   const [interestRate, setInterestRate] = useState(0);
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [additionalImages, setAdditionalImages] = useState<string[]>([""]);
+  const [projectStatus, setProjectStatus] = useState<string>("pending");
 
   useEffect(() => {
     const init = async () => {
@@ -78,6 +80,7 @@ export default function EditProjectPage() {
         setTitle(project.title);
         setShortDescription(project.shortDescription ?? "");
         setInterestRate(Number(project.interestRate));
+        setProjectStatus(project.status ?? "pending");
         setThumbnailUrl(project.thumbnailUrl ?? "");
         setAdditionalImages(project.images?.length ? project.images : [""]);
       } catch {
@@ -108,6 +111,39 @@ export default function EditProjectPage() {
     [additionalImages],
   );
   const hasNoCategories = !loadingCategories && categories.length === 0;
+
+  const handleStopFunding = async () => {
+    if (projectStatus !== "funding") {
+      setToast({
+        type: "error",
+        message: "Dự án hiện không ở trạng thái đang huy động vốn.",
+      });
+      return;
+    }
+
+    const confirmed = window.confirm("Bạn có chắc muốn dừng nhận vốn dự án này?");
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await api.put(`/api/projects/${params.id}/stop-funding`);
+      setProjectStatus("completed");
+      setToast({ type: "success", message: "Đã dừng nhận vốn thành công." });
+      router.refresh();
+    } catch (err: unknown) {
+      const message =
+        (
+          err as {
+            response?: { data?: { message?: string | string[] } };
+          }
+        )?.response?.data?.message ?? "Không thể dừng nhận vốn.";
+      setToast({
+        type: "error",
+        message: Array.isArray(message) ? message[0] : message,
+      });
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -334,6 +370,14 @@ export default function EditProjectPage() {
               className="px-6 py-2 rounded-lg bg-primary text-white font-bold disabled:opacity-60"
             >
               {submitting ? "Đang lưu..." : "Lưu thay đổi"}
+            </button>
+            <button
+              type="button"
+              onClick={handleStopFunding}
+              disabled={projectStatus !== "funding"}
+              className="px-6 py-2 rounded-lg bg-red-600 text-white font-bold disabled:opacity-40"
+            >
+              Dừng nhận vốn
             </button>
             <button
               type="button"

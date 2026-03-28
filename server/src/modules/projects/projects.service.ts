@@ -8,7 +8,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { ProjectEntity, ProjectStatus } from './entities/project.entity';
+import {
+  ProjectEntity,
+  ProjectRiskLevel,
+  ProjectStatus,
+} from './entities/project.entity';
 import { InvestProjectDto } from './dto/invest-project.dto';
 import { UserEntity } from '../users/entities/user.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -39,6 +43,79 @@ export class ProjectsService {
       name: category.name,
       slug: category.slug,
     }));
+  }
+
+  async getPendingProjects() {
+    const projects = await this.projectsRepository.find({
+      where: {
+        status: ProjectStatus.PENDING,
+      },
+      relations: ['media', 'category', 'owner'],
+      order: { createdAt: 'DESC' },
+    });
+
+    return projects.map((project) => this.serializeProject(project));
+  }
+
+  async approveProject(projectId: number) {
+    const project = await this.projectsRepository.findOne({
+      where: { id: projectId },
+      relations: ['media', 'category', 'owner'],
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found.');
+    }
+
+    if (project.status !== ProjectStatus.PENDING) {
+      throw new BadRequestException('Only pending projects can be approved.');
+    }
+
+    project.status = ProjectStatus.FUNDING;
+    await this.projectsRepository.save(project);
+
+    await this.notifyProjectOwner(
+      project.owner,
+      'Dự án của bạn đã được duyệt! Dự án đã được mở để huy động vốn.',
+    );
+
+    return this.serializeProject(project);
+  }
+
+  async rejectProject(projectId: number) {
+    const project = await this.projectsRepository.findOne({
+      where: { id: projectId },
+      relations: ['media', 'category', 'owner'],
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found.');
+    }
+
+    if (project.status !== ProjectStatus.PENDING) {
+      throw new BadRequestException('Only pending projects can be rejected.');
+    }
+
+    project.status = ProjectStatus.FAILED;
+    await this.projectsRepository.save(project);
+
+    await this.notifyProjectOwner(
+      project.owner,
+      'Dự án của bạn đã bị từ chối. Vui lòng kiểm tra lại thông tin và gửi lại nếu cần.',
+    );
+
+    return this.serializeProject(project);
+  }
+
+  private async notifyProjectOwner(owner: UserEntity, message: string) {
+    if (!owner) {
+      return;
+    }
+
+    // TODO: Replace this console log with a real persistent notification system.
+    console.log(
+      `Notification for owner ${owner.id} <${owner.email}>: ${message}`,
+    );
   }
 
   async getFundingProjects() {
@@ -112,10 +189,13 @@ export class ProjectsService {
         content: null,
         goalAmount: dto.targetCapital,
         currentAmount: 0,
-        minInvestment: 1,
+        minInvestment: dto.minInvestment,
         interestRate: dto.interestRate,
         durationMonths: dto.durationMonths,
-        status: ProjectStatus.FUNDING,
+        riskLevel: dto.riskLevel ?? ProjectRiskLevel.MEDIUM,
+        startDate: dto.startDate ? new Date(dto.startDate) : null,
+        endDate: dto.endDate ? new Date(dto.endDate) : null,
+        status: dto.status ?? ProjectStatus.PENDING,
       });
 
       const created = await projectRepo.save(project);
@@ -159,7 +239,9 @@ export class ProjectsService {
   }
 
   async deleteProject(projectId: number) {
-    const project = await this.projectsRepository.findOne({ where: { id: projectId } });
+    const project = await this.projectsRepository.findOne({
+      where: { id: projectId },
+    });
 
     if (!project) {
       throw new NotFoundException('Project not found.');
@@ -173,7 +255,11 @@ export class ProjectsService {
     };
   }
 
-  async updateProject(projectId: number, ownerId: number, dto: UpdateProjectDto) {
+  async updateProject(
+    projectId: number,
+    ownerId: number,
+    dto: UpdateProjectDto,
+  ) {
     return this.dataSource.transaction(async (manager) => {
       const projectRepo = manager.getRepository(ProjectEntity);
       const mediaRepo = manager.getRepository(ProjectMediaEntity);
@@ -189,7 +275,9 @@ export class ProjectsService {
       }
 
       if (project.ownerId !== ownerId) {
-        throw new ForbiddenException('Bạn chỉ có thể chỉnh sửa dự án của chính mình.');
+        throw new ForbiddenException(
+          'Bạn chỉ có thể chỉnh sửa dự án của chính mình.',
+        );
       }
 
       if (dto.title !== undefined) {
@@ -269,6 +357,35 @@ export class ProjectsService {
     });
   }
 
+  async stopFunding(projectId: number, ownerId: number) {
+    const project = await this.projectsRepository.findOne({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found.');
+    }
+
+    if (project.ownerId !== ownerId) {
+      throw new ForbiddenException('Bạn chỉ có thể dừng dự án của chính mình.');
+    }
+
+    if (project.status !== ProjectStatus.FUNDING) {
+      throw new BadRequestException(
+        'Dự án không ở trạng thái đang huy động vốn.',
+      );
+    }
+
+    project.status = ProjectStatus.COMPLETED;
+    await this.projectsRepository.save(project);
+
+    return {
+      message: 'Dự án đã dừng nhận vốn.',
+      id: project.id,
+      status: project.status,
+    };
+  }
+
   async invest(userId: number, dto: InvestProjectDto) {
     return this.dataSource.transaction(async (manager) => {
       const projectsRepo = manager.getRepository(ProjectEntity);
@@ -287,6 +404,14 @@ export class ProjectsService {
         throw new BadRequestException('Project is not accepting investments.');
       }
 
+      const now = new Date();
+      if (
+        project.endDate &&
+        new Date(project.endDate).getTime() < now.getTime()
+      ) {
+        throw new BadRequestException('Project funding deadline has passed.');
+      }
+
       const user = await usersRepo.findOne({
         where: { id: userId },
         lock: { mode: 'pessimistic_write' },
@@ -298,26 +423,14 @@ export class ProjectsService {
 
       const amount = Number(dto.amount);
       const userBalance = Number(user.balance);
-      const targetCapital = Number(project.goalAmount);
       const currentCapital = Number(project.currentAmount);
-      const remainingCapital = Math.max(targetCapital - currentCapital, 0);
 
       if (amount > userBalance) {
         throw new BadRequestException('Insufficient balance.');
       }
 
-      if (amount > remainingCapital) {
-        throw new BadRequestException(
-          `Investment exceeds remaining capital (${remainingCapital}).`,
-        );
-      }
-
       user.balance = userBalance - amount;
       project.currentAmount = currentCapital + amount;
-
-      if (project.currentAmount >= targetCapital) {
-        project.status = ProjectStatus.ACTIVE;
-      }
 
       await usersRepo.save(user);
       await projectsRepo.save(project);
@@ -359,14 +472,24 @@ export class ProjectsService {
       interestRate: Number(project.interestRate),
       durationMonths: project.durationMonths,
       minInvestment: Number(project.minInvestment),
+      riskLevel: project.riskLevel,
       fundingProgress,
       status: project.status,
+      startDate: project.startDate,
+      endDate: project.endDate,
       category: project.category
         ? {
             id: project.category.id,
             name: project.category.name,
             slug: project.category.slug,
             iconUrl: project.category.iconUrl,
+          }
+        : null,
+      owner: project.owner
+        ? {
+            id: project.owner.id,
+            fullName: project.owner.fullName,
+            email: project.owner.email,
           }
         : null,
       images,

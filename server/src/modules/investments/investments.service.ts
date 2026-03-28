@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, EntityManager, LessThan } from 'typeorm';
 import {
   InvestmentEntity,
   InvestmentStatus,
@@ -103,6 +103,12 @@ export class InvestmentsService {
         throw new NotFoundException('Project not found.');
       }
 
+      const now = new Date();
+      if (project.endDate && new Date(project.endDate).getTime() < now.getTime()) {
+        await this.handleProjectTimeout(project.id, manager);
+        throw new BadRequestException('Dự án đã hết thời gian huy động vốn.');
+      }
+
       if (project.status !== ProjectStatus.FUNDING) {
         throw new BadRequestException('Project is not in funding status.');
       }
@@ -121,10 +127,6 @@ export class InvestmentsService {
       user.balance = Number(user.balance) - amount;
       project.currentAmount = Number(project.currentAmount) + amount;
 
-      if (Number(project.currentAmount) >= Number(project.goalAmount)) {
-        project.status = ProjectStatus.ACTIVE;
-      }
-
       await usersRepo.save(user);
       await projectsRepo.save(project);
 
@@ -142,8 +144,6 @@ export class InvestmentsService {
       );
 
       const schedules: PaymentScheduleEntity[] = [];
-      const now = new Date();
-
       for (let month = 1; month <= project.durationMonths; month += 1) {
         const dueDate = new Date(now);
         dueDate.setMonth(dueDate.getMonth() + month);
@@ -182,6 +182,108 @@ export class InvestmentsService {
         paymentScheduleCount: schedules.length,
       };
     });
+  }
+
+  async handleProjectTimeout(projectId?: number, manager?: EntityManager) {
+    const run = async (txManager: EntityManager) => {
+      const projectsRepo = txManager.getRepository(ProjectEntity);
+      const investmentsRepo = txManager.getRepository(InvestmentEntity);
+      const usersRepo = txManager.getRepository(UserEntity);
+      const transactionsRepo = txManager.getRepository(TransactionEntity);
+
+      const now = new Date();
+      const expiredProjects = await projectsRepo.find({
+        where: {
+          ...(projectId ? { id: projectId } : {}),
+          status: ProjectStatus.FUNDING,
+          endDate: LessThan(now),
+        },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      let refundedInvestments = 0;
+      let refundedAmount = 0;
+
+      for (const project of expiredProjects) {
+        const goalAmount = Number(project.goalAmount);
+        const currentAmount = Number(project.currentAmount);
+
+        if (currentAmount >= goalAmount) {
+          project.status = ProjectStatus.ACTIVE;
+          await projectsRepo.save(project);
+          continue;
+        }
+
+        const projectInvestments = await investmentsRepo.find({
+          where: {
+            projectId: project.id,
+            status: InvestmentStatus.ACTIVE,
+          },
+          lock: { mode: 'pessimistic_write' },
+        });
+
+        for (const investment of projectInvestments) {
+          const amount = Number(investment.amount);
+
+          const existedRefund = await transactionsRepo.findOne({
+            where: {
+              type: TransactionType.REFUND,
+              referenceId: investment.id,
+            },
+          });
+
+          if (existedRefund) {
+            investment.status = InvestmentStatus.WITHDRAWN;
+            await investmentsRepo.save(investment);
+            continue;
+          }
+
+          const user = await usersRepo.findOne({
+            where: { id: investment.userId },
+            lock: { mode: 'pessimistic_write' },
+          });
+
+          if (!user) {
+            continue;
+          }
+
+          user.balance = Number(user.balance) + amount;
+          investment.status = InvestmentStatus.WITHDRAWN;
+
+          await usersRepo.save(user);
+          await investmentsRepo.save(investment);
+
+          const refundTransaction = transactionsRepo.create({
+            userId: investment.userId,
+            amount,
+            type: TransactionType.REFUND,
+            status: TransactionStatus.SUCCESS,
+            description: `Hoàn tiền dự án ${project.title} do không đạt mục tiêu`,
+            referenceId: investment.id,
+          });
+          await transactionsRepo.save(refundTransaction);
+
+          refundedInvestments += 1;
+          refundedAmount += amount;
+        }
+
+        project.status = ProjectStatus.FAILED;
+        project.currentAmount = 0;
+        await projectsRepo.save(project);
+      }
+
+      return {
+        processedProjects: expiredProjects.length,
+        refundedInvestments,
+        refundedAmount: this.roundCurrency(refundedAmount),
+      };
+    };
+
+    if (manager) {
+      return run(manager);
+    }
+
+    return this.dataSource.transaction(async (txManager) => run(txManager));
   }
 
   private roundCurrency(value: number): number {

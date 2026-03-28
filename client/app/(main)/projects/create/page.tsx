@@ -16,6 +16,16 @@ type ProjectCategory = {
   slug: string;
 };
 
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+
 export default function CreateProjectPage() {
   const router = useRouter();
   const [loadingAuth, setLoadingAuth] = useState(true);
@@ -29,10 +39,16 @@ export default function CreateProjectPage() {
   const [interestRate, setInterestRate] = useState(12);
   const [durationMonths, setDurationMonths] = useState(12);
   const [targetCapital, setTargetCapital] = useState(1000000000);
-  const [contentSlug, setContentSlug] = useState("");
+  const [minInvestment, setMinInvestment] = useState(1000000);
+  const [riskLevel, setRiskLevel] = useState<"low" | "medium" | "high">(
+    "medium",
+  );
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [additionalImages, setAdditionalImages] = useState<string[]>([""]);
+  const contentSlug = slugify(title);
 
   useEffect(() => {
     const init = async () => {
@@ -74,6 +90,18 @@ export default function CreateProjectPage() {
       return;
     }
 
+    if (!contentSlug) {
+      setError("Tiêu đề dự án chưa hợp lệ để tạo slug.");
+      setSubmitting(false);
+      return;
+    }
+
+    if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+      setError("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
+      setSubmitting(false);
+      return;
+    }
+
     try {
       const payload = {
         title,
@@ -81,6 +109,11 @@ export default function CreateProjectPage() {
         interestRate: Number(interestRate),
         durationMonths: Number(durationMonths),
         targetCapital: Number(targetCapital),
+        minInvestment: Number(minInvestment),
+        riskLevel,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+        status: "pending",
         contentSlug,
         shortDescription,
         thumbnailUrl,
@@ -198,29 +231,85 @@ export default function CreateProjectPage() {
                 className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
               />
             </div>
+
+            <div>
+              <label className="block text-smaller font-semibold mb-2">Vốn mục tiêu</label>
+              <input
+                type="number"
+                step="0.01"
+                min="1"
+                value={targetCapital}
+                onChange={(e) => setTargetCapital(Number(e.target.value))}
+                required
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-smaller font-semibold mb-2">Vốn đầu tư tối thiểu</label>
+              <input
+                type="number"
+                step="0.01"
+                min="1"
+                value={minInvestment}
+                onChange={(e) => setMinInvestment(Number(e.target.value))}
+                required
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-smaller font-semibold mb-2">Mức độ rủi ro</label>
+              <select
+                value={riskLevel}
+                onChange={(e) =>
+                  setRiskLevel(e.target.value as "low" | "medium" | "high")
+                }
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+              >
+                <option value="low">Thấp</option>
+                <option value="medium">Trung bình</option>
+                <option value="high">Cao</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-smaller font-semibold mb-2">Trạng thái</label>
+              <input
+                value="pending"
+                readOnly
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 text-slate-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-smaller font-semibold mb-2">Ngày bắt đầu</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-smaller font-semibold mb-2">Ngày kết thúc (deadline)</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-smaller font-semibold mb-2">Vốn mục tiêu</label>
-            <input
-              type="number"
-              step="0.01"
-              min="1"
-              value={targetCapital}
-              onChange={(e) => setTargetCapital(Number(e.target.value))}
-              required
-              className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-smaller font-semibold mb-2">content_slug</label>
+            <label className="block text-smaller font-semibold mb-2">Slug (tự động)</label>
             <input
               value={contentSlug}
-              onChange={(e) => setContentSlug(e.target.value)}
-              required
-              placeholder="vd: can-ho-vista-q2"
-              className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+              readOnly
+              className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 text-slate-500"
             />
           </div>
 

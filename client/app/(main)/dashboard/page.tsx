@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 import api from "@/lib/axios";
@@ -44,7 +44,10 @@ export default function DashboardPage() {
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [paymentToast, setPaymentToast] = useState<string | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -66,6 +69,36 @@ export default function DashboardPage() {
 
     void fetchDashboardData();
   }, [router]);
+
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    const amount = Number(searchParams.get("amount") || "0");
+
+    if (payment === "success") {
+      setPaymentToast(
+        `Chúc mừng ${user?.fullName || "Lợi"}, ${amount.toLocaleString(
+          "vi-VN",
+        )}đ đã được nạp thành công vào ví!`,
+      );
+      window.dispatchEvent(new Event("auth-changed"));
+
+      const timer = window.setTimeout(() => {
+        setPaymentToast(null);
+        router.replace(pathname);
+      }, 3500);
+
+      return () => window.clearTimeout(timer);
+    }
+
+    if (payment === "failed") {
+      setPaymentToast("Thanh toán chưa thành công. Vui lòng thử lại.");
+      const timer = window.setTimeout(() => {
+        setPaymentToast(null);
+        router.replace(pathname);
+      }, 3500);
+      return () => window.clearTimeout(timer);
+    }
+  }, [pathname, router, searchParams, user?.fullName]);
 
   const totalInvested = useMemo(
     () => investments.reduce((sum, item) => sum + Number(item.amount), 0),
@@ -115,6 +148,11 @@ export default function DashboardPage() {
   return (
     <div className="bg-background-light dark:bg-background-dark min-h-screen font-display">
       <Navbar />
+      {paymentToast && (
+        <div className="fixed top-20 right-6 z-[70] rounded-xl border border-green-200 bg-green-50 px-5 py-3 text-sm font-semibold text-green-700 shadow-xl">
+          {paymentToast}
+        </div>
+      )}
       <main className="wrapper wrapper--lg py-12 space-y-10">
         <section>
           <h1 className="text-h2 font-bold text-slate-900 dark:text-white mb-2">

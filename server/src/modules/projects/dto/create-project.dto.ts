@@ -1,5 +1,7 @@
 import { Type } from 'class-transformer';
 import {
+  IsDateString,
+  IsEnum,
   IsArray,
   IsInt,
   IsNumber,
@@ -10,6 +12,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { ProjectRiskLevel, ProjectStatus } from '../entities/project.entity';
 
 export class CreateProjectDto {
   @IsString()
@@ -31,6 +34,27 @@ export class CreateProjectDto {
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(1)
   targetCapital: number;
+
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(1)
+  minInvestment: number;
+
+  @IsOptional()
+  @IsEnum(ProjectRiskLevel)
+  riskLevel?: ProjectRiskLevel;
+
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endDate?: string;
+
+  @IsOptional()
+  @IsEnum(ProjectStatus)
+  status?: ProjectStatus;
 
   @Type(() => Number)
   @IsInt()
