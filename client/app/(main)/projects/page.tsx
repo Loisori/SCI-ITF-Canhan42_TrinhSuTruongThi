@@ -5,31 +5,8 @@ import Link from "next/link";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 import api from "@/lib/axios";
-
-type ProjectCategory = {
-  id: number;
-  name: string;
-  slug: string;
-  iconUrl: string | null;
-};
-
-type Project = {
-  id: number;
-  title: string;
-  shortDescription: string | null;
-  thumbnailUrl: string | null;
-  targetCapital: number | string;
-  currentCapital: number | string;
-  fundingProgress: number;
-  interestRate: number | string;
-  durationMonths: number;
-  status: string;
-  category?: ProjectCategory | null;
-};
-
-type Profile = {
-  role: string;
-};
+import { Project, ProjectCategory } from "@/types/project";
+import { Profile } from "@/types/user";
 
 function ProjectCardSkeleton() {
   return (

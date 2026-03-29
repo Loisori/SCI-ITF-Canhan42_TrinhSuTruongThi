@@ -5,39 +5,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 import api from "@/lib/axios";
-
-type UserProfile = {
-  id: number;
-  fullName: string;
-  email: string;
-  balance: number | string;
-  role: string;
-  createdAt: string;
-};
-
-type PaymentSchedule = {
-  id: number;
-  dueDate: string;
-  amount: number | string;
-  status: string;
-  paidAt: string | null;
-};
-
-type Investment = {
-  id: number;
-  amount: number | string;
-  status: string;
-  investedAt: string;
-  project: {
-    id: number;
-    title: string;
-    slug: string;
-    thumbnailUrl: string | null;
-    interestRate: number | string;
-    durationMonths: number;
-  } | null;
-  paymentSchedules: PaymentSchedule[];
-};
+import { UserProfile } from "@/types/user";
+import { Investment } from "@/types/investment";
 
 export default function DashboardPage() {
   const [user, setUser] = useState<UserProfile | null>(null);

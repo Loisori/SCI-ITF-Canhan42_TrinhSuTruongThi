@@ -5,36 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 import api from "@/lib/axios";
-
-type Profile = {
-  role: string;
-};
-
-type ProjectCategory = {
-  id: number;
-  name: string;
-  slug: string;
-};
-
-type ProjectDetail = {
-  id: number;
-  title: string;
-  shortDescription: string | null;
-  interestRate: number | string;
-  status?: string;
-  thumbnailUrl: string | null;
-  images: string[];
-  category?: {
-    id: number;
-    name: string;
-    slug: string;
-  } | null;
-};
-
-type ToastState = {
-  type: "success" | "error";
-  message: string;
-} | null;
+import { Profile } from "@/types/user";
+import { ProjectCategory, ProjectDetail } from "@/types/project";
+import { ToastState } from "@/types/ui";
 
 export default function EditProjectPage() {
   const params = useParams<{ id: string }>();

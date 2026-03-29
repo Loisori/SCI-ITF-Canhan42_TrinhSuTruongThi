@@ -5,16 +5,8 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 import api from "@/lib/axios";
-
-type Me = {
-  role: string;
-};
-
-type ProjectCategory = {
-  id: number;
-  name: string;
-  slug: string;
-};
+import { Me } from "@/types/user";
+import { ProjectCategory } from "@/types/project";
 
 const slugify = (value: string) =>
   value

@@ -4,16 +4,7 @@ import { useEffect, useState } from "react";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 import api from "@/lib/axios";
-
-type Transaction = {
-  id: number;
-  amount: number | string;
-  type: string;
-  status: string;
-  description: string | null;
-  referenceId: number | null;
-  createdAt: string;
-};
+import { Transaction } from "@/types/transaction";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);

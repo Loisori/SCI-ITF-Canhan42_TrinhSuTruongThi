@@ -5,32 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 import api from "@/lib/axios";
-
-type ProjectDetail = {
-  id: number;
-  title: string;
-  shortDescription: string | null;
-  thumbnailUrl: string | null;
-  images: string[];
-  targetCapital: number | string;
-  currentCapital: number | string;
-  fundingProgress: number;
-  interestRate: number | string;
-  durationMonths: number;
-  minInvestment: number | string;
-  status: string;
-  endDate: string | null;
-  content: string | null;
-};
-
-type Profile = {
-  role: string;
-};
-
-type ToastState = {
-  type: "success" | "error";
-  message: string;
-} | null;
+import { ProjectDetail } from "@/types/project";
+import { Profile } from "@/types/user";
+import { ToastState } from "@/types/ui";
 
 function DetailSkeleton() {
   return (
