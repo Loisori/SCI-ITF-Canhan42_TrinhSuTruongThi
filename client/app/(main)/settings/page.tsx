@@ -71,7 +71,7 @@ export default function SettingsPage() {
 
         {/* Page Header */}
         <section className="mb-12">
-          <h1 className="text-h2 font-bold text-slate-900 dark:text-white mb-2">
+          <h1 className="text-h3 font-bold text-slate-900 dark:text-white mb-2">
             Cài đặt tài khoản
           </h1>
           <p className="text-body text-slate-600 dark:text-slate-400">

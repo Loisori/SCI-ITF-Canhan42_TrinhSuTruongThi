@@ -84,7 +84,7 @@ export default function ProjectList() {
       <main className="wrapper wrapper--lg py-10">
         <div className="flex items-start justify-between gap-4 mb-8">
           <div className="flex flex-col gap-2">
-            <h1 className="text-h3 md:text-h2 font-black text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-h3 md:text-h3 font-black text-slate-900 dark:text-white tracking-tight">
               Cơ hội đầu tư tiềm năng
             </h1>
             <p className="text-slate-600 dark:text-slate-400 text-body max-w-2xl">
@@ -120,7 +120,8 @@ export default function ProjectList() {
                 (Number(project.targetCapital) > 0
                   ? Number(
                       (
-                        (Number(project.currentCapital) / Number(project.targetCapital)) *
+                        (Number(project.currentCapital) /
+                          Number(project.targetCapital)) *
                         100
                       ).toFixed(2),
                     )
@@ -161,7 +162,8 @@ export default function ProjectList() {
                     )}
 
                     <p className="text-smaller text-slate-500 dark:text-slate-400 mb-5 line-clamp-2">
-                      {project.shortDescription || "Dự án đang cập nhật mô tả chi tiết."}
+                      {project.shortDescription ||
+                        "Dự án đang cập nhật mô tả chi tiết."}
                     </p>
 
                     <div className="grid grid-cols-2 gap-4 mb-6 py-4 border-y border-slate-100 dark:border-slate-800">
@@ -185,7 +187,9 @@ export default function ProjectList() {
 
                     <div className="mb-6">
                       <div className="flex justify-between text-smaller mb-1.5">
-                        <span className="text-slate-600 dark:text-slate-400">Tiến độ huy động</span>
+                        <span className="text-slate-600 dark:text-slate-400">
+                          Tiến độ huy động
+                        </span>
                         <span className="font-bold text-primary dark:text-white">
                           {progress}%
                         </span>
@@ -201,7 +205,9 @@ export default function ProjectList() {
                           <div className="w-full bg-orange-100 dark:bg-orange-900/30 h-2 rounded-full overflow-hidden">
                             <div
                               className="bg-orange-500 h-full"
-                              style={{ width: `${Math.min(overProgress, 100)}%` }}
+                              style={{
+                                width: `${Math.min(overProgress, 100)}%`,
+                              }}
                             />
                           </div>
                           <p className="mt-1 text-[11px] font-semibold text-orange-600 dark:text-orange-300">

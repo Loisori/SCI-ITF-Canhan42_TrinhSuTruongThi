@@ -66,7 +66,7 @@ export default function DepositPage() {
             />
           </div>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && <p className="text-small text-red-500">{error}</p>}
 
           <div className="flex items-center gap-3">
             <button

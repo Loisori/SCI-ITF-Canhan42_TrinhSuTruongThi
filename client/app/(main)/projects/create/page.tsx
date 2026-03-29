@@ -61,7 +61,9 @@ export default function CreateProjectPage() {
         }
 
         try {
-          const categoriesRes = await api.get<ProjectCategory[]>("/api/project-categories");
+          const categoriesRes = await api.get<ProjectCategory[]>(
+            "/api/project-categories",
+          );
           setCategories(categoriesRes.data);
         } catch {
           setCategories([]);
@@ -149,7 +151,9 @@ export default function CreateProjectPage() {
     return (
       <div className="bg-background-light dark:bg-background-dark min-h-screen font-display">
         <Navbar />
-        <main className="wrapper wrapper--md py-16">Đang kiểm tra quyền...</main>
+        <main className="wrapper wrapper--md py-16">
+          Đang kiểm tra quyền...
+        </main>
       </div>
     );
   }
@@ -166,19 +170,26 @@ export default function CreateProjectPage() {
           Khu vực dành riêng cho Owner.
         </p>
 
-        {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
+        {error && <div className="mb-4 text-red-500 text-small">{error}</div>}
         {loadingCategories && (
-          <div className="mb-4 text-sm text-slate-500">Đang tải danh mục...</div>
+          <div className="mb-4 text-small text-slate-500">
+            Đang tải danh mục...
+          </div>
         )}
         {hasNoCategories && (
-          <div className="mb-4 text-amber-600 text-sm font-semibold">
+          <div className="mb-4 text-amber-600 text-small font-semibold">
             Chưa có danh mục nào, vui lòng liên hệ Admin để tạo danh mục trước.
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800"
+        >
           <div>
-            <label className="block text-smaller font-semibold mb-2">Danh mục dự án</label>
+            <label className="block text-smaller font-semibold mb-2">
+              Danh mục dự án
+            </label>
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(Number(e.target.value))}
@@ -196,7 +207,9 @@ export default function CreateProjectPage() {
           </div>
 
           <div>
-            <label className="block text-smaller font-semibold mb-2">Tên dự án</label>
+            <label className="block text-smaller font-semibold mb-2">
+              Tên dự án
+            </label>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -207,7 +220,9 @@ export default function CreateProjectPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-smaller font-semibold mb-2">Lãi suất (%)</label>
+              <label className="block text-smaller font-semibold mb-2">
+                Lãi suất (%)
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -221,7 +236,9 @@ export default function CreateProjectPage() {
             </div>
 
             <div>
-              <label className="block text-smaller font-semibold mb-2">Thời hạn (tháng)</label>
+              <label className="block text-smaller font-semibold mb-2">
+                Thời hạn (tháng)
+              </label>
               <input
                 type="number"
                 min="1"
@@ -233,7 +250,9 @@ export default function CreateProjectPage() {
             </div>
 
             <div>
-              <label className="block text-smaller font-semibold mb-2">Vốn mục tiêu</label>
+              <label className="block text-smaller font-semibold mb-2">
+                Vốn mục tiêu
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -246,7 +265,9 @@ export default function CreateProjectPage() {
             </div>
 
             <div>
-              <label className="block text-smaller font-semibold mb-2">Vốn đầu tư tối thiểu</label>
+              <label className="block text-smaller font-semibold mb-2">
+                Vốn đầu tư tối thiểu
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -259,7 +280,9 @@ export default function CreateProjectPage() {
             </div>
 
             <div>
-              <label className="block text-smaller font-semibold mb-2">Mức độ rủi ro</label>
+              <label className="block text-smaller font-semibold mb-2">
+                Mức độ rủi ro
+              </label>
               <select
                 value={riskLevel}
                 onChange={(e) =>
@@ -274,7 +297,9 @@ export default function CreateProjectPage() {
             </div>
 
             <div>
-              <label className="block text-smaller font-semibold mb-2">Trạng thái</label>
+              <label className="block text-smaller font-semibold mb-2">
+                Trạng thái
+              </label>
               <input
                 value="pending"
                 readOnly
@@ -285,7 +310,9 @@ export default function CreateProjectPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-smaller font-semibold mb-2">Ngày bắt đầu</label>
+              <label className="block text-smaller font-semibold mb-2">
+                Ngày bắt đầu
+              </label>
               <input
                 type="date"
                 value={startDate}
@@ -294,7 +321,9 @@ export default function CreateProjectPage() {
               />
             </div>
             <div>
-              <label className="block text-smaller font-semibold mb-2">Ngày kết thúc (deadline)</label>
+              <label className="block text-smaller font-semibold mb-2">
+                Ngày kết thúc (deadline)
+              </label>
               <input
                 type="date"
                 value={endDate}
@@ -305,7 +334,9 @@ export default function CreateProjectPage() {
           </div>
 
           <div>
-            <label className="block text-smaller font-semibold mb-2">Slug (tự động)</label>
+            <label className="block text-smaller font-semibold mb-2">
+              Slug (tự động)
+            </label>
             <input
               value={contentSlug}
               readOnly
@@ -314,7 +345,9 @@ export default function CreateProjectPage() {
           </div>
 
           <div>
-            <label className="block text-smaller font-semibold mb-2">Mô tả ngắn</label>
+            <label className="block text-smaller font-semibold mb-2">
+              Mô tả ngắn
+            </label>
             <textarea
               value={shortDescription}
               onChange={(e) => setShortDescription(e.target.value)}
@@ -324,7 +357,9 @@ export default function CreateProjectPage() {
           </div>
 
           <div>
-            <label className="block text-smaller font-semibold mb-2">URL ảnh bìa</label>
+            <label className="block text-smaller font-semibold mb-2">
+              URL ảnh bìa
+            </label>
             <input
               value={thumbnailUrl}
               onChange={(e) => setThumbnailUrl(e.target.value)}
@@ -343,7 +378,9 @@ export default function CreateProjectPage() {
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-smaller font-semibold">Ảnh phụ (Gallery)</label>
+              <label className="block text-smaller font-semibold">
+                Ảnh phụ (Gallery)
+              </label>
               <button
                 type="button"
                 onClick={() => setAdditionalImages((prev) => [...prev, ""])}
@@ -355,7 +392,10 @@ export default function CreateProjectPage() {
 
             <div className="space-y-3">
               {additionalImages.map((image, index) => (
-                <div key={`${index}-${image}`} className="flex items-center gap-2">
+                <div
+                  key={`${index}-${image}`}
+                  className="flex items-center gap-2"
+                >
                   <input
                     value={image}
                     onChange={(e) =>
@@ -372,7 +412,9 @@ export default function CreateProjectPage() {
                     type="button"
                     disabled={additionalImages.length === 1}
                     onClick={() =>
-                      setAdditionalImages((prev) => prev.filter((_, itemIndex) => itemIndex !== index))
+                      setAdditionalImages((prev) =>
+                        prev.filter((_, itemIndex) => itemIndex !== index),
+                      )
                     }
                     className="px-3 py-2 rounded-md text-red-600 border border-red-200 disabled:opacity-40"
                   >

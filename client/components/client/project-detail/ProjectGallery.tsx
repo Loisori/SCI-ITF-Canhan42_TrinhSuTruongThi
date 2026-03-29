@@ -13,7 +13,9 @@ export default function ProjectGallery() {
           className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-6">
-          <p className="text-white font-medium">Toàn cảnh khu đô thị biển phía Đông</p>
+          <p className="text-white font-medium">
+            Toàn cảnh khu đô thị biển phía Đông
+          </p>
         </div>
       </div>
 
@@ -27,7 +29,9 @@ export default function ProjectGallery() {
             className="object-cover"
           />
           <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <span className="text-white text-sm font-semibold">Xem thêm 12 ảnh</span>
+            <span className="text-white text-small font-semibold">
+              Xem thêm 12 ảnh
+            </span>
           </div>
         </div>
         <div className="rounded-xl overflow-hidden relative">

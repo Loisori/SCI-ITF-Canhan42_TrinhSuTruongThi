@@ -26,14 +26,14 @@ export default function ContactPage() {
 
         <div className="wrapper wrapper--lg">
           <div className="mb-16">
-            <p className="text-xs font-bold tracking-widest uppercase text-slate-500 mb-4">
+            <p className="text-smallest font-bold tracking-widest uppercase text-slate-500 mb-4">
               Liên hệ với đội ngũ InvestPro
             </p>
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-6">
+            <h1 className="text-h3 md:text-h2 font-bold text-slate-900 dark:text-white tracking-tight mb-6">
               Sự chuyên nghiệp chỉ cách bạn <br />
               <span className="text-primary/60">một cuộc hội thoại.</span>
             </h1>
-            <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
+            <p className="text-body text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
               Cho dù bạn đang tìm kiếm thông tin thị trường hay cần hỗ trợ về
               danh mục đầu tư, đội ngũ chuyên gia của chúng tôi luôn sẵn sàng
               giúp đỡ.
@@ -138,14 +138,14 @@ export default function ContactPage() {
                   <h3 className="font-bold text-slate-900 dark:text-white">
                     Trò chuyện trực tiếp
                   </h3>
-                  <p className="text-sm text-slate-500 mb-3">
+                  <p className="text-small text-slate-500 mb-3">
                     Hỗ trợ tức thì cho các nhà đầu tư đang hoạt động.
                   </p>
                   <span className="text-[10px] font-bold text-green-600 dark:text-green-400 flex items-center gap-1.5 uppercase tracking-wider">
                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                     CHỜ ĐỢI TB: 2 PHÚT
                   </span>
-                  <button className="mt-4 text-sm font-bold text-primary hover:underline block">
+                  <button className="mt-4 text-small font-bold text-primary hover:underline block">
                     Bắt đầu trò chuyện
                   </button>
                 </div>
@@ -163,7 +163,7 @@ export default function ContactPage() {
                     <p className="text-[10px] font-bold text-slate-400 uppercase">
                       Email Support
                     </p>
-                    <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                    <p className="text-small font-bold text-slate-700 dark:text-slate-200">
                       support@investpro.com
                     </p>
                   </div>
@@ -179,7 +179,7 @@ export default function ContactPage() {
                     <p className="text-[10px] font-bold text-slate-400 uppercase">
                       Điện thoại
                     </p>
-                    <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                    <p className="text-small font-bold text-slate-700 dark:text-slate-200">
                       +84 (1800) INVEST
                     </p>
                   </div>
@@ -189,17 +189,17 @@ export default function ContactPage() {
               {/* Address Card */}
               <div className="bg-slate-900 text-white p-8 rounded-2xl relative overflow-hidden group">
                 <div className="relative z-10">
-                  <h3 className="font-bold text-lg mb-2">Trụ sở chính</h3>
-                  <p className="text-sm text-slate-400 leading-relaxed mb-6">
+                  <h3 className="font-bold text-body mb-2">Trụ sở chính</h3>
+                  <p className="text-small text-slate-400 leading-relaxed mb-6">
                     Quận 1, Thành phố Hồ Chí Minh
                     <br />
                     Bitexco Financial Tower
                     <br />
                     Việt Nam
                   </p>
-                  <button className="flex items-center gap-2 text-sm font-bold text-primary group-hover:gap-3 transition-all">
+                  <button className="flex items-center gap-2 text-small font-bold text-primary group-hover:gap-3 transition-all">
                     Xem trên bản đồ{" "}
-                    <span className="material-symbols-outlined text-sm">
+                    <span className="material-symbols-outlined text-small">
                       arrow_forward
                     </span>
                   </button>

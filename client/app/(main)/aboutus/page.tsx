@@ -19,7 +19,7 @@ export default function AboutPage() {
             className="object-cover brightness-[0.4]"
           />
           <div className="relative z-10 text-center px-4 max-w-4xl">
-            <h1 className="text-h2 md:text-h1 font-black text-white mb-6 leading-tight">
+            <h1 className="text-h3 md:text-h1 font-black text-white mb-6 leading-tight">
               Kết nối nhà đầu tư với các giá trị bền vững
             </h1>
             <p className="text-body text-slate-300 max-w-2xl mx-auto">
@@ -77,7 +77,7 @@ export default function AboutPage() {
               <span className="text-primary font-bold tracking-widest uppercase text-smaller">
                 Hành trình phát triển
               </span>
-              <h2 className="text-h4 md:text-4xl font-bold mt-4">
+              <h2 className="text-h4 md:text-h3 font-bold mt-4">
                 Các cột mốc quan trọng
               </h2>
             </div>

@@ -38,7 +38,7 @@ export default function DepositSuccessPage() {
       <Navbar />
       <main className="wrapper wrapper--sm py-16">
         {showToast && (
-          <div className="fixed top-20 right-6 z-[60] rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700 shadow-lg">
+          <div className="fixed top-20 right-6 z-[60] rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-small font-semibold text-green-700 shadow-lg">
             Nạp tiền thành công, số dư đã được cập nhật.
           </div>
         )}

@@ -128,19 +128,19 @@ export default function AdminApprovalPage() {
               <table className="min-w-full text-left divide-y divide-slate-200 dark:divide-slate-700">
                 <thead className="bg-slate-50 dark:bg-slate-950">
                   <tr>
-                    <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                    <th className="px-6 py-4 text-small font-semibold text-slate-600 dark:text-slate-300">
                       Dự án
                     </th>
-                    <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                    <th className="px-6 py-4 text-small font-semibold text-slate-600 dark:text-slate-300">
                       Chủ dự án
                     </th>
-                    <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                    <th className="px-6 py-4 text-small font-semibold text-slate-600 dark:text-slate-300">
                       Mục tiêu
                     </th>
-                    <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                    <th className="px-6 py-4 text-small font-semibold text-slate-600 dark:text-slate-300">
                       Ngày tạo
                     </th>
-                    <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300">
+                    <th className="px-6 py-4 text-small font-semibold text-slate-600 dark:text-slate-300">
                       Hành động
                     </th>
                   </tr>
@@ -149,7 +149,7 @@ export default function AdminApprovalPage() {
                   {projects.map((project) => (
                     <tr key={project.id}>
                       <td className="px-6 py-4">
-                        <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                        <div className="text-small font-semibold text-slate-900 dark:text-white">
                           {project.title}
                         </div>
                         <div className="text-smaller text-slate-500 dark:text-slate-400">
@@ -157,7 +157,7 @@ export default function AdminApprovalPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                        <div className="text-small font-semibold text-slate-900 dark:text-white">
                           {project.owner?.fullName ?? "Không xác định"}
                         </div>
                         <div className="text-smaller text-slate-500 dark:text-slate-400">

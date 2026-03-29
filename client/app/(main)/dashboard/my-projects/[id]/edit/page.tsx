@@ -66,14 +66,18 @@ export default function EditProjectPage() {
         }
 
         try {
-          const categoriesRes = await api.get<ProjectCategory[]>("/api/project-categories");
+          const categoriesRes = await api.get<ProjectCategory[]>(
+            "/api/project-categories",
+          );
           setCategories(categoriesRes.data);
         } catch {
           setCategories([]);
           setError("Không thể tải danh mục dự án.");
         }
 
-        const detailRes = await api.get<ProjectDetail>(`/api/projects/${params.id}`);
+        const detailRes = await api.get<ProjectDetail>(
+          `/api/projects/${params.id}`,
+        );
         const project = detailRes.data;
 
         setCategoryId(project.category?.id ?? 0);
@@ -121,7 +125,9 @@ export default function EditProjectPage() {
       return;
     }
 
-    const confirmed = window.confirm("Bạn có chắc muốn dừng nhận vốn dự án này?");
+    const confirmed = window.confirm(
+      "Bạn có chắc muốn dừng nhận vốn dự án này?",
+    );
     if (!confirmed) {
       return;
     }
@@ -205,7 +211,7 @@ export default function EditProjectPage() {
       {toast && (
         <div className="fixed top-20 right-5 z-[60]">
           <div
-            className={`px-4 py-3 rounded-lg shadow-lg text-sm font-semibold ${
+            className={`px-4 py-3 rounded-lg shadow-lg text-small font-semibold ${
               toast.type === "success"
                 ? "bg-green-600 text-white"
                 : "bg-red-600 text-white"
@@ -222,12 +228,14 @@ export default function EditProjectPage() {
           Cập nhật thông tin và gallery để tăng sức hút với nhà đầu tư.
         </p>
 
-        {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
+        {error && <div className="mb-4 text-red-500 text-small">{error}</div>}
         {loadingCategories && (
-          <div className="mb-4 text-sm text-slate-500">Đang tải danh mục...</div>
+          <div className="mb-4 text-small text-slate-500">
+            Đang tải danh mục...
+          </div>
         )}
         {hasNoCategories && (
-          <div className="mb-4 text-amber-600 text-sm font-semibold">
+          <div className="mb-4 text-amber-600 text-small font-semibold">
             Chưa có danh mục nào, vui lòng liên hệ Admin để tạo danh mục trước.
           </div>
         )}
@@ -237,7 +245,9 @@ export default function EditProjectPage() {
           className="space-y-5 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800"
         >
           <div>
-            <label className="block text-smaller font-semibold mb-2">Danh mục dự án</label>
+            <label className="block text-smaller font-semibold mb-2">
+              Danh mục dự án
+            </label>
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(Number(e.target.value))}
@@ -255,7 +265,9 @@ export default function EditProjectPage() {
           </div>
 
           <div>
-            <label className="block text-smaller font-semibold mb-2">Tên dự án</label>
+            <label className="block text-smaller font-semibold mb-2">
+              Tên dự án
+            </label>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -265,7 +277,9 @@ export default function EditProjectPage() {
           </div>
 
           <div>
-            <label className="block text-smaller font-semibold mb-2">Mô tả ngắn</label>
+            <label className="block text-smaller font-semibold mb-2">
+              Mô tả ngắn
+            </label>
             <textarea
               value={shortDescription}
               onChange={(e) => setShortDescription(e.target.value)}
@@ -275,7 +289,9 @@ export default function EditProjectPage() {
           </div>
 
           <div>
-            <label className="block text-smaller font-semibold mb-2">Lãi suất (%)</label>
+            <label className="block text-smaller font-semibold mb-2">
+              Lãi suất (%)
+            </label>
             <input
               type="number"
               step="0.01"
@@ -288,7 +304,9 @@ export default function EditProjectPage() {
           </div>
 
           <div>
-            <label className="block text-smaller font-semibold mb-2">Ảnh chính (Thumbnail)</label>
+            <label className="block text-smaller font-semibold mb-2">
+              Ảnh chính (Thumbnail)
+            </label>
             <input
               value={thumbnailUrl}
               onChange={(e) => setThumbnailUrl(e.target.value)}
@@ -307,7 +325,9 @@ export default function EditProjectPage() {
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-smaller font-semibold">Ảnh phụ (Gallery)</label>
+              <label className="block text-smaller font-semibold">
+                Ảnh phụ (Gallery)
+              </label>
               <button
                 type="button"
                 onClick={() => setAdditionalImages((prev) => [...prev, ""])}
@@ -319,7 +339,10 @@ export default function EditProjectPage() {
 
             <div className="space-y-3">
               {additionalImages.map((image, index) => (
-                <div key={`${index}-${image}`} className="flex items-center gap-2">
+                <div
+                  key={`${index}-${image}`}
+                  className="flex items-center gap-2"
+                >
                   <input
                     value={image}
                     onChange={(e) =>

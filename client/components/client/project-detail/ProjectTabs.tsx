@@ -11,7 +11,7 @@ export default function ProjectTabs() {
         <button
           key={tab}
           onClick={() => setActiveTab(tab)}
-          className={`pb-4 text-sm font-bold whitespace-nowrap transition-all border-b-2 ${
+          className={`pb-4 text-small font-bold whitespace-nowrap transition-all border-b-2 ${
             activeTab === tab
               ? "border-primary text-primary dark:text-white"
               : "border-transparent text-slate-500 hover:text-primary"

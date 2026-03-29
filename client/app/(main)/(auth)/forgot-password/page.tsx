@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
           </nav>
           <Link
             href="/login"
-            className="bg-primary dark:bg-white dark:text-primary text-white px-5 py-2 rounded-lg font-semibold text-sm hover:opacity-90 transition-all"
+            className="bg-primary dark:bg-white dark:text-primary text-white px-5 py-2 rounded-lg font-semibold text-small hover:opacity-90 transition-all"
           >
             Log In
           </Link>
@@ -74,12 +74,12 @@ export default function ForgotPasswordPage() {
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
-                    <span className="material-symbols-outlined text-lg">
+                    <span className="material-symbols-outlined text-body">
                       mail
                     </span>
                   </div>
                   <input
-                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-slate-900 dark:text-white text-sm ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-primary transition-all placeholder:text-slate-400"
+                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-slate-900 dark:text-white text-small ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-primary transition-all placeholder:text-slate-400"
                     id="email"
                     type="email"
                     placeholder="name@institutional.com"
@@ -89,11 +89,11 @@ export default function ForgotPasswordPage() {
               </div>
 
               <button
-                className="w-full bg-primary dark:bg-white dark:text-primary text-white py-4 rounded-xl font-bold text-sm tracking-wide shadow-lg hover:opacity-90 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                className="w-full bg-primary dark:bg-white dark:text-primary text-white py-4 rounded-xl font-bold text-small tracking-wide shadow-lg hover:opacity-90 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                 type="submit"
               >
                 Gửi liên kết đặt lại
-                <span className="material-symbols-outlined text-lg">
+                <span className="material-symbols-outlined text-body">
                   arrow_forward
                 </span>
               </button>
@@ -102,9 +102,9 @@ export default function ForgotPasswordPage() {
             <div className="mt-8 pt-8 border-t border-slate-100 dark:border-white/5 text-center">
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-colors group"
+                className="inline-flex items-center gap-2 text-small font-bold text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-white transition-colors group"
               >
-                <span className="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">
+                <span className="material-symbols-outlined text-body group-hover:-translate-x-1 transition-transform">
                   arrow_back
                 </span>
                 Quay lại Đăng nhập

@@ -31,7 +31,9 @@ export default function Navbar() {
       const response = await api.get("/auth/profile");
       setUser(response.data as UserProfile);
     } catch (error) {
-      if ((error as { response?: { status?: number } })?.response?.status === 403) {
+      if (
+        (error as { response?: { status?: number } })?.response?.status === 403
+      ) {
         Cookies.remove("access_token", { path: "/" });
         setUser(null);
       }
@@ -140,7 +142,7 @@ export default function Navbar() {
                   <span className="text-[10px] uppercase tracking-widest font-bold text-slate-500">
                     Số dư
                   </span>
-                  <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                  <span className="text-small font-bold text-green-600 dark:text-green-400">
                     ${Number(user.balance).toLocaleString()}
                   </span>
                 </div>
@@ -154,24 +156,24 @@ export default function Navbar() {
                     onClick={toggleMenu}
                     className="flex items-center gap-2 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
                   >
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-smallest font-bold shrink-0">
                       {user.fullName?.charAt(0).toUpperCase()}
                     </div>
-                    <span className="hidden sm:block text-sm font-bold text-slate-700 dark:text-slate-200">
+                    <span className="hidden sm:block text-small font-bold text-slate-700 dark:text-slate-200">
                       {user.fullName}
                     </span>
                   </button>
 
                   {/* Dropdown Menu */}
                   {isMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-2 z-50">
+                    <div className="absolute right-0 mt-2 w- bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-2 z-50">
                       {/* Dashboard Link */}
                       <Link
                         href="/dashboard"
-                        className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5"
+                        className="flex items-center gap-3 px-4 py-2 text-small text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        <span className="material-symbols-outlined text-lg">
+                        <span className="material-symbols-outlined text-body">
                           dashboard
                         </span>
                         Dashboard
@@ -180,10 +182,10 @@ export default function Navbar() {
                       {/* Settings Link */}
                       <Link
                         href="/settings"
-                        className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5"
+                        className="flex items-center gap-3 px-4 py-2 text-small text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        <span className="material-symbols-outlined text-lg">
+                        <span className="material-symbols-outlined text-body">
                           settings
                         </span>
                         Cài đặt
@@ -191,10 +193,10 @@ export default function Navbar() {
 
                       <Link
                         href="/transactions"
-                        className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5"
+                        className="flex items-center gap-3 px-4 py-2 text-small text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        <span className="material-symbols-outlined text-lg">
+                        <span className="material-symbols-outlined text-body">
                           receipt_long
                         </span>
                         Giao dịch
@@ -208,9 +210,9 @@ export default function Navbar() {
                           handleLogout();
                           setIsMenuOpen(false);
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-2 text-small text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
                       >
-                        <span className="material-symbols-outlined text-lg">
+                        <span className="material-symbols-outlined text-body">
                           logout
                         </span>
                         Đăng xuất

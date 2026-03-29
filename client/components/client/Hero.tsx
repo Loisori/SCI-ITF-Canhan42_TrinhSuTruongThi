@@ -8,7 +8,7 @@ export default function Hero() {
             <span className="inline-flex items-center px-3 py-1 rounded-full text-smallest font-bold bg-primary/10 text-primary dark:bg-white/10 dark:text-slate-100 w-fit">
               Nền tảng đầu tư hàng đầu Việt Nam
             </span>
-            <h2 className="text-5xl lg:text-[7.2rem] font-black leading-[1.1] text-primary dark:text-slate-100">
+            <h2 className="text-h2 lg:text-[7.2rem] font-black leading-[1.1] text-primary dark:text-slate-100">
               Đầu tư thông minh, <br />
               <span className="opacity-60">Kiến tạo tương lai</span>
             </h2>
@@ -17,7 +17,10 @@ export default function Hero() {
               ưu hóa lợi nhuận và xây dựng giá trị bền vững.
             </p>
             <div className="flex flex-wrap gap-4 pt-4">
-              <Link href="/projects" className="block px-8 py-4 bg-primary text-white font-bold rounded-xl shadow-xl hover:translate-y-[-2px] transition-all">
+              <Link
+                href="/projects"
+                className="block px-8 py-4 bg-primary text-white font-bold rounded-xl shadow-xl hover:translate-y-[-2px] transition-all"
+              >
                 Khám phá dự án
               </Link>
               <button className="px-8 py-4 bg-white dark:bg-white/5 border border-primary/10 font-bold rounded-xl flex items-center gap-2">

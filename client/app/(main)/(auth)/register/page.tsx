@@ -74,10 +74,10 @@ export default function RegisterPage() {
               Institutional Grade
             </span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-6">
+          <h1 className="text-h3 md:text-h2 font-extrabold text-white leading-tight mb-6">
             The Sovereign Architect of Your Wealth.
           </h1>
-          <p className="text-lg text-slate-300 mb-10 leading-relaxed font-light">
+          <p className="text-body text-slate-300 mb-10 leading-relaxed font-light">
             Tham gia cộng đồng các nhà đầu tư ưu tú, sử dụng các công cụ được
             thiết kế chính xác để mang lại sự minh bạch tài chính.
           </p>
@@ -123,21 +123,21 @@ export default function RegisterPage() {
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
               Tạo tài khoản mới
             </h2>
-            <p className="text-slate-500 text-sm">
+            <p className="text-slate-500 text-small">
               Bắt đầu hành trình đầu tư thông minh cùng InvestPro ngay hôm nay.
             </p>
           </div>
 
           {/* Success Message */}
           {success && (
-            <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 text-sm">
+            <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 text-small">
               Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...
             </div>
           )}
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-small">
               {error}
             </div>
           )}
@@ -149,11 +149,11 @@ export default function RegisterPage() {
                 Họ và tên
               </label>
               <div className="relative group">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-primary transition-colors">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-body group-focus-within:text-primary transition-colors">
                   person
                 </span>
                 <input
-                  className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl ring-1 ring-slate-200 dark:ring-slate-800 focus:ring-2 focus:ring-primary transition-all text-sm outline-none placeholder:text-slate-400"
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl ring-1 ring-slate-200 dark:ring-slate-800 focus:ring-2 focus:ring-primary transition-all text-small outline-none placeholder:text-slate-400"
                   placeholder="Nhập họ và tên của bạn"
                   type="text"
                   required
@@ -169,11 +169,11 @@ export default function RegisterPage() {
                 Email của bạn
               </label>
               <div className="relative group">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-primary transition-colors">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-body group-focus-within:text-primary transition-colors">
                   mail
                 </span>
                 <input
-                  className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl ring-1 ring-slate-200 dark:ring-slate-800 focus:ring-2 focus:ring-primary transition-all text-sm outline-none placeholder:text-slate-400"
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl ring-1 ring-slate-200 dark:ring-slate-800 focus:ring-2 focus:ring-primary transition-all text-small outline-none placeholder:text-slate-400"
                   placeholder="name@company.com"
                   type="email"
                   required
@@ -189,11 +189,11 @@ export default function RegisterPage() {
                 Mật khẩu
               </label>
               <div className="relative group">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg group-focus-within:text-primary transition-colors">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-body group-focus-within:text-primary transition-colors">
                   lock
                 </span>
                 <input
-                  className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl ring-1 ring-slate-200 dark:ring-slate-800 focus:ring-2 focus:ring-primary transition-all text-sm outline-none placeholder:text-slate-400"
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl ring-1 ring-slate-200 dark:ring-slate-800 focus:ring-2 focus:ring-primary transition-all text-small outline-none placeholder:text-slate-400"
                   placeholder="••••••••"
                   type={showPassword ? "text" : "password"}
                   required
@@ -243,7 +243,7 @@ export default function RegisterPage() {
                   />
                   <label
                     htmlFor="investor"
-                    className="text-sm text-slate-700 dark:text-slate-300 cursor-pointer"
+                    className="text-small text-slate-700 dark:text-slate-300 cursor-pointer"
                   >
                     <span className="font-semibold">Nhà đầu tư</span> - Tôi muốn
                     đầu tư vào các dự án
@@ -261,7 +261,7 @@ export default function RegisterPage() {
                   />
                   <label
                     htmlFor="owner"
-                    className="text-sm text-slate-700 dark:text-slate-300 cursor-pointer"
+                    className="text-small text-slate-700 dark:text-slate-300 cursor-pointer"
                   >
                     <span className="font-semibold">Chủ dự án</span> - Tôi muốn
                     huy động vốn cho dự án của mình
@@ -279,7 +279,7 @@ export default function RegisterPage() {
                 required
               />
               <label
-                className="text-xs text-slate-500 leading-relaxed"
+                className="text-smallest text-slate-500 leading-relaxed"
                 htmlFor="terms"
               >
                 Tôi đồng ý với các{" "}
@@ -316,7 +316,7 @@ export default function RegisterPage() {
               ) : (
                 <>
                   Tạo tài khoản
-                  <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">
+                  <span className="material-symbols-outlined text-body group-hover:translate-x-1 transition-transform">
                     arrow_forward
                   </span>
                 </>
@@ -325,7 +325,7 @@ export default function RegisterPage() {
           </form>
 
           <div className="mt-8 text-center">
-            <p className="text-sm text-slate-500">
+            <p className="text-small text-slate-500">
               Đã có tài khoản?{" "}
               <Link
                 className="text-primary font-bold hover:underline"

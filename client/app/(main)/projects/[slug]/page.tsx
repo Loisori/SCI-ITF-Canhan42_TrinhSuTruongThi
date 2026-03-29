@@ -155,9 +155,13 @@ export default function ProjectDetailPage() {
         message: "Chúc mừng bạn đã trở thành nhà đầu tư!",
       });
 
-      const refreshed = await api.get<ProjectDetail>(`/api/projects/${project.id}`);
+      const refreshed = await api.get<ProjectDetail>(
+        `/api/projects/${project.id}`,
+      );
       setProject(refreshed.data);
-      setSelectedImage(refreshed.data.thumbnailUrl ?? refreshed.data.images?.[0] ?? null);
+      setSelectedImage(
+        refreshed.data.thumbnailUrl ?? refreshed.data.images?.[0] ?? null,
+      );
       setAmount(Number(refreshed.data.minInvestment || 1));
 
       window.dispatchEvent(new Event("auth-changed"));
@@ -206,7 +210,7 @@ export default function ProjectDetailPage() {
       {toast && (
         <div className="fixed top-20 right-5 z-[60]">
           <div
-            className={`px-4 py-3 rounded-lg shadow-lg text-sm font-semibold ${
+            className={`px-4 py-3 rounded-lg shadow-lg text-small font-semibold ${
               toast.type === "success"
                 ? "bg-green-600 text-white"
                 : "bg-red-600 text-white"
@@ -266,9 +270,12 @@ export default function ProjectDetailPage() {
               </p>
 
               <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
-                <h2 className="text-h6 font-bold mb-3">Nội dung dự án (Markdown)</h2>
+                <h2 className="text-h6 font-bold mb-3">
+                  Nội dung dự án (Markdown)
+                </h2>
                 <pre className="whitespace-pre-wrap text-smaller text-slate-700 dark:text-slate-300 leading-relaxed">
-                  {project.content || "Chưa có nội dung markdown cho content_slug này."}
+                  {project.content ||
+                    "Chưa có nội dung markdown cho content_slug này."}
                 </pre>
               </div>
             </section>
@@ -279,11 +286,15 @@ export default function ProjectDetailPage() {
                 <div className="space-y-3 text-smaller">
                   <div className="flex justify-between">
                     <span>Lãi suất</span>
-                    <span className="font-bold">{Number(project.interestRate).toFixed(2)}%</span>
+                    <span className="font-bold">
+                      {Number(project.interestRate).toFixed(2)}%
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Thời hạn</span>
-                    <span className="font-bold">{project.durationMonths} tháng</span>
+                    <span className="font-bold">
+                      {project.durationMonths} tháng
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tối thiểu</span>
@@ -338,7 +349,9 @@ export default function ProjectDetailPage() {
                   onSubmit={handleInvest}
                   className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-3"
                 >
-                  <label className="block text-smaller font-semibold">Số tiền đầu tư</label>
+                  <label className="block text-smaller font-semibold">
+                    Số tiền đầu tư
+                  </label>
                   <input
                     type="number"
                     // min={Number(project.minInvestment || 1)}

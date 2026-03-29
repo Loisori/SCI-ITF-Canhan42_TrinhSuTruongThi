@@ -140,7 +140,9 @@ export default function DashboardPage() {
     return (
       <div className="bg-background-light dark:bg-background-dark min-h-screen font-display">
         <Navbar />
-        <main className="wrapper wrapper--lg py-16 text-red-500">{error || "Vui lòng đăng nhập lại."}</main>
+        <main className="wrapper wrapper--lg py-16 text-red-500">
+          {error || "Vui lòng đăng nhập lại."}
+        </main>
       </div>
     );
   }
@@ -149,14 +151,15 @@ export default function DashboardPage() {
     <div className="bg-background-light dark:bg-background-dark min-h-screen font-display">
       <Navbar />
       {paymentToast && (
-        <div className="fixed top-20 right-6 z-[70] rounded-xl border border-green-200 bg-green-50 px-5 py-3 text-sm font-semibold text-green-700 shadow-xl">
+        <div className="fixed top-20 right-6 z-[70] rounded-xl border border-green-200 bg-green-50 px-5 py-3 text-small font-semibold text-green-700 shadow-xl">
           {paymentToast}
         </div>
       )}
       <main className="wrapper wrapper--lg py-12 space-y-10">
         <section>
-          <h1 className="text-h2 font-bold text-slate-900 dark:text-white mb-2">
-            Chào mừng trở lại, <span className="text-primary">{user.fullName}</span>
+          <h1 className="text-h3 font-bold text-slate-900 dark:text-white mb-2">
+            Chào mừng trở lại,{" "}
+            <span className="text-primary">{user.fullName}</span>
           </h1>
           <p className="text-body text-slate-600 dark:text-slate-400">
             Tổng quan tài sản và các khoản đầu tư của bạn.
@@ -181,7 +184,9 @@ export default function DashboardPage() {
 
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
             <p className="text-smaller text-slate-500 mb-1">Số khoản đầu tư</p>
-            <p className="text-h4 font-bold text-slate-900 dark:text-white">{investments.length}</p>
+            <p className="text-h4 font-bold text-slate-900 dark:text-white">
+              {investments.length}
+            </p>
           </div>
 
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
@@ -193,10 +198,14 @@ export default function DashboardPage() {
         </section>
 
         <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
-          <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-4">Danh sách khoản đầu tư</h2>
+          <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-4">
+            Danh sách khoản đầu tư
+          </h2>
 
           {investments.length === 0 ? (
-            <p className="text-smaller text-slate-500">Bạn chưa có khoản đầu tư nào.</p>
+            <p className="text-smaller text-slate-500">
+              Bạn chưa có khoản đầu tư nào.
+            </p>
           ) : (
             <div className="space-y-3">
               {investments.map((investment) => (
@@ -209,7 +218,10 @@ export default function DashboardPage() {
                       {investment.project?.title || "Dự án"}
                     </p>
                     <p className="text-smaller text-slate-500">
-                      Đầu tư ngày {new Date(investment.investedAt).toLocaleDateString("vi-VN")}
+                      Đầu tư ngày{" "}
+                      {new Date(investment.investedAt).toLocaleDateString(
+                        "vi-VN",
+                      )}
                     </p>
                   </div>
 
@@ -217,7 +229,9 @@ export default function DashboardPage() {
                     <p className="font-bold text-primary">
                       {Number(investment.amount).toLocaleString("vi-VN")} đ
                     </p>
-                    <p className="text-smaller text-slate-500">{investment.status}</p>
+                    <p className="text-smaller text-slate-500">
+                      {investment.status}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -226,13 +240,15 @@ export default function DashboardPage() {
         </section>
 
         <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
-          <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-4">Lịch trả lãi</h2>
+          <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-4">
+            Lịch trả lãi
+          </h2>
 
           {upcomingSchedules.length === 0 ? (
             <p className="text-smaller text-slate-500">Chưa có lịch trả lãi.</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
+              <table className="w-full text-small text-left">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-800">
                     <th className="py-2 pr-4">Dự án</th>
@@ -243,12 +259,17 @@ export default function DashboardPage() {
                 </thead>
                 <tbody>
                   {upcomingSchedules.map((schedule) => (
-                    <tr key={schedule.id} className="border-b border-slate-100 dark:border-slate-800">
+                    <tr
+                      key={schedule.id}
+                      className="border-b border-slate-100 dark:border-slate-800"
+                    >
                       <td className="py-2 pr-4">{schedule.projectTitle}</td>
                       <td className="py-2 pr-4">
                         {new Date(schedule.dueDate).toLocaleDateString("vi-VN")}
                       </td>
-                      <td className="py-2 pr-4">{Number(schedule.amount).toLocaleString("vi-VN")} đ</td>
+                      <td className="py-2 pr-4">
+                        {Number(schedule.amount).toLocaleString("vi-VN")} đ
+                      </td>
                       <td className="py-2">{schedule.status}</td>
                     </tr>
                   ))}

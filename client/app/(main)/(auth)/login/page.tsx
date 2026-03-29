@@ -78,10 +78,10 @@ export default function LoginPage() {
                 InvestPro
               </span>
             </Link>
-            <h1 className="text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight mb-6">
+            <h1 className="text-h3 lg:text-h2 font-extrabold text-white tracking-tight leading-tight mb-6">
               Secure your financial future.
             </h1>
-            <p className="text-lg text-slate-400 font-medium leading-relaxed mb-10 max-w-md">
+            <p className="text-body text-slate-400 font-medium leading-relaxed mb-10 max-w-md">
               Truy cập công cụ đầu tư cấp độ tổ chức và thông tin chi tiết với
               độ chính xác tuyệt đối.
             </p>
@@ -103,14 +103,14 @@ export default function LoginPage() {
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
                 Đăng nhập hệ thống
               </h2>
-              <p className="text-sm text-slate-500 font-medium">
+              <p className="text-small text-slate-500 font-medium">
                 Nhập thông tin xác thực để quản lý danh mục đầu tư.
               </p>
             </header>
 
             {/* Hiển thị lỗi nếu có */}
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+              <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-small">
                 {error}
               </div>
             )}
@@ -188,7 +188,7 @@ export default function LoginPage() {
             </form>
 
             <footer className="mt-12 text-center">
-              <p className="text-sm text-slate-500 font-medium">
+              <p className="text-small text-slate-500 font-medium">
                 Chưa có tài khoản?
                 <Link
                   className="text-primary font-bold hover:underline ml-1"
