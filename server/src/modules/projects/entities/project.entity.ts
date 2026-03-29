@@ -98,6 +98,21 @@ export class ProjectEntity {
   })
   interestRate: number;
 
+  // Commission rate (phí sàn) tính theo % (ví dụ 5.00 = 5%).
+  // Cho phép nullable để tương thích dữ liệu cũ nếu cột mới chưa được gán.
+  @Column({
+    name: 'commission_rate',
+    type: 'decimal',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    },
+  })
+  commissionRate: number | null;
+
   @Column({ name: 'duration_months', type: 'int' })
   durationMonths: number;
 

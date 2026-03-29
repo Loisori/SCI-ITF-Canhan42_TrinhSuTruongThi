@@ -38,9 +38,9 @@ export default function HeaderCategoryNav() {
       className="flex items-center gap-1 md:gap-2 py-2 border-t border-primary/10 dark:border-white/10 overflow-x-auto [scrollbar-width:thin]"
       aria-label="Danh mục dự án"
     >
-      <span className="text-[11px] uppercase tracking-wider font-bold text-slate-500 shrink-0 mr-2 hidden sm:inline">
+      <Link href="/projects" className="text-[11px] uppercase tracking-wider font-bold text-slate-500 shrink-0 mr-2 hidden sm:inline">
         Danh mục
-      </span>
+      </Link>
       {categories.map((c) => (
         <Link
           key={c.id}

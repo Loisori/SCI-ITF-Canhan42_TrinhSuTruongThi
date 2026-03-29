@@ -51,6 +51,23 @@ export class ProjectsController {
     return this.projectsService.getProjectDetailBySlug(slug);
   }
 
+  @UseGuards(JwtAuthGuard, IsOwnerGuard)
+  @Get('owner')
+  getOwnerProjects(
+    @GetUser('id') ownerId: number,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+  ) {
+    const normalizedPage = page ? Number(page) : 1;
+    const normalizedPageSize = pageSize ? Number(pageSize) : 10;
+
+    return this.projectsService.getOwnerProjects(
+      ownerId,
+      Number.isFinite(normalizedPage) ? normalizedPage : 1,
+      Number.isFinite(normalizedPageSize) ? normalizedPageSize : 10,
+    );
+  }
+
   @Get(':id')
   getProjectDetail(@Param('id', ParseIntPipe) id: number) {
     return this.projectsService.getProjectDetail(id);

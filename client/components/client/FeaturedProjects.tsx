@@ -77,8 +77,8 @@ export default function FeaturedProjects() {
   }
 
   return (
-    <section className="py-24 max-w-screen-xl mx-auto px-4 font-display">
-      <div className="flex items-end justify-between mb-10">
+    <section className="font-display">
+      <div className="wrapper wrapper--lg flex items-end justify-between mb-10">
         <div>
           <h3 className="text-h4 font-black text-primary dark:text-slate-100">
             Dự án nổi bật
@@ -96,7 +96,7 @@ export default function FeaturedProjects() {
         </Link>
       </div>
 
-      <div className="overflow-hidden" ref={emblaRef}>
+      <div className="wrapper wrapper--lg overflow-hidden" ref={emblaRef}>
         <div className="flex -ml-3">
           {projects.map((project) => {
             const progress =

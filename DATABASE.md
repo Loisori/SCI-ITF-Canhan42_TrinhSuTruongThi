@@ -39,6 +39,7 @@ CREATE TABLE projects (
     status ENUM('pending', 'funding', 'active', 'completed', 'failed') DEFAULT 'pending',
     start_date DATE,
     end_date DATE,
+    commission_rate DECIMAL(5,2) DEFAULT 5.00;
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES project_categories(id)

@@ -26,7 +26,16 @@ import { CreateInvestmentDto } from './dto/create-investment.dto';
 
 @Injectable()
 export class InvestmentsService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+  ) {}
+
+  private toCommissionFraction(commissionRate?: number | null): number {
+    const raw = Number(commissionRate ?? 0);
+    if (!Number.isFinite(raw) || raw <= 0) return 0;
+    // - nếu lưu % (5 -> 0.05) hoặc fraction (0.05 -> 0.05)
+    return raw > 1 ? raw / 100 : raw;
+  }
 
   async getMyInvestments(userId: number) {
     const investmentsRepo = this.dataSource.getRepository(InvestmentEntity);
@@ -209,8 +218,124 @@ export class InvestmentsService {
         const currentAmount = Number(project.currentAmount);
 
         if (currentAmount >= goalAmount) {
-          project.status = ProjectStatus.ACTIVE;
+          const projectInvestments = await investmentsRepo.find({
+            where: {
+              projectId: project.id,
+            },
+            relations: ['paymentSchedules'],
+            lock: { mode: 'pessimistic_write' },
+          });
+
+          const interestSourceInvestments = projectInvestments.filter(
+            (inv) => inv.status !== InvestmentStatus.WITHDRAWN,
+          );
+
+          const totalInvested = interestSourceInvestments.reduce(
+            (sum, inv) => sum + Number(inv.amount),
+            0,
+          );
+
+          const commissionFraction = this.toCommissionFraction(
+            project.commissionRate,
+          );
+          const commissionAmount = Number(
+            (totalInvested * commissionFraction).toFixed(2),
+          );
+          const netReceived = Number(
+            (totalInvested - commissionAmount).toFixed(2),
+          );
+
+          for (const inv of projectInvestments) {
+            if (inv.status === InvestmentStatus.ACTIVE) {
+              inv.status = InvestmentStatus.COMPLETED;
+            }
+          }
+          if (projectInvestments.length > 0) {
+            await investmentsRepo.save(projectInvestments);
+          }
+
+          project.status = ProjectStatus.COMPLETED;
           await projectsRepo.save(project);
+
+          // Credit owner net after fee.
+          const owner = await usersRepo.findOne({
+            where: { id: project.ownerId },
+            lock: { mode: 'pessimistic_write' },
+          });
+
+          if (owner && netReceived > 0) {
+            owner.balance = Number(owner.balance) + netReceived;
+            await usersRepo.save(owner);
+
+            const ownerTx = transactionsRepo.create({
+              userId: project.ownerId,
+              amount: netReceived,
+              type: TransactionType.WITHDRAW,
+              status: TransactionStatus.SUCCESS,
+              description: `Nhận vốn dự án ${project.title} (sau phí sàn)`,
+              referenceId: project.id,
+            });
+            await transactionsRepo.save(ownerTx);
+          }
+
+          // Trả lãi (ROI) cho từng Investor: tạo transactions interest_receive + cập nhật payment_schedules thành paid.
+          const nowPaid = new Date();
+          const interestByInvestor = new Map<number, number>();
+          const schedulesToUpdate: PaymentScheduleEntity[] = [];
+
+          for (const inv of interestSourceInvestments) {
+            const unpaidSchedules = (inv.paymentSchedules ?? []).filter(
+              (s) => s.status === PaymentScheduleStatus.UNPAID,
+            );
+
+            const totalInterest = unpaidSchedules.reduce(
+              (sum, s) => sum + Number(s.amount),
+              0,
+            );
+
+            if (totalInterest > 0) {
+              interestByInvestor.set(
+                inv.userId,
+                (interestByInvestor.get(inv.userId) ?? 0) + totalInterest,
+              );
+            }
+
+            for (const s of unpaidSchedules) {
+              s.status = PaymentScheduleStatus.PAID;
+              s.paidAt = nowPaid;
+              schedulesToUpdate.push(s);
+            }
+          }
+
+          if (schedulesToUpdate.length > 0) {
+            await txManager.getRepository(PaymentScheduleEntity).save(
+              schedulesToUpdate,
+            );
+          }
+
+          for (const [investorId, totalInterest] of interestByInvestor.entries()) {
+            if (totalInterest <= 0) continue;
+
+            const investor = await usersRepo.findOne({
+              where: { id: investorId },
+              lock: { mode: 'pessimistic_write' },
+            });
+            if (!investor) continue;
+
+            investor.balance = Number(investor.balance) + totalInterest;
+            await usersRepo.save(investor);
+
+            const interestTx = transactionsRepo.create({
+              userId: investorId,
+              amount: totalInterest,
+              type: TransactionType.INTEREST_RECEIVE,
+              status: TransactionStatus.SUCCESS,
+              description: `Nhận lãi dự án ${project.title}`,
+              referenceId: project.id,
+            });
+            await transactionsRepo.save(interestTx);
+          }
+
           continue;
         }
 
