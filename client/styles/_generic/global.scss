@@ -9,3 +9,6 @@ body {
 section{
   @apply py-10 md:py-16 lg:py-20 overflow-hidden;
 }
+a {
+  @apply block;
+}

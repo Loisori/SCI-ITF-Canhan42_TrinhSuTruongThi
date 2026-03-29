@@ -70,6 +70,11 @@ export default function Footer() {
             </h5>
             <ul className="space-y-4 text-smaller text-slate-500 dark:text-slate-400">
               <li>
+                <Link href="aboutus" className="hover:text-primary transition-colors">
+                  Về chúng tôi
+                </Link>
+              </li>
+              <li>
                 <Link className="hover:text-primary transition-colors" href="#">
                   Trung tâm trợ giúp
                 </Link>
@@ -94,9 +99,12 @@ export default function Footer() {
 
           {/* Cột 4: Liên hệ */}
           <div>
-            <h5 className="font-bold mb-6 text-primary dark:text-slate-100">
+            <Link
+              href="/contact"
+              className="text-small font-bold mb-6 text-primary dark:text-slate-100"
+            >
               Liên hệ
-            </h5>
+            </Link>
             <ul className="space-y-4 text-smaller text-slate-500 dark:text-slate-400">
               <li className="flex items-start gap-2">
                 <span className="material-symbols-outlined text-body">

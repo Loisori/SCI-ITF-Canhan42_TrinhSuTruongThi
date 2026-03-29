@@ -118,15 +118,61 @@ export class ProjectsService {
     );
   }
 
-  async getFundingProjects() {
-    const projects = await this.projectsRepository.find({
-      where: {
-        status: ProjectStatus.FUNDING,
-      },
-      relations: ['media', 'category'],
-      order: { createdAt: 'DESC' },
-    });
+  async getFundingProjects(filters?: {
+    search?: string;
+    categoryId?: number;
+  }) {
+    const qb = this.projectsRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.media', 'media')
+      .leftJoinAndSelect('project.category', 'category')
+      .leftJoinAndSelect('project.owner', 'owner')
+      .where('project.status = :status', { status: ProjectStatus.FUNDING });
 
+    if (
+      filters?.categoryId !== undefined &&
+      filters.categoryId !== null &&
+      !Number.isNaN(Number(filters.categoryId))
+    ) {
+      qb.andWhere('project.categoryId = :categoryId', {
+        categoryId: filters.categoryId,
+      });
+    }
+
+    if (filters?.search?.trim()) {
+      const term = `%${filters.search.trim().toLowerCase()}%`;
+      qb.andWhere(
+        '(LOWER(project.title) LIKE :term OR LOWER(owner.fullName) LIKE :term OR LOWER(category.name) LIKE :term)',
+        { term },
+      );
+    }
+
+    qb.orderBy('project.createdAt', 'DESC');
+
+    const projects = await qb.getMany();
+    return projects.map((project) => this.serializeProject(project));
+  }
+
+  async getFundingProjectSuggestions(query: string, limit = 12) {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      return [];
+    }
+
+    const qb = this.projectsRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.media', 'media')
+      .leftJoinAndSelect('project.category', 'category')
+      .leftJoinAndSelect('project.owner', 'owner')
+      .where('project.status = :status', { status: ProjectStatus.FUNDING })
+      .andWhere(
+        '(LOWER(project.title) LIKE :term OR LOWER(owner.fullName) LIKE :term OR LOWER(category.name) LIKE :term)',
+        { term: `%${trimmed.toLowerCase()}%` },
+      )
+      .orderBy('project.createdAt', 'DESC')
+      .take(Math.min(Math.max(limit, 1), 30));
+
+    const projects = await qb.getMany();
     return projects.map((project) => this.serializeProject(project));
   }
 

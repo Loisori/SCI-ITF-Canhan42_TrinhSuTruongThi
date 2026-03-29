@@ -5,11 +5,18 @@ export type ProjectCategory = {
   iconUrl?: string | null;
 };
 
+export type ProjectOwner = {
+  id: number;
+  fullName: string;
+  email: string;
+};
+
 export type Project = {
   id: number;
   title: string;
   shortDescription: string | null;
   thumbnailUrl: string | null;
+  contentSlug?: string;
   targetCapital: number | string;
   currentCapital: number | string;
   fundingProgress: number;
@@ -17,6 +24,7 @@ export type Project = {
   durationMonths: number;
   status: string;
   category?: ProjectCategory | null;
+  owner?: ProjectOwner | null;
 };
 
 export type ProjectDetail = {
@@ -35,12 +43,6 @@ export type ProjectDetail = {
   endDate: string | null;
   content: string | null;
   category?: ProjectCategory | null;
-};
-
-export type ProjectOwner = {
-  id: number;
-  fullName: string;
-  email: string;
 };
 
 export type PendingProject = {

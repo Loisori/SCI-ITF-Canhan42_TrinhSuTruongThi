@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import api from "@/lib/axios";
 import ThemeToggle from "./ThemeToggle";
+import HeaderSearch from "./HeaderSearch";
+import HeaderCategoryNav from "./HeaderCategoryNav";
 
 const AUTH_CHANGED_EVENT = "auth-changed";
 
@@ -86,9 +88,12 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-primary/10 dark:border-white/10 font-display">
       <div className="wrapper wrapper--lg">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex flex-wrap items-center gap-y-3 gap-x-3 md:gap-x-4 md:flex-nowrap md:h-16 py-3 md:py-0">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link
+            href="/"
+            className="inline-flex! items-center gap-2 shrink-0 order-1"
+          >
             <span className="material-symbols-outlined text-primary dark:text-slate-100 text-h4">
               rocket_launch
             </span>
@@ -97,41 +102,14 @@ export default function Navbar() {
             </h1>
           </Link>
 
-          {/* Navigation - Desktop */}
-          <nav className="hidden md:flex items-center gap-8">
-            <Link
-              href="/"
-              className="text-smaller font-semibold hover:text-primary/70 dark:hover:text-slate-300 transition-colors"
-            >
-              Trang chủ
-            </Link>
-            <Link
-              href="/projects"
-              className="text-smaller font-semibold hover:text-primary/70 dark:hover:text-slate-300 transition-colors"
-            >
-              Dự án
-            </Link>
-            <Link
-              href="/procedure"
-              className="text-smaller font-semibold hover:text-primary/70 dark:hover:text-slate-300 transition-colors"
-            >
-              Quy trình
-            </Link>
-            <Link
-              href="/aboutus"
-              className="text-smaller font-semibold hover:text-primary/70 dark:hover:text-slate-300 transition-colors"
-            >
-              Về chúng tôi
-            </Link>
-            <Link
-              href="/contact"
-              className="text-smaller font-semibold hover:text-primary/70 dark:hover:text-slate-300 transition-colors"
-            >
-              Liên hệ
-            </Link>
-          </nav>
+          <div
+            id="search"
+            className="w-full order-3 md:order-2 md:flex-1 md:min-w-0"
+          >
+            <HeaderSearch />
+          </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 md:gap-4 shrink-0 order-2 ml-auto md:ml-0 md:order-3">
             <ThemeToggle />
 
             {user ? (
@@ -166,7 +144,7 @@ export default function Navbar() {
 
                   {/* Dropdown Menu */}
                   {isMenuOpen && (
-                    <div className="absolute right-0 mt-2 w- bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-2 z-50">
+                    <div className="absolute right-0 mt-2 min-w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-2 z-50">
                       {/* Dashboard Link */}
                       <Link
                         href="/dashboard"
@@ -240,6 +218,7 @@ export default function Navbar() {
             )}
           </div>
         </div>
+        <HeaderCategoryNav />
       </div>
     </header>
   );

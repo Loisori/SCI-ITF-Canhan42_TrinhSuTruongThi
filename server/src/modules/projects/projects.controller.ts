@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
@@ -23,8 +24,26 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Get()
-  getFundingProjects() {
-    return this.projectsService.getFundingProjects();
+  getFundingProjects(
+    @Query('search') search?: string,
+    @Query('category') category?: string,
+  ) {
+    let categoryId: number | undefined;
+    if (category !== undefined && category !== '') {
+      const parsed = parseInt(category, 10);
+      if (!Number.isNaN(parsed)) {
+        categoryId = parsed;
+      }
+    }
+    return this.projectsService.getFundingProjects({
+      search: search?.trim() || undefined,
+      categoryId,
+    });
+  }
+
+  @Get('suggestions')
+  getProjectSearchSuggestions(@Query('q') q?: string) {
+    return this.projectsService.getFundingProjectSuggestions(q ?? '', 12);
   }
 
   @Get('slug/:slug')

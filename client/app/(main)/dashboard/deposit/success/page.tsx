@@ -1,13 +1,12 @@
 "use client";
-
+import { Suspense } from "react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 
-export default function DepositSuccessPage() {
+function DepositSuccessInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
@@ -37,11 +36,11 @@ export default function DepositSuccessPage() {
     <div className="bg-background-light dark:bg-background-dark min-h-screen font-display">
       <Navbar />
       <main className="wrapper wrapper--sm py-16">
-        {showToast && (
+        {showToast ? (
           <div className="fixed top-20 right-6 z-[60] rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-small font-semibold text-green-700 shadow-lg">
             Nạp tiền thành công, số dư đã được cập nhật.
           </div>
-        )}
+        ) : null}
 
         <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-8 text-center">
           <h1
@@ -70,5 +69,13 @@ export default function DepositSuccessPage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function DepositSuccessPage() {
+  return (
+    <Suspense fallback={<div>Đang tải kết quả thanh toán...</div>}>
+      <DepositSuccessInner />
+    </Suspense>
   );
 }

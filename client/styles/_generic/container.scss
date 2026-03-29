@@ -1,17 +1,10 @@
 .wrapper {
-  @apply mx-auto w-full  px-[1.5rem];
+  @apply mx-auto w-full px-[1.5rem] md:px-5 lg:px-[10rem];
   &--lg {
     @apply max-w-screen-lg;
   }
   &--md {
     @apply max-w-screen-md;
-  }
-  @screen md {
-    @apply px-5;
-  }
-
-  @screen lg {
-    @apply px-[10rem];
   }
 
   &--full {
