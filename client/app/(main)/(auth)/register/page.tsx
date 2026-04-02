@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,9 @@ import api from "@/lib/axios";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [step, setStep] = useState(1);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
 
   // Form state
   const [fullName, setFullName] = useState("");
@@ -22,19 +25,38 @@ export default function RegisterPage() {
 
   const router = useRouter();
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await api.get("/api/project-categories");
+        setCategories(response.data);
+      } catch (err) {
+        console.error("Failed to load categories", err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   // Handle form submission
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (step === 1) {
+      setStep(2);
+      return;
+    }
+
     setIsLoading(true);
     setError("");
 
     try {
       // Send registration data to backend
-      const response = await api.post("/auth/register", {
+      const response = await api.post("/api/auth/register", {
         email: email.toLowerCase(),
         password,
         fullName,
         role,
+        favoriteCategoryIds: selectedCategoryIds,
       });
 
       if (response.data) {
@@ -143,7 +165,9 @@ export default function RegisterPage() {
           )}
 
           <form className="space-y-5" onSubmit={handleRegister}>
-            {/* Full Name */}
+            {step === 1 ? (
+              <>
+                {/* Full Name */}
             <div className="space-y-1.5">
               <label className="text-[10px] uppercase tracking-widest font-bold text-slate-500 ml-1">
                 Họ và tên
@@ -299,6 +323,62 @@ export default function RegisterPage() {
                 của InvestPro.
               </label>
             </div>
+              </>
+            ) : (
+              <>
+                <div className="mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="text-slate-500 hover:text-primary text-small flex items-center gap-1 font-semibold"
+                  >
+                    <span className="material-symbols-outlined text-body">
+                      arrow_back
+                    </span>
+                    Quay lại
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-large font-bold text-slate-900 dark:text-white mb-2">
+                    Chọn danh mục yêu thích
+                  </h3>
+                  <p className="text-small text-slate-500 mb-4">
+                    Chọn các danh mục dự án mà bạn quan tâm để chúng tôi cá nhân
+                    hóa trải nghiệm của bạn. (Có thể bỏ qua)
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map((category) => {
+                      const isSelected = selectedCategoryIds.includes(category.id);
+                      return (
+                        <button
+                          key={category.id}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedCategoryIds((prev) =>
+                                prev.filter((id) => id !== category.id)
+                              );
+                            } else {
+                              setSelectedCategoryIds((prev) => [
+                                ...prev,
+                                category.id,
+                              ]);
+                            }
+                          }}
+                          className={`px-4 py-2 rounded-full border text-small font-semibold transition-all ${
+                            isSelected
+                              ? "bg-primary border-primary text-white"
+                              : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-primary/50"
+                          }`}
+                        >
+                          {category.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Submit Button */}
             <button
@@ -311,11 +391,11 @@ export default function RegisterPage() {
               {isLoading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Đang tạo tài khoản...
+                  Đang xử lý...
                 </>
               ) : (
                 <>
-                  Tạo tài khoản
+                  {step === 1 ? "Tiếp tục" : "Tạo tài khoản"}
                   <span className="material-symbols-outlined text-body group-hover:translate-x-1 transition-transform">
                     arrow_forward
                   </span>

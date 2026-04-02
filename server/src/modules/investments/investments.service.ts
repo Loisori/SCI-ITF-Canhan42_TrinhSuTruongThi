@@ -16,6 +16,7 @@ import {
   ProjectEntity,
   ProjectStatus,
 } from '../projects/entities/project.entity';
+import { ProjectMilestoneEntity, MilestoneStatus } from '../projects/entities/milestone.entity';
 import { UserEntity } from '../users/entities/user.entity';
 import {
   TransactionEntity,
@@ -23,11 +24,14 @@ import {
   TransactionType,
 } from '../transactions/entities/transaction.entity';
 import { CreateInvestmentDto } from './dto/create-investment.dto';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/entities/notification.entity';
 
 @Injectable()
 export class InvestmentsService {
   constructor(
     private readonly dataSource: DataSource,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   private toCommissionFraction(commissionRate?: number | null): number {
@@ -183,6 +187,29 @@ export class InvestmentsService {
 
       await transactionsRepo.save(transaction);
 
+      // Notify owner
+      await this.notificationsService.createSpecialNotification(
+        project.ownerId,
+        `Có người vừa đầu tư ${amount.toLocaleString('vi-VN')} ₫ vào dự án ${project.title} của bạn.`,
+        NotificationType.INVESTMENT_RECEIVED
+      );
+
+      // Check if project reached 100%
+      if (Number(project.currentAmount) >= Number(project.goalAmount)) {
+        const investors = await investmentsRepo.find({
+          where: { projectId: project.id },
+          select: ['userId']
+        });
+        const uniqueInvestorIds = [...new Set(investors.map(i => i.userId))];
+        for (const iId of uniqueInvestorIds) {
+          await this.notificationsService.createSpecialNotification(
+            iId,
+            `Dự án bạn theo dõi (${project.title}) đã đạt 100% mục tiêu!`,
+            NotificationType.PROJECT_UPDATE
+          );
+        }
+      }
+
       return {
         message: 'Đầu tư thành công.',
         investmentId: savedInvestment.id,
@@ -257,22 +284,42 @@ export class InvestmentsService {
           project.status = ProjectStatus.COMPLETED;
           await projectsRepo.save(project);
 
-          // Credit owner net after fee.
+          // Create 5 milestones
+          const milestonesRepo = txManager.getRepository(ProjectMilestoneEntity);
+          const milestones: ProjectMilestoneEntity[] = [];
+          for (let i = 1; i <= 5; i++) {
+            let status = MilestoneStatus.PENDING;
+            if (i === 1) status = MilestoneStatus.DISBURSED;
+            else if (i === 2) status = MilestoneStatus.UPLOADING_PROOF;
+
+            milestones.push(milestonesRepo.create({
+              projectId: project.id,
+              title: `Giai đoạn ${i} (20%)`,
+              percentage: 20,
+              stage: i,
+              status
+            }));
+          }
+          await milestonesRepo.save(milestones);
+
+          const firstDisbursement = Number((netReceived * 0.2).toFixed(2));
+
+          // Credit owner first milestone (20%)
           const owner = await usersRepo.findOne({
             where: { id: project.ownerId },
             lock: { mode: 'pessimistic_write' },
           });
 
-          if (owner && netReceived > 0) {
-            owner.balance = Number(owner.balance) + netReceived;
+          if (owner && firstDisbursement > 0) {
+            owner.balance = Number(owner.balance) + firstDisbursement;
             await usersRepo.save(owner);
 
             const ownerTx = transactionsRepo.create({
               userId: project.ownerId,
-              amount: netReceived,
+              amount: firstDisbursement,
               type: TransactionType.WITHDRAW,
               status: TransactionStatus.SUCCESS,
-              description: `Nhận vốn dự án ${project.title} (sau phí sàn)`,
+              description: `Nhận vốn đợt 1 dự án ${project.title}`,
               referenceId: project.id,
             });
             await transactionsRepo.save(ownerTx);
@@ -334,6 +381,13 @@ export class InvestmentsService {
               referenceId: project.id,
             });
             await transactionsRepo.save(interestTx);
+
+            // Notify investor about interest paid
+            await this.notificationsService.createSpecialNotification(
+              investorId,
+              `Tiền lãi ${totalInterest.toLocaleString('vi-VN')} ₫ từ dự án ${project.title} đã về ví.`,
+              NotificationType.PAYMENT_SUCCESS
+            );
           }
 
           continue;
@@ -387,6 +441,13 @@ export class InvestmentsService {
             referenceId: investment.id,
           });
           await transactionsRepo.save(refundTransaction);
+
+          // Notify investor about refund
+          await this.notificationsService.createSpecialNotification(
+            investment.userId,
+            `Dự án ${project.title} không đạt mục tiêu và đã bị hủy. ${amount.toLocaleString('vi-VN')} ₫ đã được hoàn vào ví của bạn.`,
+            NotificationType.PROJECT_UPDATE
+          );
 
           refundedInvestments += 1;
           refundedAmount += amount;

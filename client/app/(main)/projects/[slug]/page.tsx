@@ -8,6 +8,7 @@ import api from "@/lib/axios";
 import { ProjectDetail } from "@/types/project";
 import { Profile } from "@/types/user";
 import { ToastState } from "@/types/ui";
+import ProjectMilestones from "@/components/client/ProjectMilestones";
 
 function DetailSkeleton() {
   return (
@@ -38,30 +39,29 @@ export default function ProjectDetailPage() {
   const [toast, setToast] = useState<ToastState>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  const fetchProject = async () => {
+    if (!params.slug) return;
+    try {
+      const isNumericId = /^\d+$/.test(params.slug as string);
+      const endpoint = isNumericId
+        ? `/api/projects/${params.slug}`
+        : `/api/projects/slug/${params.slug}`;
+      const res = await api.get<ProjectDetail>(endpoint);
+
+      setProject(res.data);
+      setSelectedImage(res.data.thumbnailUrl ?? res.data.images?.[0] ?? null);
+      setAmount(Number(res.data.minInvestment || 1));
+    } catch {
+      setError("Không tìm thấy dự án.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProject = async () => {
-      const slugParam = params.slug;
-
-      try {
-        const isNumericId = /^\d+$/.test(slugParam);
-        const endpoint = isNumericId
-          ? `/api/projects/${slugParam}`
-          : `/api/projects/slug/${slugParam}`;
-        const res = await api.get<ProjectDetail>(endpoint);
-
-        setProject(res.data);
-        setSelectedImage(res.data.thumbnailUrl ?? res.data.images?.[0] ?? null);
-        setAmount(Number(res.data.minInvestment || 1));
-      } catch {
-        setError("Không tìm thấy dự án.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     const fetchProfile = async () => {
       try {
-        const me = await api.get<Profile>("/auth/profile");
+        const me = await api.get<Profile>("/api/auth/profile");
         setRole(me.data.role);
       } catch {
         setRole(null);
@@ -252,9 +252,12 @@ export default function ProjectDetailPage() {
                 </h2>
                 <pre className="whitespace-pre-wrap text-smaller text-slate-700 dark:text-slate-300 leading-relaxed">
                   {project.content ||
-                    "Chưa có nội dung markdown cho content_slug này."}
+                    "Chưa có nội dung markdown."}
                 </pre>
               </div>
+
+              {/* Milestones & Disputes Component */}
+              <ProjectMilestones project={project} role={role === "business" && project.owner && project.owner.id ? "business" : role} onUpdate={fetchProject} setToast={setToast} />
             </section>
 
             <aside className="space-y-5">

@@ -1,5 +1,5 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { ValidationPipe, Logger, ClassSerializerInterceptor } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -14,6 +14,12 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // Áp dụng Interceptor để serialize class, xử lý @Exclude()
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
+  // Cài đặt prefix api cho toàn cục
+  app.setGlobalPrefix('api');
 
   // 2. Cấu hình CORS linh hoạt
   // Khi deploy, CORS_ORIGIN sẽ là link Vercel của bạn

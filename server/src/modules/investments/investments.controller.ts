@@ -14,7 +14,7 @@ import { GetUser } from '../../common/decorators/get-user.decorator';
 import { CreateInvestmentDto } from './dto/create-investment.dto';
 import { IsOwnerGuard } from '../../common/guards/is-owner.guard';
 
-@Controller('api/investments')
+@Controller('investments')
 export class InvestmentsController {
   constructor(private readonly investmentsService: InvestmentsService) {}
 

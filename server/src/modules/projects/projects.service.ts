@@ -32,6 +32,10 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { ProjectMediaEntity, MediaType } from './entities/media.entity';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectCategoryEntity } from './entities/category.entity';
+import { ProjectMilestoneEntity, MilestoneStatus } from './entities/milestone.entity';
+import { ProjectDisputeEntity, DisputeStatus } from './entities/dispute.entity';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/entities/notification.entity';
 
 @Injectable()
 export class ProjectsService {
@@ -43,6 +47,7 @@ export class ProjectsService {
     @InjectRepository(ProjectCategoryEntity)
     private readonly projectCategoriesRepository: Repository<ProjectCategoryEntity>,
     private readonly dataSource: DataSource,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   private toCommissionFraction(commissionRate?: number | null): number {
@@ -259,7 +264,7 @@ export class ProjectsService {
   async getProjectDetail(projectId: number) {
     const project = await this.projectsRepository.findOne({
       where: { id: projectId },
-      relations: ['media', 'category'],
+      relations: ['media', 'category', 'milestones', 'disputes'],
     });
 
     if (!project) {
@@ -277,7 +282,7 @@ export class ProjectsService {
   async getProjectDetailBySlug(slug: string) {
     const project = await this.projectsRepository.findOne({
       where: { slug },
-      relations: ['media', 'category'],
+      relations: ['media', 'category', 'milestones', 'disputes'],
     });
 
     if (!project) {
@@ -547,21 +552,41 @@ export class ProjectsService {
       project.status = ProjectStatus.COMPLETED;
       await projectsRepo.save(project);
 
-      // Credit owner net sau khi trừ phí sàn.
+      // Create 5 milestones
+      const milestonesRepo = manager.getRepository(ProjectMilestoneEntity);
+      const milestones: ProjectMilestoneEntity[] = [];
+      for (let i = 1; i <= 5; i++) {
+        let status = MilestoneStatus.PENDING;
+        if (i === 1) status = MilestoneStatus.DISBURSED;
+        else if (i === 2) status = MilestoneStatus.UPLOADING_PROOF;
+
+        milestones.push(milestonesRepo.create({
+          projectId: project.id,
+          title: `Giai đoạn ${i} (20%)`,
+          percentage: 20,
+          stage: i,
+          status
+        }));
+      }
+      await milestonesRepo.save(milestones);
+
+      const firstDisbursement = Number((netReceived * 0.2).toFixed(2));
+
+      // Credit owner first milestone (20%)
       const owner = await usersRepo.findOne({
         where: { id: ownerId },
         lock: { mode: 'pessimistic_write' },
       });
-      if (owner) {
-        owner.balance = Number(owner.balance) + netReceived;
+      if (owner && firstDisbursement > 0) {
+        owner.balance = Number(owner.balance) + firstDisbursement;
         await usersRepo.save(owner);
 
         const ownerTx = transactionsRepo.create({
           userId: ownerId,
-          amount: netReceived,
+          amount: firstDisbursement,
           type: TransactionType.WITHDRAW,
           status: TransactionStatus.SUCCESS,
-          description: `Nhận vốn dự án ${project.title} (sau phí sàn)`,
+          description: `Nhận vốn đợt 1 dự án ${project.title}`,
           referenceId: project.id,
         });
         await transactionsRepo.save(ownerTx);
@@ -621,6 +646,13 @@ export class ProjectsService {
           referenceId: project.id,
         });
         await transactionsRepo.save(interestTx);
+
+        // Notify investor about interest paid
+        await this.notificationsService.createSpecialNotification(
+          investorId,
+          `Tiền lãi ${totalInterest.toLocaleString('vi-VN')} ₫ từ dự án ${project.title} đã về ví.`,
+          NotificationType.PAYMENT_SUCCESS
+        );
       }
 
       return {
@@ -683,6 +715,30 @@ export class ProjectsService {
       await usersRepo.save(user);
       await projectsRepo.save(project);
 
+      // Notify owner
+      await this.notificationsService.createSpecialNotification(
+        project.ownerId,
+        `Có người vừa đầu tư ${amount.toLocaleString('vi-VN')} ₫ vào dự án ${project.title} của bạn.`,
+        NotificationType.INVESTMENT_RECEIVED
+      );
+
+      // Check if project reached 100%
+      if (currentCapital + amount >= Number(project.goalAmount)) {
+        const investmentsRepo = manager.getRepository(InvestmentEntity);
+        const investors = await investmentsRepo.find({
+          where: { projectId: project.id },
+          select: ['userId']
+        });
+        const uniqueInvestorIds = [...new Set(investors.map(i => i.userId))];
+        for (const iId of uniqueInvestorIds) {
+          await this.notificationsService.createSpecialNotification(
+            iId,
+            `Dự án bạn theo dõi (${project.title}) đã đạt 100% mục tiêu!`,
+            NotificationType.PROJECT_UPDATE
+          );
+        }
+      }
+
       return {
         message: 'Investment successful.',
         investedAmount: amount,
@@ -741,7 +797,25 @@ export class ProjectsService {
           }
         : null,
       images,
+      isFrozen: project.isFrozen,
       createdAt: project.createdAt,
+      milestones: project.milestones ? project.milestones.map(m => ({
+        id: m.id,
+        title: m.title,
+        percentage: m.percentage,
+        stage: m.stage,
+        status: m.status,
+        proofUrl: m.proofUrl,
+        createdAt: m.createdAt,
+      })) : undefined,
+      disputes: project.disputes ? project.disputes.map(d => ({
+        id: d.id,
+        userId: d.userId,
+        reason: d.reason,
+        evidenceUrl: d.evidenceUrl,
+        status: d.status,
+        createdAt: d.createdAt,
+      })) : undefined,
     };
   }
 
@@ -795,4 +869,254 @@ export class ProjectsService {
 
     return null;
   }
+
+  async uploadMilestoneProof(projectId: number, milestoneId: number, ownerId: number, proofUrl: string) {
+    const project = await this.projectsRepository.findOne({ where: { id: projectId } });
+    if (!project) throw new NotFoundException('Project not found');
+    if (project.ownerId !== ownerId) throw new ForbiddenException('Only owner can upload proof');
+
+    const milestoneRepo = this.dataSource.getRepository(ProjectMilestoneEntity);
+    const milestone = await milestoneRepo.findOne({ where: { id: milestoneId, projectId } });
+    if (!milestone) throw new NotFoundException('Milestone not found');
+
+    if (milestone.status !== MilestoneStatus.UPLOADING_PROOF) {
+      throw new BadRequestException('Not the right time to upload proof for this milestone');
+    }
+
+    milestone.proofUrl = proofUrl;
+    milestone.status = MilestoneStatus.ADMIN_REVIEW;
+    await milestoneRepo.save(milestone);
+
+    return milestone;
+  }
+
+  async createDispute(projectId: number, userId: number, reason: string, evidenceUrl?: string) {
+    return this.dataSource.transaction(async (manager) => {
+      const projectRepo = manager.getRepository(ProjectEntity);
+      const disputeRepo = manager.getRepository(ProjectDisputeEntity);
+      const investRepo = manager.getRepository(InvestmentEntity);
+
+      const project = await projectRepo.findOne({
+        where: { id: projectId },
+        lock: { mode: 'pessimistic_write' }
+      });
+
+      if (!project) throw new NotFoundException('Project not found');
+
+      // Check if user is an active investor
+      const investment = await investRepo.findOne({
+        where: { projectId, userId, status: InvestmentStatus.ACTIVE }
+      });
+      if (!investment && project.status !== ProjectStatus.COMPLETED) { // Even COMPLETED has active investments until fully matured? Wait, yes.
+        const pastInvestment = await investRepo.findOne({ where: { projectId, userId } });
+        if (!pastInvestment) throw new ForbiddenException('Only investors can dispute');
+      }
+
+      // Create dispute
+      const dispute = disputeRepo.create({
+        projectId,
+        userId,
+        reason,
+        evidenceUrl,
+        status: DisputeStatus.OPEN
+      });
+      await disputeRepo.save(dispute);
+
+      // Check for auto-freeze
+      const openDisputes = await disputeRepo.count({
+        where: { projectId, status: DisputeStatus.OPEN }
+      });
+
+      const uniqueInvestorsRaw = await investRepo
+        .createQueryBuilder('inv')
+        .select('COUNT(DISTINCT inv.userId)', 'cnt')
+        .where('inv.projectId = :pid', { pid: project.id })
+        .andWhere('inv.status != :withdrawn', { withdrawn: InvestmentStatus.WITHDRAWN })
+        .getRawOne<{ cnt: string }>();
+        
+      const totalInvestors = Number(uniqueInvestorsRaw?.cnt ?? 0);
+
+      // Freeze logic: 50%
+      if (totalInvestors > 0 && openDisputes > totalInvestors * 0.5 && !project.isFrozen) {
+        project.isFrozen = true;
+        await projectRepo.save(project);
+
+        await this.notificationsService.createSpecialNotification(
+          project.ownerId,
+          `Dự án ${project.title} đang bị quá nhiều khiếu nại (đã bị đóng băng). Vui lòng cập nhật tiến độ sớm nhất!`,
+          NotificationType.SYSTEM
+        );
+      }
+
+      return dispute;
+    });
+  }
+
+  async finalizeMilestone(projectId: number, milestoneId: number) {
+    return this.dataSource.transaction(async (manager) => {
+      const milestoneRepo = manager.getRepository(ProjectMilestoneEntity);
+      const projectRepo = manager.getRepository(ProjectEntity);
+      const transactionRepo = manager.getRepository(TransactionEntity);
+      const usersRepo = manager.getRepository(UserEntity);
+      const investmentsRepo = manager.getRepository(InvestmentEntity);
+
+      const milestone = await milestoneRepo.findOne({ where: { id: milestoneId, projectId } });
+      if (!milestone) throw new NotFoundException('Milestone not found');
+      if (milestone.status !== MilestoneStatus.ADMIN_REVIEW) throw new BadRequestException('Milestone not ready for review');
+
+      const project = await projectRepo.findOne({ where: { id: projectId } });
+      if (!project) throw new NotFoundException('Project not found');
+
+      const projectInvestments = await investmentsRepo.find({
+        where: { projectId: project.id },
+      });
+      const interestSourceInvestments = projectInvestments.filter(
+        (inv) => inv.status !== InvestmentStatus.WITHDRAWN,
+      );
+      const totalInvested = interestSourceInvestments.reduce((sum, inv) => sum + Number(inv.amount), 0);
+      const commissionFraction = this.toCommissionFraction(project.commissionRate);
+      const netReceived = Number((totalInvested * (1 - commissionFraction)).toFixed(2));
+
+      // Calculate milestone amount
+      const milestoneAmount = Number((netReceived * (milestone.percentage / 100)).toFixed(2));
+
+      milestone.status = MilestoneStatus.DISBURSED;
+      await milestoneRepo.save(milestone);
+
+      // Unlock next milestone if exists
+      const nextMilestone = await milestoneRepo.findOne({ where: { projectId, stage: milestone.stage + 1 } });
+      if (nextMilestone) {
+        nextMilestone.status = MilestoneStatus.UPLOADING_PROOF;
+        await milestoneRepo.save(nextMilestone);
+      }
+
+      const owner = await usersRepo.findOne({ where: { id: project.ownerId }, lock: { mode: 'pessimistic_write'} });
+      if (owner && milestoneAmount > 0) {
+        owner.balance = Number(owner.balance) + milestoneAmount;
+        await usersRepo.save(owner);
+
+        const ownerTx = transactionRepo.create({
+          userId: project.ownerId,
+          amount: milestoneAmount,
+          type: TransactionType.WITHDRAW,
+          status: TransactionStatus.SUCCESS,
+          description: `Nhận vốn đợt ${milestone.stage} dự án ${project.title}`,
+          referenceId: project.id,
+        });
+        await transactionRepo.save(ownerTx);
+      }
+
+      return milestone;
+    });
+  }
+
+  async resolveDisputes(projectId: number, action: 'dismiss' | 'refund') {
+    return this.dataSource.transaction(async (manager) => {
+      const projectRepo = manager.getRepository(ProjectEntity);
+      const disputeRepo = manager.getRepository(ProjectDisputeEntity);
+      const transactionRepo = manager.getRepository(TransactionEntity);
+      const usersRepo = manager.getRepository(UserEntity);
+      const investmentsRepo = manager.getRepository(InvestmentEntity);
+      const milestoneRepo = manager.getRepository(ProjectMilestoneEntity);
+
+      const project = await projectRepo.findOne({ where: { id: projectId }, lock: { mode: 'pessimistic_write'} });
+      if (!project) throw new NotFoundException('Project not found');
+      if (!project.isFrozen) throw new BadRequestException('Project is not frozen');
+
+      if (action === 'dismiss') {
+        project.isFrozen = false;
+        await projectRepo.save(project);
+
+        await disputeRepo.update({ projectId, status: DisputeStatus.OPEN }, { status: DisputeStatus.RESOLVED });
+
+        await this.notificationsService.createSpecialNotification(
+          project.ownerId,
+          `Tranh chấp dự án ${project.title} đã được giải quyết. Bạn có thể tiếp tục.`,
+          NotificationType.SYSTEM
+        );
+        return { message: 'Disputes dismissed, project unfrozen.' };
+      } else if (action === 'refund') {
+        project.status = ProjectStatus.FAILED;
+        await projectRepo.save(project);
+
+        await disputeRepo.update({ projectId, status: DisputeStatus.OPEN }, { status: DisputeStatus.REFUNDED });
+
+        // Calculate remaining undisbursed funds
+        const milestones = await milestoneRepo.find({ where: { projectId } });
+        const disbursedPercentages = milestones
+          .filter(m => m.status === MilestoneStatus.DISBURSED)
+          .reduce((sum, m) => sum + m.percentage, 0);
+          
+        const remainingPercentage = 100 - disbursedPercentages;
+
+        const projectInvestments = await investmentsRepo.find({
+          where: { projectId: project.id, status: InvestmentStatus.ACTIVE },
+          lock: { mode: 'pessimistic_write' }
+        });
+
+        // Refund investors remaining percentage of their initial investment
+        for (const inv of projectInvestments) {
+          const invUser = await usersRepo.findOne({ where: { id: inv.userId }, lock: { mode: 'pessimistic_write'} });
+          if (!invUser) continue;
+
+          const refundAmount = Number((Number(inv.amount) * (remainingPercentage / 100)).toFixed(2));
+          if (refundAmount > 0) {
+            invUser.balance = Number(invUser.balance) + refundAmount;
+            await usersRepo.save(invUser);
+
+            const refundTx = transactionRepo.create({
+              userId: inv.userId,
+              amount: refundAmount,
+              type: TransactionType.REFUND,
+              status: TransactionStatus.SUCCESS,
+              description: `Hoàn tiền dư phần còn lại dự án ${project.title} do vi phạm tiến độ`,
+              referenceId: project.id,
+            });
+            await transactionRepo.save(refundTx);
+          }
+        }
+
+        // Penalize Owner (zero balance or deduct remaining... let's just 0 for now as prompt requested "Trừ hết số dư hiện tại")
+        const owner = await usersRepo.findOne({ where: { id: project.ownerId }, lock: { mode: 'pessimistic_write'} });
+        if (owner) {
+          owner.balance = 0;
+          await usersRepo.save(owner);
+          
+          await this.notificationsService.createSpecialNotification(
+            owner.id,
+            `Dự án ${project.title} đã bị hủy do khiếu nại. Hệ thống tiến hành thu hồi số dư của bạn.`,
+            NotificationType.SYSTEM
+          );
+        }
+
+        return { message: 'Project cancelled, remaining funds refunded, owner penalized.' };
+      }
+      throw new BadRequestException('Invalid action');
+    });
+  }
+
+  async getFrozenProjects() {
+    const projects = await this.projectsRepository.find({
+      where: { isFrozen: true, status: ProjectStatus.COMPLETED }, // or FUNDING depending on when they reach milestone Phase
+      relations: ['disputes', 'disputes.user'],
+      order: { createdAt: 'DESC' }
+    });
+
+    return projects.map(p => ({
+      ...this.serializeProject(p),
+      disputes: p.disputes.map(d => ({
+        id: d.id,
+        reason: d.reason,
+        evidenceUrl: d.evidenceUrl,
+        status: d.status,
+        user: d.user ? {
+          id: d.user.id,
+          fullName: d.user.fullName,
+          email: d.user.email
+        } : null
+      }))
+    }));
+  }
 }
+
+

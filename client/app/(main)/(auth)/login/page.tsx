@@ -29,7 +29,7 @@ export default function LoginPage() {
 
     try {
       // Gọi API đến NestJS (đảm bảo NestJS đang chạy ở port 3001 và đã bật CORS)
-      const response = await api.post("/auth/login", {
+      const response = await api.post("/api/auth/login", {
         email,
         password,
       });

@@ -31,7 +31,7 @@ export default function EditProjectPage() {
   useEffect(() => {
     const init = async () => {
       try {
-        const profileRes = await api.get<Profile>("/auth/profile");
+        const profileRes = await api.get<Profile>("/api/auth/profile");
 
         if (profileRes.data.role !== "owner") {
           router.replace("/");

@@ -13,20 +13,41 @@ interface User {
   email: string;
   balance: number;
   role: string;
+  favoriteCategories?: { id: number; name: string }[];
+  blacklistCategories?: { id: number; name: string }[];
 }
 
 export default function SettingsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("account");
+
+  const [categories, setCategories] = useState<any[]>([]);
+  const [favoriteCategoryIds, setFavoriteCategoryIds] = useState<number[]>([]);
+  const [blacklistCategoryIds, setBlacklistCategoryIds] = useState<number[]>([]);
+  const [isSavingOptions, setIsSavingOptions] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await api.get<User>("/auth/profile");
+        const [profileRes, catRes] = await Promise.all([
+          api.get<User>("/api/users/profile"),
+          api.get<any[]>("/api/project-categories")
+        ]);
 
-        setUser(response.data);
+        const curUser = profileRes.data;
+        setUser(curUser);
+        setCategories(catRes.data);
+        
+        if (curUser.favoriteCategories) {
+          setFavoriteCategoryIds(curUser.favoriteCategories.map((c: any) => c.id));
+        }
+        if (curUser.blacklistCategories) {
+          setBlacklistCategoryIds(curUser.blacklistCategories.map((c: any) => c.id));
+        }
+
         setLoading(false);
       } catch {
         setLoading(false);
@@ -36,6 +57,21 @@ export default function SettingsPage() {
 
     fetchUserProfile();
   }, [router]);
+
+  const handleSaveCategories = async () => {
+    setIsSavingOptions(true);
+    try {
+      await api.patch("/api/users/profile/categories", {
+        favoriteCategoryIds: favoriteCategoryIds,
+        blacklistCategoryIds: blacklistCategoryIds
+      });
+      alert("Cập nhật danh mục thành công!");
+    } catch(err) {
+      alert("Cập nhật danh mục thất bại. Vui lòng thử lại.");
+    } finally {
+      setIsSavingOptions(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -102,6 +138,16 @@ export default function SettingsPage() {
                 }`}
               >
                 Đổi mật khẩu
+              </button>
+              <button
+                onClick={() => setActiveTab("categories")}
+                className={`w-full text-left px-4 py-2 rounded-lg text-smaller font-semibold transition-colors ${
+                  activeTab === "categories"
+                    ? "bg-primary text-white"
+                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+              >
+                Sở thích & Loại trừ
               </button>
               <button
                 onClick={() => setActiveTab("privacy")}
@@ -224,6 +270,104 @@ export default function SettingsPage() {
                   <div className="pt-4">
                     <button className="px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:shadow-lg transition-shadow text-smaller">
                       Cập nhật mật khẩu
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Categories Tab */}
+            {activeTab === "categories" && (
+              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-8">
+                <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-6">
+                  Sở thích đầu tư
+                </h2>
+
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="text-smaller font-semibold text-slate-700 dark:text-slate-300 mb-4">Danh mục yêu thích</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {categories.map((category) => {
+                        const isSelected = favoriteCategoryIds.includes(
+                          category.id
+                        );
+                        return (
+                          <button
+                            key={category.id}
+                            type="button"
+                            onClick={() => {
+                              if (isSelected) {
+                                setFavoriteCategoryIds((prev) =>
+                                  prev.filter((id) => id !== category.id)
+                                );
+                              } else {
+                                setFavoriteCategoryIds((prev) => [
+                                  ...prev,
+                                  category.id,
+                                ]);
+                                setBlacklistCategoryIds((prev) => 
+                                  prev.filter((id) => id !== category.id)
+                                );
+                              }
+                            }}
+                            className={`px-4 py-2 rounded-full border text-small font-semibold transition-all ${
+                              isSelected
+                                ? "bg-primary border-primary text-white"
+                                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-primary/50"
+                            }`}
+                          >
+                            {category.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-smaller font-semibold text-slate-700 dark:text-slate-300 mb-4">Danh mục không quan tâm (Loại trừ)</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {categories.map((category) => {
+                        const isSelected = blacklistCategoryIds.includes(
+                          category.id
+                        );
+                        return (
+                          <button
+                            key={"bl_" + category.id}
+                            type="button"
+                            onClick={() => {
+                              if (isSelected) {
+                                setBlacklistCategoryIds((prev) =>
+                                  prev.filter((id) => id !== category.id)
+                                );
+                              } else {
+                                setBlacklistCategoryIds((prev) => [
+                                  ...prev,
+                                  category.id,
+                                ]);
+                                setFavoriteCategoryIds((prev) => 
+                                  prev.filter((id) => id !== category.id)
+                                );
+                              }
+                            }}
+                            className={`px-4 py-2 rounded-full border text-small font-semibold transition-all ${
+                              isSelected
+                                ? "bg-red-500 border-red-500 text-white"
+                                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-red-500/50"
+                            }`}
+                          >
+                            {category.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
+                    <button 
+                      onClick={handleSaveCategories}
+                      disabled={isSavingOptions}
+                      className="px-6 py-2 bg-primary disabled:opacity-70 text-white rounded-lg font-semibold hover:shadow-lg transition-shadow text-smaller">
+                      {isSavingOptions ? "Đang lưu..." : "Cập nhật danh mục"}
                     </button>
                   </div>
                 </div>

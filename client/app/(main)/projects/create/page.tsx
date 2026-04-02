@@ -7,6 +7,7 @@ import Footer from "@/components/client/Footer";
 import api from "@/lib/axios";
 import { Me } from "@/types/user";
 import { ProjectCategory } from "@/types/project";
+import MediaLibraryModal from "@/components/client/MediaLibraryModal";
 
 const slugify = (value: string) =>
   value
@@ -42,10 +43,14 @@ export default function CreateProjectPage() {
   const [additionalImages, setAdditionalImages] = useState<string[]>([""]);
   const contentSlug = slugify(title);
 
+  // Media Library state
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
+  const [currentImageTarget, setCurrentImageTarget] = useState<"thumbnail" | number | null>(null);
+
   useEffect(() => {
     const init = async () => {
       try {
-        const profileRes = await api.get<Me>("/auth/profile");
+        const profileRes = await api.get<Me>("/api/auth/profile");
 
         if (profileRes.data.role !== "owner") {
           router.replace("/");
@@ -352,12 +357,24 @@ export default function CreateProjectPage() {
             <label className="block text-smaller font-semibold mb-2">
               URL ảnh bìa
             </label>
-            <input
-              value={thumbnailUrl}
-              onChange={(e) => setThumbnailUrl(e.target.value)}
-              placeholder="https://..."
-              className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
-            />
+            <div className="flex items-center gap-2">
+              <input
+                value={thumbnailUrl}
+                onChange={(e) => setThumbnailUrl(e.target.value)}
+                placeholder="https://..."
+                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent flex-1"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setCurrentImageTarget("thumbnail");
+                  setIsMediaModalOpen(true);
+                }}
+                className="px-4 py-2 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 font-bold rounded-lg border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition whitespace-nowrap"
+              >
+                Chọn từ Thư viện
+              </button>
+            </div>
             {thumbnailUrl && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -398,8 +415,18 @@ export default function CreateProjectPage() {
                       )
                     }
                     placeholder="https://..."
-                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent flex-1"
                   />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrentImageTarget(index);
+                      setIsMediaModalOpen(true);
+                    }}
+                    className="px-3 py-2 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 font-bold rounded-lg border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition whitespace-nowrap"
+                  >
+                    Thư viện
+                  </button>
                   <button
                     type="button"
                     disabled={additionalImages.length === 1}
@@ -445,6 +472,23 @@ export default function CreateProjectPage() {
       </main>
 
       <Footer />
+
+      <MediaLibraryModal 
+        isOpen={isMediaModalOpen}
+        onClose={() => setIsMediaModalOpen(false)}
+        onSelect={(url) => {
+          if (currentImageTarget === "thumbnail") {
+            setThumbnailUrl(url);
+          } else if (typeof currentImageTarget === "number") {
+            setAdditionalImages((prev) =>
+              prev.map((item, index) =>
+                index === currentImageTarget ? url : item
+              )
+            );
+          }
+          setIsMediaModalOpen(false);
+        }}
+      />
     </div>
   );
 }

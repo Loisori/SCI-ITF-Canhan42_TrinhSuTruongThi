@@ -6,7 +6,7 @@ import { PaymentService } from './payment.service';
 import { CreatePaymentUrlDto } from './dto/create-payment-url.dto';
 import { ConfigService } from '@nestjs/config';
 
-@Controller('api/payment')
+@Controller('payment')
 export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,

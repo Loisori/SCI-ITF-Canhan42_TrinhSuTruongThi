@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   Entity,
   Column,
@@ -5,10 +6,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
+import { ProjectCategoryEntity } from '../../projects/entities/category.entity';
 import { ProjectEntity } from '../../projects/entities/project.entity';
 import { InvestmentEntity } from '../../investments/entities/investment.entity';
 import { TransactionEntity } from '../../transactions/entities/transaction.entity';
+import { UserMediaEntity } from './user-media.entity';
 
 // Cập nhật Enum để hỗ trợ 3 nhóm người dùng chính
 export enum UserRole {
@@ -25,6 +30,7 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 150, unique: true })
   email: string;
 
+  @Exclude()
   @Column({ type: 'varchar', length: 255, select: false }) // select: false để không vô tình trả về pass khi query
   password: string;
 
@@ -76,4 +82,23 @@ export class UserEntity {
 
   @OneToMany(() => TransactionEntity, (transaction) => transaction.user)
   transactions: TransactionEntity[];
+
+  @ManyToMany(() => ProjectCategoryEntity)
+  @JoinTable({
+    name: 'user_favorite_categories',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' },
+  })
+  favoriteCategories: ProjectCategoryEntity[];
+
+  @ManyToMany(() => ProjectCategoryEntity)
+  @JoinTable({
+    name: 'user_blacklist_categories',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' },
+  })
+  blacklistCategories: ProjectCategoryEntity[];
+
+  @OneToMany(() => UserMediaEntity, (media) => media.user)
+  media: UserMediaEntity[];
 }

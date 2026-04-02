@@ -10,6 +10,8 @@ import { InvestmentsModule } from './modules/investments/investments.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { AdminDashboardModule } from './modules/admin-dashboard/admin-dashboard.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { MediaModule } from './modules/media/media.module';
 import { createTypeOrmConfig } from './config/typeorm.config';
 
 @Module({
@@ -32,6 +34,8 @@ import { createTypeOrmConfig } from './config/typeorm.config';
     TransactionsModule,
     PaymentModule,
     AdminDashboardModule,
+    NotificationsModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

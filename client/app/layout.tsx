@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "../styles/theme.scss";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { NotificationProvider } from "@/components/providers/NotificationProvider";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -56,7 +57,11 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            <NotificationProvider>
+              {children}
+            </NotificationProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -11,6 +12,8 @@ import { UserEntity } from '../../users/entities/user.entity';
 import { ProjectCategoryEntity } from './category.entity';
 import { ProjectMediaEntity } from './media.entity';
 import { InvestmentEntity } from '../../investments/entities/investment.entity';
+import { ProjectMilestoneEntity } from './milestone.entity';
+import { ProjectDisputeEntity } from './dispute.entity';
 
 export enum ProjectRiskLevel {
   LOW = 'low',
@@ -31,9 +34,11 @@ export class ProjectEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
+  @Index()
   @Column({ name: 'owner_id', type: 'int' })
   ownerId: number;
 
+  @Index()
   @Column({ name: 'category_id', type: 'int' })
   categoryId: number;
 
@@ -124,6 +129,7 @@ export class ProjectEntity {
   })
   riskLevel: ProjectRiskLevel;
 
+  @Index()
   @Column({
     name: 'status',
     type: 'enum',
@@ -137,6 +143,10 @@ export class ProjectEntity {
 
   @Column({ name: 'end_date', type: 'date', nullable: true })
   endDate: Date | null;
+
+  @Index()
+  @Column({ name: 'is_frozen', type: 'boolean', default: false })
+  isFrozen: boolean;
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
@@ -156,4 +166,10 @@ export class ProjectEntity {
 
   @OneToMany(() => InvestmentEntity, (investment) => investment.project)
   investments: InvestmentEntity[];
+
+  @OneToMany(() => ProjectMilestoneEntity, (milestone) => milestone.project)
+  milestones: ProjectMilestoneEntity[];
+
+  @OneToMany(() => ProjectDisputeEntity, (dispute) => dispute.project)
+  disputes: ProjectDisputeEntity[];
 }

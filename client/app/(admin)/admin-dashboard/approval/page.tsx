@@ -36,7 +36,7 @@ export default function AdminApprovalPage() {
   useEffect(() => {
     const loadPage = async () => {
       try {
-        const profileResponse = await api.get("/auth/profile");
+        const profileResponse = await api.get("/api/auth/profile");
         if (
           (profileResponse.data.role ?? "").toString().toLowerCase() !== "admin"
         ) {

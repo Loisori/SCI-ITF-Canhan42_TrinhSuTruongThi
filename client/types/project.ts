@@ -11,6 +11,25 @@ export type ProjectOwner = {
   email: string;
 };
 
+export type ProjectMilestone = {
+  id: number;
+  title: string;
+  percentage: number;
+  stage: number;
+  status: 'pending' | 'uploading_proof' | 'admin_review' | 'disbursed';
+  proofUrl: string | null;
+  createdAt: string;
+};
+
+export type ProjectDispute = {
+  id: number;
+  userId: number;
+  reason: string;
+  evidenceUrl: string | null;
+  status: 'open' | 'resolved' | 'refunded';
+  createdAt: string;
+};
+
 export type Project = {
   id: number;
   title: string;
@@ -43,6 +62,10 @@ export type ProjectDetail = {
   endDate: string | null;
   content: string | null;
   category?: ProjectCategory | null;
+  owner?: ProjectOwner | null;
+  isFrozen?: boolean;
+  milestones?: ProjectMilestone[];
+  disputes?: ProjectDispute[];
 };
 
 export type PendingProject = {

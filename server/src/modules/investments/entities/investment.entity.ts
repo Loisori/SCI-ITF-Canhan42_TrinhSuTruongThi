@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -22,9 +23,11 @@ export class InvestmentEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
+  @Index()
   @Column({ name: 'user_id', type: 'int' })
   userId: number;
 
+  @Index()
   @Column({ name: 'project_id', type: 'int' })
   projectId: number;
 
@@ -39,6 +42,7 @@ export class InvestmentEntity {
   })
   amount: number;
 
+  @Index()
   @Column({
     type: 'enum',
     enum: InvestmentStatus,

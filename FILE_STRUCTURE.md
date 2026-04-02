@@ -88,9 +88,8 @@ server/
 │   │       ├── ai-analysis.controller.ts # AI Analysis endpoints
 │   │       └── ai-analysis.service.spec.ts # (To be created)
 │   └── common/
-│       ├── prisma/
-│       │   ├── prisma.service.ts    # Prisma ORM service
-│       │   └── prisma.module.ts     # Prisma module
+│       ├── config/
+│       │   └── typeorm.config.ts    # TypeORM configuration
 │       ├── auth/
 │       │   ├── auth.module.ts       # Auth module
 │       │   ├── jwt.strategy.ts      # JWT strategy
@@ -98,9 +97,7 @@ server/
 │       │   └── auth.service.ts      # (To be created)
 │       └── decorators/
 │           └── current-user.decorator.ts # Current user decorator
-├── prisma/
-│   ├── schema.prisma           # Database schema
-│   └── migrations/             # (Auto-generated)
+
 ├── test/                        # Test files
 │   ├── app.e2e-spec.ts
 │   └── jest-e2e.json
@@ -135,7 +132,7 @@ shared/
 - `next.config.ts` - Next.js compilation and optimization settings
 - `tsconfig.json` - TypeScript compiler options
 - `jest.config.ts` - Jest testing framework configuration
-- `prisma/schema.prisma` - Database schema definitions
+- `server/src/modules/*/entities/*.entity.ts` - Database entity definitions
 
 ### Environment Files
 
@@ -159,7 +156,7 @@ shared/
 
 → `server/src/modules/*/**.controller.ts` (endpoints)
 → `server/src/modules/*/**.service.ts` (business logic)
-→ `server/prisma/schema.prisma` (database)
+→ `server/src/modules/*/entities/` (database entities)
 
 ### Shared Types
 
@@ -184,7 +181,7 @@ shared/
 | `.service.ts`    | Business logic                | `server/src/modules/*/` |
 | `.module.ts`     | NestJS modules                | `server/src/modules/*/` |
 | `.ts` (shared)   | Interfaces & types            | `shared/types/`         |
-| `schema.prisma`  | Database schema               | `server/prisma/`        |
+| `.entity.ts`     | Database entity               | `server/src/modules/*/` |
 | `.config.*`      | Configuration                 | Root or workspace root  |
 
 ## Files to Create Next (Priority Order)

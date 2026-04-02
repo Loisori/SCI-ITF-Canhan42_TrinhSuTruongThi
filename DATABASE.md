@@ -42,7 +42,8 @@ CREATE TABLE projects (
     commission_rate DECIMAL(5,2) DEFAULT 5.00;
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES project_categories(id)
+    FOREIGN KEY (category_id) REFERENCES project_categories(id),
+    is_frozen BOOLEAN DEFAULT FALSE
 );
 
 -- 4. Bảng Gallery ảnh và Thumbnail
@@ -89,4 +90,52 @@ CREATE TABLE transactions (
     reference_id INT, -- ID của khoản đầu tư hoặc dự án liên quan
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 8. Bảng Danh mục đầu tư yêu thích của User
+CREATE TABLE user_favorite_categories (
+    user_id INT NOT NULL,
+    category_id INT NOT NULL,
+    PRIMARY KEY (user_id, category_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES project_categories(id) ON DELETE CASCADE
+);
+
+-- 9. Bảng Danh mục đầu tư loại trừ (Blacklist) của User
+    CREATE TABLE user_blacklist_categories (
+        user_id INT NOT NULL,
+        category_id INT NOT NULL,
+        PRIMARY KEY (user_id, category_id),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (category_id) REFERENCES project_categories(id) ON DELETE CASCADE
+    );
+-- 10. Bảng Ảnh của User
+    CREATE TABLE user_media (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    url TEXT,           -- Link ảnh từ Cloudinary
+    public_id TEXT,    -- ID để xóa/sửa ảnh trên Cloudinary
+    file_name TEXT,    -- Tên gốc để User dễ tìm
+    file_size INTEGER,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+-- 11. Bảng Khiếu nại dự án
+CREATE TABLE project_disputes (
+    id SERIAL PRIMARY KEY,
+    project_id INTEGER REFERENCES projects(id),
+    user_id INTEGER REFERENCES users(id), -- Người khiếu nại
+    reason TEXT,
+    evidence_url TEXT, -- Ảnh bằng chứng của User (nếu có)
+    status VARCHAR(20) DEFAULT 'OPEN', -- OPEN, RESOLVED, REFUNDED
+    created_at TIMESTAMP DEFAULT NOW()
+);
+-- 12. Bảng Thông báo
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    message TEXT NOT NULL,
+    type VARCHAR(50) DEFAULT 'INFO',
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

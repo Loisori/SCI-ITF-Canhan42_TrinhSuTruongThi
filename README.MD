@@ -1,446 +1,98 @@
-npm run dev in root to run both client and server folder 
-port 3000 for client and port 3001 for server
-# SmartVest AI - Đồ Án Tốt Nghiệp
+# InvestPro (AI-vest)
 
-Hệ thống phân tích dự án đầu tư thông minh tích hợp trí tuệ nhân tạo (Gemini API).
+<p align="center">
+  <em>Nền tảng kết nối gọi vốn cộng đồng hiện đại, tích hợp hợp đồng ràng buộc và giải ngân thông minh.</em>
+</p>
 
-## 🚀 Công nghệ sử dụng
-- **Frontend:** Next.js, Tailwind CSS
-- **Backend:** NestJS, TypeORM
-- **AI:** Google Gemini API
-- **Database:** SQL Server
+## 🚀 Giới thiệu
+**InvestPro** là một giải pháp Fintech cung cấp nền tảng **gọi vốn cộng đồng (Crowdfunding) & đầu tư vi mô (Micro-investing)**. 
+Khác với các nền tảng Donate thông thường, InvestPro được thiết kế với cơ chế sinh lời có kỳ hạn dài hạn, bảo mật rủi ro nhờ **Hợp đồng thông minh (Escrow-like Milestones)**, và hệ thống nhắc nhở cá nhân hoá bằng công nghệ gợi ý tương tự AI.
 
-## 🛠️ Hướng dẫn cài đặt
-1. Clone dự án.
-2. Tại thư mục gốc, cài đặt tất cả thư viện:
-   ```bash
-   npm run install-all (Hoặc lệnh setup bạn đã tạo)
+Dự án này là minh chứng cho việc thiết kế kiến trúc hệ thống bài bản, tối ưu hóa CSDL khắt khe và các tính năng Real-time tương tác trực tiếp.
 
-   # InvestHub AI - Crowdfunding Platform with AI Investment Advisory
+---
 
-A modern monorepo project for a Kickstarter-like crowdfunding platform with AI-powered investment analysis.
+## 🔥 Các Tính Năng Cốt Lõi (Key Features)
 
-## 📋 Tech Stack
+### 1. 🛡️ Cơ chế Giải Ngân Theo Giai Đoạn (Milestone Disbursement)
+Nhằm bảo vệ số tiền của nhà đầu tư, tiền không được đẩy thẳng 100% cho Start-up ngay lập tức:
+- **5 Giai đoạn khắt khe**: Hệ thống tự động băm nhỏ quỹ gọi vốn làm 5 giai đoạn (20% mỗi phần). Đợt đầu được chuyển làm tiền đề. 
+- **Minh chứng sống (Proof Upload)**: Chủ dự án bắt buộc phải nộp tài liệu/hình ảnh chứng minh tiến độ làm việc mới được Admin duyệt mở khóa vốn bước tiếp theo.
 
-### Frontend
+### 2. ⚖️ Hệ thống Tranh Chấp & Đóng Băng Tự Động (Auto-Freeze & Dispute)
+Dân chủ hóa quá trình giám sát dòng tiền:
+- Nhà đầu tư có quyền bấm nút **Khiếu nại** nếu phát hiện dấu hiệu lừa đảo.
+- **Auto-Freeze Logic**: Nếu >50% số nhà đầu tư cùng gửi khiếu nại, hệ thống sẽ chốt cắm cờ `isFrozen = true`, lập tức đóng băng lệnh giải ngân.
+- Admin sẽ là Quan tòa đứng ra dàn xếp bằng **Admin Dashboard**, với uy quyền 1 click để "Bỏ qua khiếu nại" hoặc lập tức "Thu hồi & Hoàn tiền gốc" phần % vốn còn lại cho Users.
 
-- **Next.js 14+** (App Router)
-- **Tailwind CSS** (Pure, no Shadcn/UI)
-- **Lucide Icons** (Minimalist icon library)
-- **Zustand** (Lightweight state management)
-- **TypeScript**
+### 3. 🔔 Hệ Thống Thông Báo Thời Gian Thực (Socket.IO Real-time)
+Cơ sở hạ tầng Socket.IO Notification đập tan ranh giới chờ đợi của F5 truyền thống:
+- Nhận thông báo POPUP tức thì khi: *Dự án bạn đầu tư có lãi*, *Dự án đã đạt mốc 100%*, *Dự án bị đóng băng*.
 
-### Backend
+### 4. 💳 Tích Hợp Thanh Toán VNPay & Vận hành Ví Xuyên Suốt (Wallet Core)
+- Đầu tư không gặp rào cản thông qua Sandbox trực tiếp nối cổng VNPAY.
+- Quản trị số dư (Balance) bằng TypeORM Transaction, ngắt mọi khả năng "đúp" tiền trong giao dịch mạng yếu.
 
-- **NestJS** (TypeScript Framework)
-- **Prisma ORM** (Type-safe database)
-- **PostgreSQL** (Direct connection)
-- **Swagger** (API documentation)
-- **JWT** (Authentication)
+### 5. 🎨 Cá Nhân Hóa (User Preferences)
+Thuật toán phân tích thói quen đầu tư, hiển thị nhãn mục yêu thích vào Homepage và ngầm loại bỏ các dự án bị đưa vào danh sách đen (Blacklist).
 
-### AI Integration
+---
 
-- **Google Gemini API** (Business plan analysis)
-- **LangChain** (RAG flow for intelligent analysis)
+## 🛠️ Công Nghệ & Kiến Trúc (Tech Stack)
 
-### Database
+### **Frontend (Khách hàng & Trải nghiệm)**
+- **Framework**: `Next.js 14` (App Router) 
+- **Styling**: `TailwindCSS`
+- **UX/UI**: Giao diện Light/Dark Mode tinh tế, Micro-animations. 
 
-- **PostgreSQL** (Direct connection - no Docker)
+### **Backend (Xử lý Core Logic)**
+- **Framework**: `NestJS` (TypeScript siêu định hình)
+- **Database**: `MySQL` - Liên kết truy vấn với `TypeORM`. 
+- **Bảo mật**: `JWT (JSON Web Token)`, Guard bảo vệ API phân quyền (Admin / Investor / Owner).
+- **Network**: `Socket.io` Gateway. 
 
-## 🏗️ Project Structure
+### **Cơ chế Tối Ưu (Optimization)**
+- Phủ kín chỉ mục **`@Index()`** trong MySQL (InvestmentEntity, ProjectsEntity) nhằm tăng tốc độ truy vấn `JOIN` tại các tính năng Report lớn.
+- **Unit Test phủ sóng**: Logic kế toán (Tính lãi, chia mốc Milestone) vượt bài kiểm tra Mock Database nghiêm ngặt bằng **Jest**.
 
-```
-investhub-ai/
-├── client/                          # Next.js Frontend
-│   ├── src/
-│   │   ├── app/                    # App Router pages
-│   │   │   ├── layout.tsx          # Root layout
-│   │   │   ├── page.tsx            # Home page
-│   │   │   ├── globals.css         # Global styles
-│   │   │   └── dashboard/
-│   │   │       ├── layout.tsx      # Dashboard layout
-│   │   │       └── page.tsx        # Dashboard page
-│   │   ├── components/             # Reusable components
-│   │   │   ├── Navigation.tsx      # Main navigation
-│   │   │   ├── ProjectCard.tsx     # Project card component
-│   │   │   └── ...
-│   │   ├── store/                  # Zustand stores
-│   │   │   ├── auth.ts            # Auth state
-│   │   │   ├── projects.ts        # Projects state
-│   │   │   └── ...
-│   │   └── lib/                    # Utilities & API calls
-│   │       ├── api.ts             # Axios instance
-│   │       ├── projects.ts        # Projects API
-│   │       ├── investments.ts     # Investments API
-│   │       └── ai-analysis.ts     # AI Analysis API
-│   ├── tailwind.config.ts          # Tailwind configuration
-│   ├── postcss.config.js           # PostCSS setup
-│   ├── next.config.ts              # Next.js configuration
-│   ├── tsconfig.json               # TypeScript config
-│   ├── package.json
-│   ├── .env.example
-│   └── .eslintrc.json
-│
-├── server/                          # NestJS Backend
-│   ├── src/
-│   │   ├── main.ts                # Application entry point
-│   │   ├── app.module.ts          # Root module
-│   │   ├── modules/               # Feature modules
-│   │   │   ├── users/
-│   │   │   │   ├── users.module.ts
-│   │   │   │   ├── users.service.ts
-│   │   │   │   ├── users.controller.ts
-│   │   │   │   └── ...
-│   │   │   ├── projects/
-│   │   │   │   ├── projects.module.ts
-│   │   │   │   ├── projects.service.ts
-│   │   │   │   ├── projects.controller.ts
-│   │   │   │   └── ...
-│   │   │   ├── investments/
-│   │   │   │   ├── investments.module.ts
-│   │   │   │   ├── investments.service.ts
-│   │   │   │   ├── investments.controller.ts
-│   │   │   │   └── ...
-│   │   │   └── ai-analysis/
-│   │   │       ├── ai-analysis.module.ts
-│   │   │       ├── ai-analysis.service.ts
-│   │   │       ├── ai-analysis.controller.ts
-│   │   │       └── ...
-│   │   └── common/
-│   │       ├── prisma/
-│   │       │   ├── prisma.service.ts
-│   │       │   └── prisma.module.ts
-│   │       ├── auth/
-│   │       │   ├── auth.module.ts
-│   │       │   ├── jwt.strategy.ts
-│   │       │   └── auth.guard.ts
-│   │       └── decorators/
-│   │           └── current-user.decorator.ts
-│   ├── prisma/
-│   │   └── schema.prisma          # Database schema
-│   ├── tsconfig.json               # TypeScript config
-│   ├── package.json
-│   ├── .env.example
-│   └── .decorators/
-│
-├── shared/                          # Shared Types & Interfaces
-│   ├── types/
-│   │   ├── index.ts               # Export all types
-│   │   ├── user.ts                # User interfaces
-│   │   ├── project.ts             # Project interfaces
-│   │   ├── investment.ts          # Investment interfaces
-│   │   └── ai-analysis.ts         # AI Analysis interfaces
-│   ├── tsconfig.json
-│   └── package.json
-│
-├── package.json                     # Root workspace config
-├── .gitignore
-└── README.md
-```
+---
 
-## 🚀 Getting Started
+## 💻 Hướng Dẫn Cài Đặt (Local Development)
 
-### Prerequisites
-
-- **Node.js** 18+
-- **PostgreSQL** 13+
-- **npm** or **yarn**
-
-### Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone <repo-url>
-   cd investhub-ai
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   ```
-
-3. **Setup shared types**
-
-   ```bash
-   npm run build -w shared
-   ```
-
-4. **Setup Backend**
-
-   ```bash
-   cd server
-   cp .env.example .env
-   # Edit .env with your database credentials
-   npm install
-   npx prisma db push  # Create database tables
-   ```
-
-5. **Setup Frontend**
-   ```bash
-   cd ../client
-   cp .env.example .env.local
-   npm install
-   ```
-
-### Running Locally
-
-**Development Mode (All services)**
-
+### 1. Khởi động Backend (NestJS API)
+Đảm bảo bạn có MySQL chạy local, và file `.env` đã được set url kết nối (Tham khảo `.env.example`).
 ```bash
+cd server
+npm install
+
+# Khởi chạy TypeORM Sinh cấu trúc bảng Database
+npm run start:dev
+```
+
+### 2. Khởi động Frontend (Next.js)
+```bash
+cd client
+npm install
+
+# Bật máy chủ giao diện
 npm run dev
 ```
 
-**Frontend only**
+Truy cập `http://localhost:3000` để trải nghiệm hệ thống!
 
-```bash
-npm run client:dev
-# Runs on http://localhost:3000
-```
+---
 
-**Backend only**
+## 📂 Kiến Trúc Mã Cuồn (Folder Structure)
 
-```bash
-npm run server:dev
-# Runs on http://localhost:3001
-# Swagger docs: http://localhost:3001/api
-```
+Khối **`server`** được kiến trúc theo Module Pattern bóc tách mạnh:
+- `auth`: Logic đăng nhập / đăng ký
+- `investments`: Các thuật toán Transaction & Cron Jobs kiểm tra tính lãi.
+- `projects`: Lõi Milestone, Dispute, Media uploading.
+- `notifications`: Websocket Gateway.
 
-### Database Management
+Khối **`client`** áp dụng Next App Router ưu việt:
+- `(main)`: Luồng Public, trang chủ, chi tiết dự án.
+- `(admin)`: Dashboard kín của kiểm duyệt viên.
 
-**Push schema to database**
-
-```bash
-npm run db:push -w server
-```
-
-**Open Prisma Studio (GUI)**
-
-```bash
-npm run db:studio -w server
-```
-
-## 🗄️ Database Schema
-
-### Users
-
-```prisma
-- id (String, primary key)
-- email (String, unique)
-- password (String, hashed)
-- firstName, lastName (String)
-- avatar, bio (String, optional)
-- role (investor, creator, admin)
-- timestamps
-```
-
-### Projects
-
-```prisma
-- id (String, primary key)
-- title, description (String)
-- slug (String, unique)
-- fundingGoal, currentFunding (Float)
-- category (String)
-- deadline (DateTime)
-- status (draft, live, funded, failed, completed)
-- creatorId (Foreign key to User)
-- timestamps
-```
-
-### Investments
-
-```prisma
-- id (String, primary key)
-- amount, shares (Float)
-- status (pending, completed, refunded)
-- investorId (Foreign key to User)
-- projectId (Foreign key to Project)
-- timestamps
-```
-
-### AI Analysis
-
-```prisma
-- id (String, primary key)
-- score (Float, 0-100)
-- summary, marketAnalysis, financialProjection (Text)
-- risks, opportunities (String[])
-- recommendation (highly-recommended, recommended, neutral, not-recommended)
-- projectId (Foreign key to Project)
-- timestamps
-```
-
-## 🔌 API Endpoints
-
-### Authentication
-
-- `POST /auth/register`
-- `POST /auth/login`
-- `POST /auth/refresh`
-
-### Users
-
-- `GET /users` - List all users
-- `GET /users/:id` - Get user by ID
-- `PATCH /users/:id` - Update user
-- `DELETE /users/:id` - Delete user
-
-### Projects
-
-- `GET /projects` - List all projects
-- `GET /projects/:id` - Get project by ID
-- `GET /projects/by-slug/:slug` - Get project by slug
-- `POST /projects` - Create project (requires auth)
-- `PATCH /projects/:id` - Update project (requires auth)
-- `DELETE /projects/:id` - Delete project (requires auth)
-- `GET /projects/creator/:creatorId` - Get projects by creator
-
-### Investments
-
-- `GET /investments` - List all investments
-- `GET /investments/:id` - Get investment by ID
-- `POST /investments` - Create investment (requires auth)
-- `PATCH /investments/:id` - Update investment (requires auth)
-- `DELETE /investments/:id` - Delete investment (requires auth)
-- `GET /investments/portfolio/:investorId` - Get investor portfolio
-- `GET /investments/project/:projectId` - Get project investments
-
-### AI Analysis
-
-- `GET /ai-analysis` - List all analyses
-- `GET /ai-analysis/project/:projectId` - Get analysis for project
-- `POST /ai-analysis` - Analyze business plan (requires auth)
-- `DELETE /ai-analysis/project/:projectId` - Delete analysis (requires auth)
-
-## 🎨 Tailwind CSS
-
-The project uses **pure Tailwind CSS** without component libraries. Custom components are in `/client/src/components`.
-
-**Configured colors:**
-
-- `primary`: Brand color (blue)
-- `secondary`: Secondary color (purple)
-- `muted`: Light gray
-- `background`: Background color
-- `foreground`: Text color
-
-Customize in [tailwind.config.ts](client/tailwind.config.ts)
-
-## 🧠 AI Integration
-
-### Google Gemini API
-
-Used for analyzing business plans and generating investment insights.
-
-**Setup:**
-
-1. Get API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Add to `.env`:
-   ```
-   GOOGLE_API_KEY=your-api-key
-   ```
-
-### LangChain (RAG)
-
-Implements Retrieval-Augmented Generation for contextual business analysis.
-
-**Features:**
-
-- Document retrieval from business plans
-- Context-aware analysis
-- Historical case study reference
-
-## 🔐 Authentication
-
-Uses **JWT** (Bearer tokens) with Passport.js
-
-**Flow:**
-
-1. User registers/logs in
-2. Server returns JWT token
-3. Client stores token in localStorage
-4. Client includes token in `Authorization: Bearer <token>` header
-5. Server validates token with JwtStrategy
-
-## 📊 State Management (Zustand)
-
-**Auth Store**
-
-```typescript
-useAuthStore()
-- user: User | null
-- token: string | null
-- isAuthenticated: boolean
-- login(user, token)
-- logout()
-```
-
-**Projects Store**
-
-```typescript
-useProjectsStore()
-- projects: IProject[]
-- loading: boolean
-- error: string | null
-- setProjects()
-- addProject()
-- updateProject()
-- removeProject()
-```
-
-## 🛠️ Environment Variables
-
-### Backend (.env)
-
-```
-DATABASE_URL=postgresql://user:password@localhost:5432/investhub_ai
-JWT_SECRET=your-secret-key
-JWT_EXPIRATION=24h
-GOOGLE_API_KEY=your-google-api-key
-PORT=3001
-CLIENT_URL=http://localhost:3000
-```
-
-### Frontend (.env.local)
-
-```
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
-```
-
-## 📦 Building for Production
-
-**Build all**
-
-```bash
-npm run build
-```
-
-**Build frontend**
-
-```bash
-npm run client:build
-```
-
-**Build backend**
-
-```bash
-npm run server:build
-```
-
-## 📝 License
-
-MIT
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📞 Support
-
-For issues and questions, please open an issue on the repository.
+---
+> *Đây là dự án tâm huyết đề cao thiết kế phần mềm linh hoạt, an toàn dòng tiền (ACID Database rule) và giao diện định hướng người dùng.*

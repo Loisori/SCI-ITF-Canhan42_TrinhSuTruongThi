@@ -174,7 +174,7 @@ function DashboardPageInner() {
   } = useQuery({
     queryKey: ["auth-profile"],
     queryFn: async () => {
-      const res = await api.get<UserProfile>("/auth/profile");
+      const res = await api.get<UserProfile>("/api/auth/profile");
       return res.data;
     },
     retry: false,

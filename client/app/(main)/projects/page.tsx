@@ -70,7 +70,7 @@ function ProjectListInner() {
   const { data: role = null } = useQuery({
     queryKey: ["auth-role-projects-page"],
     queryFn: async () => {
-      const res = await api.get<Profile>("/auth/profile");
+      const res = await api.get<Profile>("/api/auth/profile");
       return res.data.role;
     },
     retry: false,

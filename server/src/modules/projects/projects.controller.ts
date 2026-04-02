@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  Patch,
   Param,
   ParseIntPipe,
   Post,
@@ -19,7 +21,7 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { IsInvestorGuard } from '../../common/guards/is-investor.guard';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
-@Controller('api/projects')
+@Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
@@ -115,4 +117,29 @@ export class ProjectsController {
   ) {
     return this.projectsService.invest(userId, dto);
   }
+
+  @UseGuards(JwtAuthGuard, IsOwnerGuard)
+  @Patch(':id/milestones/:mId/proof')
+  uploadMilestoneProof(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('mId', ParseIntPipe) mId: number,
+    @GetUser('id') ownerId: number,
+    @Body('proofUrl') proofUrl: string,
+  ) {
+    if (!proofUrl) throw new BadRequestException('proofUrl is required');
+    return this.projectsService.uploadMilestoneProof(id, mId, ownerId, proofUrl);
+  }
+
+  @UseGuards(JwtAuthGuard, IsInvestorGuard)
+  @Post(':id/disputes')
+  createDispute(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser('id') userId: number,
+    @Body('reason') reason: string,
+    @Body('evidenceUrl') evidenceUrl?: string,
+  ) {
+    if (!reason) throw new BadRequestException('reason is required');
+    return this.projectsService.createDispute(id, userId, reason, evidenceUrl);
+  }
 }
+

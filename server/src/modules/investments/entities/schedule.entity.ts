@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -21,6 +22,7 @@ export class PaymentScheduleEntity {
   @Column({ name: 'investment_id', type: 'int' })
   investmentId: number;
 
+  @Index()
   @Column({ name: 'due_date', type: 'date' })
   dueDate: Date;
 
@@ -35,6 +37,7 @@ export class PaymentScheduleEntity {
   })
   amount: number;
 
+  @Index()
   @Column({
     type: 'enum',
     enum: PaymentScheduleStatus,
