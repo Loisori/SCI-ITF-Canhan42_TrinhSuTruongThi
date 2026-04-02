@@ -46,7 +46,7 @@ export default function AdminDisputesPage() {
       <div className="flex-1 p-8">
         <div className="mb-8">
           <h1 className="text-h4 font-black">Xử lý Tranh Chấp</h1>
-          <p className="text-slate-500">Các dự án bị đình chỉ do có > 50% nhà đầu tư khiếu nại.</p>
+          <p className="text-slate-500">Các dự án bị đình chỉ do có 50% nhà đầu tư khiếu nại.</p>
         </div>
 
         {loading ? (
