@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { ProjectDetail } from "@/types/project";
-import Sidebar from "@/components/admin/Sidebar";
+// import Sidebar from "@/components/admin/Sidebar";
 
 export default function AdminDisputesPage() {
   const [projects, setProjects] = useState<ProjectDetail[]>([]);
@@ -42,7 +42,7 @@ export default function AdminDisputesPage() {
 
   return (
     <div className="flex bg-slate-50 min-h-screen">
-      <Sidebar />
+      {/* <Sidebar /> */}
       <div className="flex-1 p-8">
         <div className="mb-8">
           <h1 className="text-h4 font-black">Xử lý Tranh Chấp</h1>
