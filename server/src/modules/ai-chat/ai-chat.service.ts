@@ -5,10 +5,25 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { ChatHistoryEntity, ChatRole } from './entities/chat-history.entity';
+import { UserEntity } from '../users/entities/user.entity';
+import { InvestmentEntity, InvestmentStatus } from '../investments/entities/investment.entity';
 
 interface GeminiMessage {
   role: 'user' | 'model';
   content: string;
+}
+
+interface UserFinancialContext {
+  user_id: number;
+  full_name: string;
+  balance: number;
+  investments: Array<{
+    project_id: number;
+    project_title: string;
+    amount_invested: number;
+    interest_rate: number;
+    status: InvestmentStatus;
+  }>;
 }
 
 @Injectable()
@@ -16,6 +31,10 @@ export class AiChatService {
   constructor(
     @InjectRepository(ChatHistoryEntity)
     private readonly chatHistoryRepository: Repository<ChatHistoryEntity>,
+    @InjectRepository(UserEntity)
+    private readonly usersRepository: Repository<UserEntity>,
+    @InjectRepository(InvestmentEntity)
+    private readonly investmentsRepository: Repository<InvestmentEntity>,
     private readonly configService: ConfigService,
   ) {}
 
@@ -74,6 +93,9 @@ export class AiChatService {
       this.configService.get<string>('AI_SERVICE_URL') ||
       'http://localhost:3010';
 
+    const userFinancialContext =
+      await this.buildUserFinancialContext(userId);
+
     let reply = AiChatService.SOFT_FALLBACK_MESSAGE;
 
     try {
@@ -86,6 +108,7 @@ export class AiChatService {
           message: normalizedMessage,
           recentMessages,
           projectContext: projectContext ?? null,
+          user_financial_context: userFinancialContext,
         }),
       });
 
@@ -139,6 +162,35 @@ export class AiChatService {
     return {
       reply,
       contextSize: recentMessages.length,
+    };
+  }
+
+  private async buildUserFinancialContext(
+    userId: number,
+  ): Promise<UserFinancialContext> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      select: ['id', 'fullName', 'balance'],
+    });
+
+    const investments = await this.investmentsRepository.find({
+      where: { userId },
+      relations: ['project'],
+      order: { investedAt: 'DESC' },
+      take: 100,
+    });
+
+    return {
+      user_id: userId,
+      full_name: user?.fullName ?? 'Nhà đầu tư',
+      balance: Number(user?.balance ?? 0),
+      investments: investments.map((investment) => ({
+        project_id: investment.projectId,
+        project_title: investment.project?.title ?? `Project #${investment.projectId}`,
+        amount_invested: Number(investment.amount),
+        interest_rate: Number(investment.project?.interestRate ?? 0),
+        status: investment.status,
+      })),
     };
   }
 }

@@ -45,8 +45,17 @@ async function readProjectsJsonText() {
   }
 }
 
-function buildSystemInstruction(projectsJsonText) {
+function buildSystemInstruction(projectsJsonText, userFinancialContext) {
+  const fullName = userFinancialContext?.full_name || "Nhà đầu tư";
+  const balance = Number(userFinancialContext?.balance || 0);
+  const investments = Array.isArray(userFinancialContext?.investments)
+    ? userFinancialContext.investments
+    : [];
+  const investmentsJson = JSON.stringify(investments, null, 2);
+
   return [
+    `Bạn là Trợ lý tài chính cá nhân của ${fullName}. Ngoài danh sách dự án chung của InvestPro, đây là dữ liệu tài chính riêng của họ: Số dư khả dụng: ${balance} VNĐ; Danh mục đang đầu tư: ${investmentsJson}.`,
+    "Hãy trả lời các câu hỏi như: Ví của tôi còn bao nhiêu? Tôi đã đầu tư bao nhiêu tiền? Với số dư hiện tại, tôi nên đầu tư thêm vào dự án nào để tối ưu lợi nhuận?",
     "Bạn là chuyên gia phân tích của InvestPro. Dưới đây là danh sách dự án hiện tại của chúng tôi dưới dạng JSON:",
     projectsJsonText,
     "Hãy dựa vào dữ liệu này để trả lời người dùng. Nếu thông tin không có trong JSON, hãy nói bạn không biết.",
@@ -54,6 +63,8 @@ function buildSystemInstruction(projectsJsonText) {
     "- Chỉ kết luận dựa trên dữ liệu JSON và context được cung cấp.",
     "- Khi so sánh lãi suất, rủi ro hoặc vốn, hãy nêu rõ tên dự án liên quan.",
     "- Nếu người dùng hỏi về một dự án cụ thể, ưu tiên dùng object projectContext nếu có.",
+    "- Chỉ sử dụng dữ liệu user_financial_context của đúng người dùng hiện tại được gửi kèm request.",
+    "- Tuyệt đối không suy đoán hoặc tiết lộ thông tin nhạy cảm (mật khẩu, secret key, token).",
   ].join("\n\n");
 }
 
@@ -93,6 +104,7 @@ app.post("/chat", async (req, res) => {
     ? req.body.recentMessages
     : [];
   const projectContext = req.body?.projectContext ?? null;
+  const userFinancialContext = req.body?.user_financial_context ?? null;
 
   if (!userMessage) {
     return res.status(400).json({ message: "message is required" });
@@ -106,7 +118,10 @@ app.post("/chat", async (req, res) => {
 
   try {
     const projectsJsonText = await readProjectsJsonText();
-    const systemInstruction = buildSystemInstruction(projectsJsonText);
+    const systemInstruction = buildSystemInstruction(
+      projectsJsonText,
+      userFinancialContext,
+    );
     const contents = buildContents({
       recentMessages,
       userMessage,
