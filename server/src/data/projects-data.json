@@ -1,0 +1,50 @@
+[
+  {
+    "id": 101,
+    "title": "Nông trại Công nghệ cao Đà Lạt",
+    "cat": "Nông nghiệp",
+    "rate": 15.5,
+    "months": 12,
+    "target": 2000000000,
+    "current": 1500000000,
+    "min": 10000000,
+    "risk": "Low",
+    "status": "funding"
+  },
+  {
+    "id": 102,
+    "title": "Chuỗi Cafe Nhượng quyền InvestPro",
+    "cat": "Dịch vụ",
+    "rate": 12.0,
+    "months": 24,
+    "target": 5000000000,
+    "current": 5000000000,
+    "min": 50000000,
+    "risk": "Medium",
+    "status": "completed"
+  },
+  {
+    "id": 103,
+    "title": "Hệ thống Điện mặt trời mái nhà",
+    "cat": "Năng lượng",
+    "rate": 18.0,
+    "months": 36,
+    "target": 3000000000,
+    "current": 200000000,
+    "min": 20000000,
+    "risk": "High",
+    "status": "funding"
+  },
+  {
+    "id": 104,
+    "title": "Startup App Giao hàng Xanh",
+    "cat": "Công nghệ",
+    "rate": 20.0,
+    "months": 18,
+    "target": 1000000000,
+    "current": 0,
+    "min": 5000000,
+    "risk": "High",
+    "status": "pending"
+  }
+]

@@ -139,3 +139,15 @@ CREATE TABLE notifications (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- 13. Bảng lịch sử chat AI (duy trì ngữ cảnh stateless 10 lượt gần nhất)
+CREATE TABLE chat_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    role ENUM('user', 'model', 'system') NOT NULL,
+    message TEXT NOT NULL,
+    project_context JSON NULL, -- object dự án được gửi kèm mỗi lần chat (nếu có)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_chat_history_user_created_at (user_id, created_at),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

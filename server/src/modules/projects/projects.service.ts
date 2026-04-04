@@ -158,6 +158,7 @@ export class ProjectsService {
 
     project.status = ProjectStatus.FUNDING;
     await this.projectsRepository.save(project);
+    await this.syncProjectsDataJsonFile();
 
     await this.notifyProjectOwner(
       project.owner,
@@ -183,6 +184,7 @@ export class ProjectsService {
 
     project.status = ProjectStatus.FAILED;
     await this.projectsRepository.save(project);
+    await this.syncProjectsDataJsonFile();
 
     await this.notifyProjectOwner(
       project.owner,
@@ -298,7 +300,7 @@ export class ProjectsService {
   }
 
   async createProject(ownerId: number, dto: CreateProjectDto) {
-    return this.dataSource.transaction(async (manager) => {
+    const createdProject = await this.dataSource.transaction(async (manager) => {
       const projectRepo = manager.getRepository(ProjectEntity);
       const mediaRepo = manager.getRepository(ProjectMediaEntity);
       const categoriesRepo = manager.getRepository(ProjectCategoryEntity);
@@ -367,6 +369,9 @@ export class ProjectsService {
 
       return this.getProjectDetailInTransaction(manager, created.id);
     });
+
+    await this.syncProjectsDataJsonFile();
+    return createdProject;
   }
 
   async deleteProject(projectId: number) {
@@ -379,6 +384,7 @@ export class ProjectsService {
     }
 
     await this.projectsRepository.remove(project);
+    await this.syncProjectsDataJsonFile();
 
     return {
       message: 'Project deleted successfully.',
@@ -391,7 +397,7 @@ export class ProjectsService {
     ownerId: number,
     dto: UpdateProjectDto,
   ) {
-    return this.dataSource.transaction(async (manager) => {
+    const updatedProject = await this.dataSource.transaction(async (manager) => {
       const projectRepo = manager.getRepository(ProjectEntity);
       const mediaRepo = manager.getRepository(ProjectMediaEntity);
       const categoriesRepo = manager.getRepository(ProjectCategoryEntity);
@@ -486,10 +492,13 @@ export class ProjectsService {
 
       return this.getProjectDetailInTransaction(manager, project.id);
     });
+
+    await this.syncProjectsDataJsonFile();
+    return updatedProject;
   }
 
   async stopFunding(projectId: number, ownerId: number) {
-    return this.dataSource.transaction(async (manager) => {
+    const result = await this.dataSource.transaction(async (manager) => {
       const projectsRepo = manager.getRepository(ProjectEntity);
       const investmentsRepo = manager.getRepository(InvestmentEntity);
       const usersRepo = manager.getRepository(UserEntity);
@@ -664,6 +673,9 @@ export class ProjectsService {
         netReceived,
       };
     });
+
+    await this.syncProjectsDataJsonFile();
+    return result;
   }
 
   async invest(userId: number, dto: InvestProjectDto) {
@@ -842,6 +854,46 @@ export class ProjectsService {
     };
   }
 
+  private async syncProjectsDataJsonFile() {
+    try {
+      const projects = await this.projectsRepository.find({
+        relations: ['media', 'category', 'owner', 'milestones', 'disputes'],
+        order: { createdAt: 'DESC' },
+      });
+
+      const payload = projects.map((project) => ({
+        ...this.serializeProject(project),
+        content: project.content ?? null,
+      }));
+
+      const primaryPath = path.join(
+        process.cwd(),
+        'src',
+        'data',
+        'projects-data.json',
+      );
+      const fallbackPath = path.join(
+        process.cwd(),
+        'server',
+        'src',
+        'data',
+        'projects-data.json',
+      );
+
+      const targetPath = primaryPath.includes('/server/')
+        ? primaryPath
+        : fallbackPath;
+
+      await fs.mkdir(path.dirname(targetPath), { recursive: true });
+      await fs.writeFile(targetPath, JSON.stringify(payload, null, 2), 'utf8');
+    } catch (error) {
+      console.error(
+        '[ProjectsService] Failed to sync projects-data.json:',
+        error,
+      );
+    }
+  }
+
   private async readProjectMarkdown(slug: string | null) {
     if (!slug) {
       return null;
@@ -953,7 +1005,7 @@ export class ProjectsService {
   }
 
   async finalizeMilestone(projectId: number, milestoneId: number) {
-    return this.dataSource.transaction(async (manager) => {
+    const result = await this.dataSource.transaction(async (manager) => {
       const milestoneRepo = manager.getRepository(ProjectMilestoneEntity);
       const projectRepo = manager.getRepository(ProjectEntity);
       const transactionRepo = manager.getRepository(TransactionEntity);
@@ -1008,10 +1060,13 @@ export class ProjectsService {
 
       return milestone;
     });
+
+    await this.syncProjectsDataJsonFile();
+    return result;
   }
 
   async resolveDisputes(projectId: number, action: 'dismiss' | 'refund') {
-    return this.dataSource.transaction(async (manager) => {
+    const result = await this.dataSource.transaction(async (manager) => {
       const projectRepo = manager.getRepository(ProjectEntity);
       const disputeRepo = manager.getRepository(ProjectDisputeEntity);
       const transactionRepo = manager.getRepository(TransactionEntity);
@@ -1093,6 +1148,9 @@ export class ProjectsService {
       }
       throw new BadRequestException('Invalid action');
     });
+
+    await this.syncProjectsDataJsonFile();
+    return result;
   }
 
   async getFrozenProjects() {
@@ -1118,5 +1176,3 @@ export class ProjectsService {
     }));
   }
 }
-
-

@@ -4,6 +4,7 @@ import "../styles/theme.scss";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { NotificationProvider } from "@/components/providers/NotificationProvider";
+import AIChatbox from "@/components/client/AIChatbox";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -60,6 +61,7 @@ export default function RootLayout({
           <QueryProvider>
             <NotificationProvider>
               {children}
+              <AIChatbox />
             </NotificationProvider>
           </QueryProvider>
         </ThemeProvider>

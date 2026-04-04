@@ -4,6 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { DataSource, EntityManager, LessThan } from 'typeorm';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import {
   InvestmentEntity,
   InvestmentStatus,
@@ -469,7 +471,117 @@ export class InvestmentsService {
       return run(manager);
     }
 
-    return this.dataSource.transaction(async (txManager) => run(txManager));
+    const result = await this.dataSource.transaction(async (txManager) =>
+      run(txManager),
+    );
+    await this.syncProjectsDataJsonFile();
+    return result;
+  }
+
+  private async syncProjectsDataJsonFile() {
+    try {
+      const projectsRepo = this.dataSource.getRepository(ProjectEntity);
+      const projects = await projectsRepo.find({
+        relations: ['media', 'category', 'owner', 'milestones', 'disputes'],
+        order: { createdAt: 'DESC' },
+      });
+
+      const payload = projects.map((project) => {
+        const targetCapital = Number(project.goalAmount);
+        const currentCapital = Number(project.currentAmount);
+        const fundingProgress =
+          targetCapital > 0
+            ? Number(((currentCapital / targetCapital) * 100).toFixed(2))
+            : 0;
+
+        const thumbnail =
+          project.media?.find((media) => media.isThumbnail)?.url ??
+          project.media?.[0]?.url ??
+          null;
+        const images = (project.media ?? [])
+          .filter((media) => !media.isThumbnail)
+          .map((media) => media.url);
+
+        return {
+          id: project.id,
+          title: project.title,
+          thumbnailUrl: thumbnail,
+          shortDescription: project.shortDescription,
+          contentSlug: project.slug,
+          content: project.content ?? null,
+          targetCapital,
+          currentCapital,
+          interestRate: Number(project.interestRate),
+          durationMonths: project.durationMonths,
+          minInvestment: Number(project.minInvestment),
+          riskLevel: project.riskLevel,
+          fundingProgress,
+          status: project.status,
+          startDate: project.startDate,
+          endDate: project.endDate,
+          category: project.category
+            ? {
+                id: project.category.id,
+                name: project.category.name,
+                slug: project.category.slug,
+                iconUrl: project.category.iconUrl,
+              }
+            : null,
+          owner: project.owner
+            ? {
+                id: project.owner.id,
+                fullName: project.owner.fullName,
+                email: project.owner.email,
+              }
+            : null,
+          images,
+          isFrozen: project.isFrozen,
+          createdAt: project.createdAt,
+          milestones: project.milestones?.map((m) => ({
+            id: m.id,
+            title: m.title,
+            percentage: m.percentage,
+            stage: m.stage,
+            status: m.status,
+            proofUrl: m.proofUrl,
+            createdAt: m.createdAt,
+          })),
+          disputes: project.disputes?.map((d) => ({
+            id: d.id,
+            userId: d.userId,
+            reason: d.reason,
+            evidenceUrl: d.evidenceUrl,
+            status: d.status,
+            createdAt: d.createdAt,
+          })),
+        };
+      });
+
+      const primaryPath = path.join(
+        process.cwd(),
+        'src',
+        'data',
+        'projects-data.json',
+      );
+      const fallbackPath = path.join(
+        process.cwd(),
+        'server',
+        'src',
+        'data',
+        'projects-data.json',
+      );
+      const targetPath = primaryPath.includes('/server/')
+        ? primaryPath
+        : fallbackPath;
+
+      await fs.mkdir(path.dirname(targetPath), { recursive: true });
+      await fs.writeFile(targetPath, JSON.stringify(payload, null, 2), 'utf8');
+    } catch (error) {
+      console.error(
+        '[InvestmentsService] Failed to sync projects-data.json:',
+        error,
+      );
+    }
   }
 
   private roundCurrency(value: number): number {

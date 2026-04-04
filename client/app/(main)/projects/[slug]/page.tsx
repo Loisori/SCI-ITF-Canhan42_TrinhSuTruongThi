@@ -81,6 +81,37 @@ export default function ProjectDetailPage() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("investpro-project-context", {
+        detail: project
+          ? {
+              id: project.id,
+              title: project.title,
+              shortDescription: project.shortDescription,
+              interestRate: project.interestRate,
+              durationMonths: project.durationMonths,
+              minInvestment: project.minInvestment,
+              targetCapital: project.targetCapital,
+              currentCapital: project.currentCapital,
+              fundingProgress: project.fundingProgress,
+              riskLevel: (project as { riskLevel?: string }).riskLevel ?? null,
+              status: project.status,
+              category: project.category ?? null,
+              owner: project.owner ?? null,
+              endDate: project.endDate,
+            }
+          : null,
+      }),
+    );
+
+    return () => {
+      window.dispatchEvent(
+        new CustomEvent("investpro-project-context", { detail: null }),
+      );
+    };
+  }, [project]);
+
   const isFundingOpen = useMemo(() => {
     if (!project) {
       return false;

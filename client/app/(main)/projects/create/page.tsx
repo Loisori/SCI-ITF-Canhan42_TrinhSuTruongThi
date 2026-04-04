@@ -19,6 +19,8 @@ const slugify = (value: string) =>
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
 
+const getTodayString = () => new Date().toISOString().split("T")[0];
+
 export default function CreateProjectPage() {
   const router = useRouter();
   const [loadingAuth, setLoadingAuth] = useState(true);
@@ -36,7 +38,7 @@ export default function CreateProjectPage() {
   const [riskLevel, setRiskLevel] = useState<"low" | "medium" | "high">(
     "medium",
   );
-  const [startDate, setStartDate] = useState("");
+  const [startDate, setStartDate] = useState(getTodayString());
   const [endDate, setEndDate] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
@@ -45,7 +47,9 @@ export default function CreateProjectPage() {
 
   // Media Library state
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
-  const [currentImageTarget, setCurrentImageTarget] = useState<"thumbnail" | number | null>(null);
+  const [currentImageTarget, setCurrentImageTarget] = useState<
+    "thumbnail" | number | null
+  >(null);
 
   useEffect(() => {
     const init = async () => {
@@ -313,6 +317,7 @@ export default function CreateProjectPage() {
               <input
                 type="date"
                 value={startDate}
+                min={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
               />
@@ -473,7 +478,7 @@ export default function CreateProjectPage() {
 
       <Footer />
 
-      <MediaLibraryModal 
+      <MediaLibraryModal
         isOpen={isMediaModalOpen}
         onClose={() => setIsMediaModalOpen(false)}
         onSelect={(url) => {
@@ -482,8 +487,8 @@ export default function CreateProjectPage() {
           } else if (typeof currentImageTarget === "number") {
             setAdditionalImages((prev) =>
               prev.map((item, index) =>
-                index === currentImageTarget ? url : item
-              )
+                index === currentImageTarget ? url : item,
+              ),
             );
           }
           setIsMediaModalOpen(false);
