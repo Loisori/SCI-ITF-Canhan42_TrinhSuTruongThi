@@ -7,9 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "client": "cd client && npm run dev",
     "server": "cd server && npm run start:dev",
-    "ai": "cd ai-service && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "dev:all": "concurrently \"npm run server\" \"npm run client\" \"npm run ai\""
+    "dev:all": "concurrently \"npm run server\" \"npm run client\""
   },
   "repository": {
     "type": "git",
