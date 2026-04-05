@@ -1,22 +1,9 @@
 "use client";
 
+//services
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
-
-export type MediaItem = {
-  id: number;
-  url: string;
-  publicId: string;
-  fileName: string;
-  fileSize: number;
-  createdAt: string;
-};
-
-type MediaLibraryModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  onSelect: (url: string) => void;
-};
+import { MediaItem, MediaLibraryModalProps } from "@/types/media";
 
 export default function MediaLibraryModal({ isOpen, onClose, onSelect }: MediaLibraryModalProps) {
   const [mediaList, setMediaList] = useState<MediaItem[]>([]);

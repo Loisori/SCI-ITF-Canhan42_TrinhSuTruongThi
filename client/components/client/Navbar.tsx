@@ -1,24 +1,27 @@
 "use client";
+
+//services
 import { useCallback, useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import api from "@/lib/axios";
+
+//types
+import { NavbarUserProfile } from "@/types/navbar";
+import { Notification } from "@/types/notification";
+
+//compoenents
 import ThemeToggle from "./ThemeToggle";
 import HeaderSearch from "./HeaderSearch";
 import HeaderCategoryNav from "./HeaderCategoryNav";
-import { useNotifications, Notification } from "@/components/providers/NotificationProvider";
+import { useNotifications } from "@/components/providers/NotificationProvider";
+
 
 const AUTH_CHANGED_EVENT = "auth-changed";
 
-type UserProfile = {
-  fullName?: string;
-  balance?: number | string;
-  role?: string;
-};
-
 export default function Navbar() {
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<NavbarUserProfile | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
@@ -51,7 +54,7 @@ export default function Navbar() {
 
     try {
       const response = await api.get("/api/auth/profile");
-      setUser(response.data as UserProfile);
+      setUser(response.data as NavbarUserProfile);
     } catch (error) {
       if (
         (error as { response?: { status?: number } })?.response?.status === 403

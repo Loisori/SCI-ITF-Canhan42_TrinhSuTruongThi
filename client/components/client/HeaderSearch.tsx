@@ -1,11 +1,14 @@
 "use client";
 
+//services
 import api from "@/lib/axios";
-import type { Project } from "@/types/project";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+//types
+import type { Project } from "@/types/project";
 
 const DEBOUNCE_MS = 320;
 

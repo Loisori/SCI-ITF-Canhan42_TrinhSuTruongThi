@@ -1,4 +1,6 @@
 "use client";
+
+//services
 import Image from "next/image";
 
 export default function ProjectLocation() {

@@ -1,9 +1,12 @@
 "use client";
 
+//services
 import api from "@/lib/axios";
-import type { ProjectCategory } from "@/types/project";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+
+//types
+import type { ProjectCategory } from "@/types/project";
 
 export default function HeaderCategoryNav() {
   const { data: categories = [], isLoading } = useQuery({

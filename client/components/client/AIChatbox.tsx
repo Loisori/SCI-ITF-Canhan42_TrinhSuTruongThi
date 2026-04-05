@@ -1,29 +1,19 @@
 "use client";
 
+//servies
 import { FormEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Cookies from "js-cookie";
 import api from "@/lib/axios";
-import { log } from "console";
 
-type ChatRole = "user" | "model";
-
-type ChatMessage = {
-  id: string;
-  role: ChatRole;
-  content: string;
-};
-
-type ChatHistoryItem = {
-  id: number;
-  role: ChatRole;
-  content: string;
-  createdAt: string;
-};
-
-type ProjectContextPayload = Record<string, unknown> | null;
-
-type ProjectContextEvent = CustomEvent<ProjectContextPayload>;
+//types
+import {
+  ChatHistoryItem,
+  ChatMessage,
+  ChatRole,
+  ProjectContextEvent,
+  ProjectContextPayload,
+} from "@/types/chat";
 
 const PROJECT_CONTEXT_EVENT = "investpro-project-context";
 const SOFT_FALLBACK_MESSAGE = "Chuyên gia đang bận, vui lòng thử lại sau";
@@ -89,14 +79,17 @@ export default function AIChatbox() {
           "/api/ai-chat/history",
         );
 
-        const history = (res.data.items ?? []).map((item) => ({
+        // Sửa đoạn map này để ép kiểu rõ ràng cho TypeScript
+        const history: ChatMessage[] = (res.data.items ?? []).map((item) => ({
           id: `history-${item.id}`,
-          role: item.role === "user" ? "user" : "model",
+          // Sử dụng 'as ChatRole' để khẳng định với TS đây là kiểu dữ liệu chuẩn
+          role: (item.role === "user" ? "user" : "model") as ChatRole,
           content: item.content,
         }));
 
         setMessages(history.length > 0 ? history : [DEFAULT_WELCOME]);
-      } catch {
+      } catch (error) {
+        console.error("Failed to load chat history:", error);
         setMessages([DEFAULT_WELCOME]);
       }
     };

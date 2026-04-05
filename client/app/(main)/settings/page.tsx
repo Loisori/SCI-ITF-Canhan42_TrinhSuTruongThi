@@ -6,23 +6,14 @@ import Link from "next/link";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 import api from "@/lib/axios";
-
-interface User {
-  id: string;
-  fullName: string;
-  email: string;
-  balance: number;
-  role: string;
-  favoriteCategories?: { id: number; name: string }[];
-  blacklistCategories?: { id: number; name: string }[];
-}
+import { SettingsCategoryRef, SettingsUser } from "@/types/settings";
 
 export default function SettingsPage() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SettingsUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("account");
 
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<SettingsCategoryRef[]>([]);
   const [favoriteCategoryIds, setFavoriteCategoryIds] = useState<number[]>([]);
   const [blacklistCategoryIds, setBlacklistCategoryIds] = useState<number[]>([]);
   const [isSavingOptions, setIsSavingOptions] = useState(false);
@@ -33,8 +24,8 @@ export default function SettingsPage() {
     const fetchUserProfile = async () => {
       try {
         const [profileRes, catRes] = await Promise.all([
-          api.get<User>("/api/users/profile"),
-          api.get<any[]>("/api/project-categories")
+          api.get<SettingsUser>("/api/users/profile"),
+          api.get<SettingsCategoryRef[]>("/api/project-categories")
         ]);
 
         const curUser = profileRes.data;
@@ -42,10 +33,10 @@ export default function SettingsPage() {
         setCategories(catRes.data);
         
         if (curUser.favoriteCategories) {
-          setFavoriteCategoryIds(curUser.favoriteCategories.map((c: any) => c.id));
+          setFavoriteCategoryIds(curUser.favoriteCategories.map((c) => c.id));
         }
         if (curUser.blacklistCategories) {
-          setBlacklistCategoryIds(curUser.blacklistCategories.map((c: any) => c.id));
+          setBlacklistCategoryIds(curUser.blacklistCategories.map((c) => c.id));
         }
 
         setLoading(false);

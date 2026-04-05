@@ -4,25 +4,15 @@ import React, { createContext, useContext, useEffect, useState, useMemo } from '
 import { io, Socket } from 'socket.io-client';
 import Cookies from 'js-cookie';
 import api from '@/lib/axios';
-
-export interface Notification {
-  id: number;
-  message: string;
-  type: string;
-  isRead: boolean;
-  createdAt: string;
-}
-
-interface NotificationContextType {
-  notifications: Notification[];
-  unreadCount: number;
-  markAsRead: (id: number) => Promise<void>;
-  markAllAsRead: () => Promise<void>;
-}
+import {
+  Notification,
+  NotificationContextType,
+  NotificationProviderProps,
+} from '@/types/notification';
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
+export const NotificationProvider = ({ children }: NotificationProviderProps) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [socket, setSocket] = useState<Socket | null>(null);

@@ -1,7 +1,10 @@
 "use client";
 
+//services
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
+
+//types
 import { ProjectDetail } from "@/types/project";
 // import Sidebar from "@/components/admin/Sidebar";
 

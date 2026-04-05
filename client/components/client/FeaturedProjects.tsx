@@ -1,12 +1,15 @@
 "use client";
 
+//services
 import api from "@/lib/axios";
-import type { Project } from "@/types/project";
 import { useQuery } from "@tanstack/react-query";
 import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import { useMemo } from "react";
+
+//types
+import type { Project } from "@/types/project";
 
 function projectHref(p: Project) {
   return `/projects/${p.contentSlug ?? p.id}`;

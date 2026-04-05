@@ -1,31 +1,12 @@
 "use client";
 
+//services
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 
-interface ProjectOwner {
-  id: number;
-  fullName: string;
-  email: string;
-}
-
-interface PendingProject {
-  id: number;
-  title: string;
-  shortDescription: string | null;
-  status: string;
-  targetCapital: number;
-  currentCapital: number;
-  owner: ProjectOwner | null;
-  category: {
-    id: number;
-    name: string;
-    slug: string;
-    iconUrl?: string | null;
-  } | null;
-  createdAt: string;
-}
+//types
+import { PendingProject } from "@/types/approval";
 
 export default function AdminApprovalPage() {
   const [projects, setProjects] = useState<PendingProject[]>([]);

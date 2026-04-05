@@ -1,16 +1,12 @@
 "use client";
 
+//services
 import { useState } from "react";
 import api from "@/lib/axios";
-import { ToastState } from "@/types/ui";
-import { ProjectDetail, ProjectMilestone } from "@/types/project";
 
-type ProjectMilestonesProps = {
-  project: ProjectDetail;
-  role: string | null;
-  onUpdate: () => void;
-  setToast: (toast: ToastState) => void;
-};
+//types
+import { ProjectMilestone } from "@/types/project";
+import { ProjectMilestonesProps } from "@/types/milestones";
 
 export default function ProjectMilestones({ project, role, onUpdate, setToast }: ProjectMilestonesProps) {
   const [loading, setLoading] = useState(false);

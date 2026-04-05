@@ -1,49 +1,29 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+//servies
+import Link from "next/link";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import api from "@/lib/axios";
+
+//components
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
-import api from "@/lib/axios";
-import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
+
+//types
 import { UserProfile } from "@/types/user";
 import { Investment } from "@/types/investment";
 import { Transaction } from "@/types/transaction";
 import { Project } from "@/types/project";
-
-type AdminOverview = {
-  pendingCount: number;
-  fundingCount: number;
-  completedCount: number;
-  totalFundingCapital: number;
-  totalUsers: number;
-  totalProjects: number;
-  systemRevenue: number;
-  commissionRate: number;
-};
-
-type OwnerProject = Project & {
-  investorsCount: number;
-  netAfterFeeEstimate: number;
-};
-
-type AdminDashboardUser = {
-  id: number;
-  fullName: string;
-  email: string;
-  balance: number | string;
-  totalInvested: number;
-  totalReceived: number;
-  feeCollected: number;
-  participatingProjects: Array<{
-    id: number;
-    title: string;
-    fundingProgress: number;
-    status: string;
-  }>;
-};
+import { AdminOverview, AdminDashboardUser } from "@/types/admin";
+import {
+  DashboardProfileProps,
+  DashboardSidebarProps,
+  OwnerProject,
+  PaginationProps,
+} from "@/types/dashboard";
 
 function formatVnd(amount: number) {
   if (!Number.isFinite(amount)) return "0 đ";
@@ -55,12 +35,7 @@ function Pagination({
   pageSize,
   total,
   onChange,
-}: {
-  page: number;
-  pageSize: number;
-  total: number;
-  onChange: (next: number) => void;
-}) {
+}: PaginationProps) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   if (totalPages <= 1) return null;
 
@@ -92,11 +67,7 @@ function Pagination({
   );
 }
 
-function DashboardSidebar({
-  role,
-}: {
-  role: string | null | undefined;
-}) {
+function DashboardSidebar({ role }: DashboardSidebarProps) {
   const sections =
     role === "admin"
       ? [
@@ -253,7 +224,7 @@ function DashboardPageInner() {
   );
 }
 
-function AdminDashboard({ profile }: { profile: UserProfile }) {
+function AdminDashboard({ profile }: DashboardProfileProps) {
   const [pendingPage, setPendingPage] = useState(1);
   const [usersPage, setUsersPage] = useState(1);
   const [usersRole, setUsersRole] = useState<"owner" | "investor">("owner");
@@ -262,12 +233,14 @@ function AdminDashboard({ profile }: { profile: UserProfile }) {
 
   const { data: overview, isLoading: overviewLoading } = useQuery({
     queryKey: ["admin-dashboard-overview"],
-    queryFn: async () => (await api.get<AdminOverview>("/api/admin/dashboard/overview")).data,
+    queryFn: async () =>
+      (await api.get<AdminOverview>("/api/admin/dashboard/overview")).data,
   });
 
   const { data: pendingProjects = [], refetch: refetchPending } = useQuery({
     queryKey: ["admin-pending-projects"],
-    queryFn: async () => (await api.get<Project[]>("/api/admin/projects/pending")).data,
+    queryFn: async () =>
+      (await api.get<Project[]>("/api/admin/projects/pending")).data,
     staleTime: 30_000,
   });
 
@@ -329,7 +302,8 @@ function AdminDashboard({ profile }: { profile: UserProfile }) {
           </div>
           <div className="text-right">
             <p className="text-small text-slate-600 dark:text-slate-300">
-              Xin chào: <span className="text-primary font-bold">{profile.fullName}</span>
+              Xin chào:{" "}
+              <span className="text-primary font-bold">{profile.fullName}</span>
             </p>
           </div>
         </div>
@@ -346,7 +320,9 @@ function AdminDashboard({ profile }: { profile: UserProfile }) {
             </div>
             <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
               <p className="text-smaller text-slate-500 mb-1">Funding</p>
-              <p className="text-h4 font-bold text-primary">{overview.fundingCount}</p>
+              <p className="text-h4 font-bold text-primary">
+                {overview.fundingCount}
+              </p>
               <p className="text-small text-slate-500 mt-2">
                 Vốn đang lưu chuyển: {formatVnd(overview.totalFundingCapital)}
               </p>
@@ -381,16 +357,29 @@ function AdminDashboard({ profile }: { profile: UserProfile }) {
             <table className="min-w-full text-left text-small">
               <thead className="bg-slate-50 dark:bg-slate-950">
                 <tr>
-                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">Dự án</th>
-                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">Chủ dự án</th>
-                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">Mục tiêu</th>
-                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">Ngày tạo</th>
-                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">Hành động</th>
+                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">
+                    Dự án
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">
+                    Chủ dự án
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">
+                    Mục tiêu
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">
+                    Ngày tạo
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">
+                    Hành động
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                 {pendingItems.map((p: any) => (
-                  <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-white/5">
+                  <tr
+                    key={p.id}
+                    className="hover:bg-slate-50 dark:hover:bg-white/5"
+                  >
                     <td className="px-6 py-4">
                       <div className="text-small font-semibold text-slate-900 dark:text-white">
                         {p.title}
@@ -403,13 +392,17 @@ function AdminDashboard({ profile }: { profile: UserProfile }) {
                       <div className="font-semibold text-slate-900 dark:text-white">
                         {p.owner?.fullName ?? "-"}
                       </div>
-                      <div className="text-slate-500">{p.owner?.email ?? "-"}</div>
+                      <div className="text-slate-500">
+                        {p.owner?.email ?? "-"}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-smaller">
                       {Number(p.targetCapital).toLocaleString("vi-VN")} đ
                     </td>
                     <td className="px-6 py-4 text-smaller text-slate-600 dark:text-slate-300">
-                      {p.createdAt ? new Date(p.createdAt).toLocaleDateString("vi-VN") : "-"}
+                      {p.createdAt
+                        ? new Date(p.createdAt).toLocaleDateString("vi-VN")
+                        : "-"}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
@@ -434,7 +427,10 @@ function AdminDashboard({ profile }: { profile: UserProfile }) {
 
                 {pendingItems.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-10 text-center text-slate-500">
+                    <td
+                      colSpan={5}
+                      className="px-6 py-10 text-center text-slate-500"
+                    >
                       Không có dự án cần duyệt.
                     </td>
                   </tr>
@@ -509,7 +505,9 @@ function AdminDashboard({ profile }: { profile: UserProfile }) {
                     <p className="font-bold text-slate-900 dark:text-white truncate">
                       {u.fullName}
                     </p>
-                    <p className="text-smaller text-slate-500 truncate">{u.email}</p>
+                    <p className="text-smaller text-slate-500 truncate">
+                      {u.email}
+                    </p>
                     <div className="mt-3 flex flex-wrap gap-3">
                       <div className="px-3 py-2 rounded-lg bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10">
                         <p className="text-[11px] uppercase text-slate-500 font-bold">
@@ -555,7 +553,9 @@ function AdminDashboard({ profile }: { profile: UserProfile }) {
                     Dự án tham gia
                   </p>
                   {u.participatingProjects.length === 0 ? (
-                    <p className="text-smaller text-slate-500 mt-2">Chưa có dữ liệu.</p>
+                    <p className="text-smaller text-slate-500 mt-2">
+                      Chưa có dữ liệu.
+                    </p>
                   ) : (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {u.participatingProjects.map((p) => (
@@ -590,7 +590,7 @@ function AdminDashboard({ profile }: { profile: UserProfile }) {
   );
 }
 
-function InvestorDashboard({ profile }: { profile: UserProfile }) {
+function InvestorDashboard({ profile }: DashboardProfileProps) {
   const txPageSize = 10;
   const [txPage, setTxPage] = useState(1);
   const trackedPageSize = 10;
@@ -598,13 +598,15 @@ function InvestorDashboard({ profile }: { profile: UserProfile }) {
 
   const { data: investments = [] } = useQuery({
     queryKey: ["investments-my"],
-    queryFn: async () => (await api.get<Investment[]>("/api/investments/my-investments")).data,
+    queryFn: async () =>
+      (await api.get<Investment[]>("/api/investments/my-investments")).data,
     staleTime: 30_000,
   });
 
   const { data: transactions = [] } = useQuery({
     queryKey: ["transactions-my"],
-    queryFn: async () => (await api.get<Transaction[]>("/api/transactions")).data,
+    queryFn: async () =>
+      (await api.get<Transaction[]>("/api/transactions")).data,
     staleTime: 30_000,
   });
 
@@ -624,7 +626,18 @@ function InvestorDashboard({ profile }: { profile: UserProfile }) {
       : 0;
 
   const trackedProjectsAll = useMemo(() => {
-    const map = new Map<number, { projectId: number; title: string; investmentId: number; amount: number; status: string; thumbnailUrl: string | null; nextDueDate: string | null }>();
+    const map = new Map<
+      number,
+      {
+        projectId: number;
+        title: string;
+        investmentId: number;
+        amount: number;
+        status: string;
+        thumbnailUrl: string | null;
+        nextDueDate: string | null;
+      }
+    >();
     for (const inv of investments) {
       if (!inv.project) continue;
       if (inv.status === "withdrawn") continue;
@@ -633,7 +646,10 @@ function InvestorDashboard({ profile }: { profile: UserProfile }) {
       const nextSchedule = schedules
         .filter((s) => s.status !== "paid")
         .slice()
-        .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
+        .sort(
+          (a, b) =>
+            new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
+        )[0];
 
       if (!map.has(inv.project.id)) {
         map.set(inv.project.id, {
@@ -657,10 +673,7 @@ function InvestorDashboard({ profile }: { profile: UserProfile }) {
   );
 
   useEffect(() => {
-    const totalPages = Math.max(
-      1,
-      Math.ceil(trackedTotal / trackedPageSize),
-    );
+    const totalPages = Math.max(1, Math.ceil(trackedTotal / trackedPageSize));
     if (trackedPage > totalPages) {
       setTrackedPage(totalPages);
     }
@@ -670,11 +683,17 @@ function InvestorDashboard({ profile }: { profile: UserProfile }) {
     return transactions
       .filter((t) => t.status === "success")
       .filter((t) => ["deposit", "invest", "refund"].includes(t.type))
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
   }, [transactions]);
 
   const txTotal = filteredTx.length;
-  const txItems = filteredTx.slice((txPage - 1) * txPageSize, txPage * txPageSize);
+  const txItems = filteredTx.slice(
+    (txPage - 1) * txPageSize,
+    txPage * txPageSize,
+  );
 
   const isEmpty = investments.length === 0;
 
@@ -698,13 +717,17 @@ function InvestorDashboard({ profile }: { profile: UserProfile }) {
             </p>
           </div>
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
-            <p className="text-smaller text-slate-500 mb-1">Tổng đang đầu tư (Active)</p>
+            <p className="text-smaller text-slate-500 mb-1">
+              Tổng đang đầu tư (Active)
+            </p>
             <p className="text-h4 font-bold text-slate-900 dark:text-white">
               {formatVnd(totalActiveInvested).replace(" đ", "")} đ
             </p>
           </div>
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
-            <p className="text-smaller text-slate-500 mb-1">Lợi nhuận đã nhận (ROI)</p>
+            <p className="text-smaller text-slate-500 mb-1">
+              Lợi nhuận đã nhận (ROI)
+            </p>
             <p className="text-h4 font-bold text-emerald-600 dark:text-emerald-400">
               {roiPercent}%
             </p>
@@ -749,7 +772,9 @@ function InvestorDashboard({ profile }: { profile: UserProfile }) {
                       </p>
                       <p className="text-smaller text-slate-500">
                         Lần tới:{" "}
-                        {p.nextDueDate ? new Date(p.nextDueDate).toLocaleDateString("vi-VN") : "-"}
+                        {p.nextDueDate
+                          ? new Date(p.nextDueDate).toLocaleDateString("vi-VN")
+                          : "-"}
                       </p>
                     </div>
                   </div>
@@ -759,7 +784,10 @@ function InvestorDashboard({ profile }: { profile: UserProfile }) {
                       {formatVnd(p.amount)}
                     </p>
                     <p className="text-smaller text-slate-500 mt-1">
-                      <Link href={`/projects/${p.projectId}`} className="hover:underline">
+                      <Link
+                        href={`/projects/${p.projectId}`}
+                        className="hover:underline"
+                      >
                         Xem chi tiết
                       </Link>
                     </p>
@@ -795,15 +823,26 @@ function InvestorDashboard({ profile }: { profile: UserProfile }) {
             <table className="w-full text-left text-small">
               <thead className="bg-slate-50 dark:bg-slate-950">
                 <tr>
-                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">Loại</th>
-                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">Số tiền</th>
-                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">Mô tả</th>
-                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">Ngày</th>
+                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">
+                    Loại
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">
+                    Số tiền
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">
+                    Mô tả
+                  </th>
+                  <th className="px-6 py-4 font-semibold text-slate-700 dark:text-slate-200">
+                    Ngày
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                 {txItems.map((t) => (
-                  <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-white/5">
+                  <tr
+                    key={t.id}
+                    className="hover:bg-slate-50 dark:hover:bg-white/5"
+                  >
                     <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">
                       {t.type === "deposit"
                         ? "VNPay Deposit"
@@ -820,13 +859,18 @@ function InvestorDashboard({ profile }: { profile: UserProfile }) {
                       {t.description ?? "-"}
                     </td>
                     <td className="px-6 py-4 text-smaller text-slate-600 dark:text-slate-300">
-                      {t.createdAt ? new Date(t.createdAt).toLocaleString("vi-VN") : "-"}
+                      {t.createdAt
+                        ? new Date(t.createdAt).toLocaleString("vi-VN")
+                        : "-"}
                     </td>
                   </tr>
                 ))}
                 {txItems.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-10 text-center text-slate-500">
+                    <td
+                      colSpan={4}
+                      className="px-6 py-10 text-center text-slate-500"
+                    >
                       Chưa có giao dịch phù hợp.
                     </td>
                   </tr>
@@ -847,7 +891,7 @@ function InvestorDashboard({ profile }: { profile: UserProfile }) {
   );
 }
 
-function OwnerDashboard({ profile }: { profile: UserProfile }) {
+function OwnerDashboard({ profile }: DashboardProfileProps) {
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
@@ -905,8 +949,7 @@ function OwnerDashboard({ profile }: { profile: UserProfile }) {
       window.dispatchEvent(new Event("auth-changed"));
       window.location.reload();
     } catch (e: any) {
-      const message =
-        e?.response?.data?.message ?? "Không thể dừng nhận vốn.";
+      const message = e?.response?.data?.message ?? "Không thể dừng nhận vốn.";
       setToast(message);
     } finally {
       setStoppingId(null);
@@ -933,8 +976,12 @@ function OwnerDashboard({ profile }: { profile: UserProfile }) {
             </p>
           </div>
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
-            <p className="text-smaller text-slate-500 mb-1">Tổng Investor (trang hiện tại)</p>
-            <p className="text-h4 font-bold text-primary">{totalInvestorsOnPage}</p>
+            <p className="text-smaller text-slate-500 mb-1">
+              Tổng Investor (trang hiện tại)
+            </p>
+            <p className="text-h4 font-bold text-primary">
+              {totalInvestorsOnPage}
+            </p>
           </div>
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
             <p className="text-smaller text-slate-500 mb-1">Số dư ví</p>
@@ -980,14 +1027,17 @@ function OwnerDashboard({ profile }: { profile: UserProfile }) {
                         </p>
                       ) : null}
                       <p className="text-smaller text-slate-500 mt-1">
-                        Trạng thái: <span className="font-bold">{p.status}</span>
+                        Trạng thái:{" "}
+                        <span className="font-bold">{p.status}</span>
                       </p>
                     </div>
                   </div>
 
                   <div className="text-right">
                     <p className="text-smaller text-slate-500">Tiến độ</p>
-                    <p className="text-h4 font-bold text-primary">{p.fundingProgress}%</p>
+                    <p className="text-h4 font-bold text-primary">
+                      {p.fundingProgress}%
+                    </p>
                   </div>
                 </div>
 
@@ -1012,7 +1062,9 @@ function OwnerDashboard({ profile }: { profile: UserProfile }) {
                   <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                     <div
                       className="bg-primary h-full"
-                      style={{ width: `${Math.min(100, Number(p.fundingProgress))}%` }}
+                      style={{
+                        width: `${Math.min(100, Number(p.fundingProgress))}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -1062,7 +1114,15 @@ function OwnerDashboard({ profile }: { profile: UserProfile }) {
           Thao tác nhanh
         </h2>
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-smaller text-slate-600 dark:text-slate-300">
-          Chọn dự án ở danh sách phía trên và nhấn <span className="font-bold text-slate-900 dark:text-slate-100">Dừng nhận vốn</span> khi dự án ở trạng thái <span className="font-bold text-slate-900 dark:text-slate-100">funding</span>.
+          Chọn dự án ở danh sách phía trên và nhấn{" "}
+          <span className="font-bold text-slate-900 dark:text-slate-100">
+            Dừng nhận vốn
+          </span>{" "}
+          khi dự án ở trạng thái{" "}
+          <span className="font-bold text-slate-900 dark:text-slate-100">
+            funding
+          </span>
+          .
         </div>
       </section>
     </div>
