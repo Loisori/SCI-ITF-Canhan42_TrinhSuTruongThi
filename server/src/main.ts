@@ -25,11 +25,14 @@ async function bootstrap() {
   // Khi deploy, CORS_ORIGIN sẽ là link Vercel của bạn
   const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
 
-  // Tách chuỗi thành mảng nếu có dấu phẩy
-const originList = corsOrigin.split(',').map(item => item.trim());
+  // Tách chuỗi thành mảng nếu có dấu phẩy, và luôn bao gồm localhost để dev tiện lợi
+  const originList = corsOrigin.split(',').map(item => item.trim());
+  if (!originList.includes('http://localhost:3000')) {
+    originList.push('http://localhost:3000');
+  }
 
   app.enableCors({
-    origin: originList, // Truyền mảng các link được phép vào đây
+    origin: originList,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });

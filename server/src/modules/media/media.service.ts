@@ -2,13 +2,14 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserMediaEntity } from '../users/entities/user-media.entity';
-import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryService } from './cloudinary.service';
 
 @Injectable()
 export class MediaService {
   constructor(
     @InjectRepository(UserMediaEntity)
     private readonly userMediaRepo: Repository<UserMediaEntity>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async saveMediaRecord(userId: number, file: Express.Multer.File) {
@@ -18,10 +19,9 @@ export class MediaService {
 
     const { path, filename, size, originalname } = file as any; // Multer-storage-cloudinary adds properties like path and filename
 
-    // Append auto compress to Cloudinary URL
-    // e.g., https://res.cloudinary.com/cloud/image/upload/v1234/folder/file.jpg -> https://res.cloudinary.com/cloud/image/upload/f_auto,q_auto/v1234/folder/file.jpg
+    // Mặc định Multer-storage-cloudinary đã upload rồi, chúng ta chỉ lưu URL đã được format đẹp
     let optimizedUrl = path;
-    if (optimizedUrl.includes('/upload/')) {
+    if (optimizedUrl && optimizedUrl.includes('/upload/')) {
         optimizedUrl = optimizedUrl.replace('/upload/', '/upload/f_auto,q_auto/');
     }
 
@@ -55,11 +55,10 @@ export class MediaService {
 
     try {
       if (media.publicId) {
-        await cloudinary.uploader.destroy(media.publicId);
+        await this.cloudinaryService.deleteImage(media.publicId);
       }
     } catch (err) {
       console.warn(`Failed to delete media ${media.publicId} from Cloudinary:`, err);
-      // Even if it fails on cloudinary, we delete from DB.
     }
 
     await this.userMediaRepo.remove(media);

@@ -231,9 +231,17 @@ export default function Navbar() {
                     onClick={toggleMenu}
                     className="flex items-center gap-2 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
                   >
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-smallest font-bold shrink-0">
-                      {user.fullName?.charAt(0).toUpperCase()}
-                    </div>
+                    {user.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt="Avatar"
+                        className="w-8 h-8 rounded-full object-cover border border-primary/20"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-smallest font-bold shrink-0">
+                        {user.fullName?.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                     <span className="hidden sm:block text-small font-bold text-slate-700 dark:text-slate-200">
                       {user.fullName}
                     </span>

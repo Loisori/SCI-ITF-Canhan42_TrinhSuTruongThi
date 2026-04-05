@@ -14,19 +14,22 @@ import {
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { InvestProjectDto } from './dto/invest-project.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { IsOwnerGuard } from '../../common/guards/is-owner.guard';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { IsInvestorGuard } from '../../common/guards/is-investor.guard';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { OptionalAuthGuard } from '../../common/guards/optional-auth.guard';
 
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
+  @UseGuards(OptionalAuthGuard)
   @Get()
   getFundingProjects(
+    @GetUser('id') userId: number | undefined,
     @Query('search') search?: string,
     @Query('category') category?: string,
   ) {
@@ -40,6 +43,7 @@ export class ProjectsController {
     return this.projectsService.getFundingProjects({
       search: search?.trim() || undefined,
       categoryId,
+      userId,
     });
   }
 

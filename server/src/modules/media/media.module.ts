@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MediaController } from './media.controller';
 import { MediaService } from './media.service';
+import { CloudinaryService } from './cloudinary.service';
 import { UserMediaEntity } from '../users/entities/user-media.entity';
 import { MulterModule } from '@nestjs/platform-express';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -43,7 +44,10 @@ import { CloudinaryStorage } from 'multer-storage-cloudinary';
     }),
   ],
   controllers: [MediaController],
-  providers: [MediaService],
-  exports: [MediaService],
+  providers: [
+    MediaService,
+    CloudinaryService,
+  ],
+  exports: [MediaService, CloudinaryService],
 })
 export class MediaModule {}

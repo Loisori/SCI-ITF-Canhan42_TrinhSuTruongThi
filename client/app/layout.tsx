@@ -43,6 +43,8 @@ export const metadata: Metadata = {
   authors: [{ name: "Huynh Viet Loi", url: "https://investpro.site/" }],
 };
 
+import { Toaster } from 'sonner';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -62,6 +64,7 @@ export default function RootLayout({
             <NotificationProvider>
               {children}
               <AIChatbox />
+              <Toaster position="top-right" richColors closeButton />
             </NotificationProvider>
           </QueryProvider>
         </ThemeProvider>

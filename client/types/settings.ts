@@ -9,6 +9,7 @@ export type SettingsUser = {
   email: string;
   balance: number;
   role: string;
+  avatarUrl?: string;
   favoriteCategories?: SettingsCategoryRef[];
   blacklistCategories?: SettingsCategoryRef[];
 };

@@ -208,6 +208,7 @@ export class ProjectsService {
   async getFundingProjects(filters?: {
     search?: string;
     categoryId?: number;
+    userId?: number;
   }) {
     const qb = this.projectsRepository
       .createQueryBuilder('project')
@@ -215,6 +216,22 @@ export class ProjectsService {
       .leftJoinAndSelect('project.category', 'category')
       .leftJoinAndSelect('project.owner', 'owner')
       .where('project.status = :status', { status: ProjectStatus.FUNDING });
+
+    // Lọc bỏ các category trong blacklist của user nếu có userId
+    if (filters?.userId) {
+      const userRepo = this.dataSource.getRepository(UserEntity);
+      const user = await userRepo.findOne({
+        where: { id: filters.userId },
+        relations: ['blacklistCategories'],
+      });
+
+      if (user && user.blacklistCategories.length > 0) {
+        const blacklistedIds = user.blacklistCategories.map((c) => c.id);
+        qb.andWhere('project.categoryId NOT IN (:...blacklistedIds)', {
+          blacklistedIds,
+        });
+      }
+    }
 
     if (
       filters?.categoryId !== undefined &&

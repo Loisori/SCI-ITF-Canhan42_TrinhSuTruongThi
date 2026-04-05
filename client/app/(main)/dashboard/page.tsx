@@ -958,7 +958,7 @@ function OwnerDashboard({ profile }: DashboardProfileProps) {
 
   return (
     <div className="space-y-10">
-      <section id="owner-projects" className="space-y-4">
+      <section id="owner-projects" className="space-y-4 p-0!">
         <div>
           <h1 className="text-h3 font-bold text-slate-900 dark:text-white">
             Owner Dashboard
