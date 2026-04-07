@@ -252,7 +252,7 @@ export default function Navbar() {
                     <div className="absolute right-0 mt-2 min-w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-2 z-50">
                       {/* Dashboard Link */}
                       <Link
-                        href="/dashboard"
+                        href={user.role?.toLowerCase() === "admin" ? "/admin-dashboard" : "/dashboard"}
                         className="flex items-center gap-3 px-4 py-2 text-small text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5"
                         onClick={() => setIsMenuOpen(false)}
                       >

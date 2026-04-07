@@ -11,11 +11,11 @@ import { UserEntity } from './user.entity';
 
 @Entity({ name: 'user_media' })
 export class UserMediaEntity {
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
   @Index()
-  @Column({ name: 'user_id', type: 'int' })
+  @Column({ name: 'user_id', type: 'bigint', unsigned: true })
   userId: number;
 
   @Column({ type: 'varchar', length: 1024 })

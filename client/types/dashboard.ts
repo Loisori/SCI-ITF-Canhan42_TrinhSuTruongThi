@@ -4,6 +4,9 @@ import { UserProfile } from "@/types/user";
 export type OwnerProject = Project & {
   investorsCount: number;
   netAfterFeeEstimate: number;
+  currentAmount?: number | string;
+  fundingProgress?: number;
+  milestones?: any[]; // Simplified for now but could be ProjectMilestone[]
 };
 
 export type PaginationProps = {

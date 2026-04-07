@@ -8,6 +8,7 @@ import api from "@/lib/axios";
 import { Profile } from "@/types/user";
 import { ProjectCategory, ProjectDetail } from "@/types/project";
 import { ToastState } from "@/types/ui";
+import MarkdownField from "@/components/client/MarkdownField";
 
 export default function EditProjectPage() {
   const params = useParams<{ id: string }>();
@@ -23,6 +24,7 @@ export default function EditProjectPage() {
   const [categoryId, setCategoryId] = useState(0);
   const [title, setTitle] = useState("");
   const [shortDescription, setShortDescription] = useState("");
+  const [content, setContent] = useState("");
   const [interestRate, setInterestRate] = useState(0);
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [additionalImages, setAdditionalImages] = useState<string[]>([""]);
@@ -56,6 +58,7 @@ export default function EditProjectPage() {
         setCategoryId(project.category?.id ?? 0);
         setTitle(project.title);
         setShortDescription(project.shortDescription ?? "");
+        setContent(project.content ?? "");
         setInterestRate(Number(project.interestRate));
         setProjectStatus(project.status ?? "pending");
         setThumbnailUrl(project.thumbnailUrl ?? "");
@@ -142,6 +145,7 @@ export default function EditProjectPage() {
         categoryId: Number(categoryId),
         title,
         shortDescription,
+        content,
         interestRate: Number(interestRate),
         thumbnailUrl,
         additional_images: normalizedGallery,
@@ -258,6 +262,14 @@ export default function EditProjectPage() {
               onChange={(e) => setShortDescription(e.target.value)}
               rows={4}
               className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+            />
+          </div>
+
+          <div className="markdown-field-wrapper">
+            <MarkdownField 
+              value={content} 
+              onChange={setContent} 
+              label="Nội dung chi tiết (Markdown)" 
             />
           </div>
 

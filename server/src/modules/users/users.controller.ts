@@ -65,6 +65,7 @@ export class UsersController {
       categoryId,
       type,
     );
+    if (!updatedUser) return null;
     const { password: _, ...rest } = updatedUser;
     return rest;
   }

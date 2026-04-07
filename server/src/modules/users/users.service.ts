@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity, UserRole } from './entities/user.entity';
 import { RegisterDto } from '../auth/dto/register.dto';
@@ -17,6 +17,7 @@ export class UsersService {
     @InjectRepository(ProjectCategoryEntity)
     private categoryRepository: Repository<ProjectCategoryEntity>,
     private cloudinaryService: CloudinaryService,
+    private dataSource: DataSource,
   ) {}
 
   async findByEmail(email: string): Promise<UserEntity | null> {
@@ -99,36 +100,48 @@ export class UsersService {
     id: number,
     file: Express.Multer.File,
   ): Promise<Partial<UserEntity>> {
-    const user = await this.usersRepository.findOne({ where: { id } });
-    if (!user) throw new NotFoundException('User not found');
+    try {
+      const user = await this.usersRepository.findOne({ where: { id } });
+      if (!user) throw new NotFoundException('User not found');
 
-    const result = await this.cloudinaryService.uploadImage(
-      file,
-      `investpro/avatars/${id}`,
-    );
-    user.avatarUrl = result.secure_url;
+      const result = await this.cloudinaryService.uploadImage(
+        file,
+        `investpro/avatars/${id}`,
+      );
+      user.avatarUrl = result.secure_url;
 
-    await this.usersRepository.save(user);
-    const { password, ...safeUser } = user;
-    return safeUser;
+      await this.usersRepository.save(user);
+      const { password, ...safeUser } = user;
+      return safeUser;
+    } catch (error: any) {
+      console.error(`[UsersService] updateAvatar error:`, error.message);
+      if (error.status) throw error;
+      throw new BadRequestException(`Không thể cập nhật ảnh đại diện: ${error.message}`);
+    }
   }
 
   async changePassword(id: number, dto: ChangePasswordDto): Promise<void> {
-    const user = await this.usersRepository
-      .createQueryBuilder('user')
-      .addSelect('user.password')
-      .where('user.id = :id', { id })
-      .getOne();
+    try {
+      const user = await this.usersRepository
+        .createQueryBuilder('user')
+        .addSelect('user.password')
+        .where('user.id = :id', { id })
+        .getOne();
 
-    if (!user) throw new NotFoundException('User not found');
+      if (!user) throw new NotFoundException('User not found');
 
-    const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
-    if (!isMatch) {
-      throw new UnauthorizedException('Mật khẩu cũ không chính xác');
+      const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
+      if (!isMatch) {
+        throw new UnauthorizedException('Mật khẩu cũ không chính xác');
+      }
+
+      user.password = await bcrypt.hash(dto.newPassword, 10);
+      await this.usersRepository.save(user);
+    } catch (error: any) {
+      console.error(`[UsersService] changePassword error:`, error.message);
+      if (error.status) throw error;
+      throw new BadRequestException(`Không thể đổi mật khẩu: ${error.message}`);
     }
-
-    user.password = await bcrypt.hash(dto.newPassword, 10);
-    await this.usersRepository.save(user);
   }
 
   async toggleCategoryPreference(
@@ -136,44 +149,55 @@ export class UsersService {
     categoryId: number,
     type: 'favorite' | 'blacklist',
   ) {
-    const user = await this.usersRepository.findOne({
-      where: { id: userId },
-      relations: ['favoriteCategories', 'blacklistCategories'],
-    });
-
-    if (!user) throw new NotFoundException('User not found');
-
     const category = await this.categoryRepository.findOne({
       where: { id: categoryId },
     });
     if (!category) throw new NotFoundException('Category not found');
 
-    const listName =
-      type === 'favorite' ? 'favoriteCategories' : 'blacklistCategories';
-    const otherListName =
-      type === 'favorite' ? 'blacklistCategories' : 'favoriteCategories';
+    const listName = type === 'favorite' ? 'favoriteCategories' : 'blacklistCategories';
+    const otherListName = type === 'favorite' ? 'blacklistCategories' : 'favoriteCategories';
+    const joinTable = type === 'favorite' ? 'user_favorite_categories' : 'user_blacklist_categories';
+    const otherJoinTable = type === 'favorite' ? 'user_blacklist_categories' : 'user_favorite_categories';
 
-    const index = user[listName].findIndex((c) => c.id === categoryId);
+    // Manual check for existence to avoid ER_DUP_ENTRY
+    const exists = await this.dataSource.query(
+      `SELECT 1 FROM ${joinTable} WHERE user_id = ? AND category_id = ?`,
+      [userId, categoryId],
+    );
 
-    if (index > -1) {
-      // Remove
-      user[listName].splice(index, 1);
+    if (exists.length > 0) {
+      // Remove connection
+      await this.usersRepository
+        .createQueryBuilder()
+        .relation(UserEntity, listName)
+        .of(userId)
+        .remove(categoryId);
     } else {
-      // Add
-      user[listName].push(category);
-      // Remove from other list if present
-      const otherIndex = user[otherListName].findIndex(
-        (c) => c.id === categoryId,
+      // Ensure it's not in the other list first
+      const existsInOther = await this.dataSource.query(
+        `SELECT 1 FROM ${otherJoinTable} WHERE user_id = ? AND category_id = ?`,
+        [userId, categoryId],
       );
-      if (otherIndex > -1) {
-        user[otherListName].splice(otherIndex, 1);
+      if (existsInOther.length > 0) {
+        await this.usersRepository
+          .createQueryBuilder()
+          .relation(UserEntity, otherListName)
+          .of(userId)
+          .remove(categoryId);
       }
+
+      // Add connection
+      await this.usersRepository
+        .createQueryBuilder()
+        .relation(UserEntity, listName)
+        .of(userId)
+        .add(categoryId);
     }
 
-    return this.usersRepository.save(user);
+    return this.findById(userId);
   }
 
-  async updateProfile(id: number, dto: UpdateProfileDto): Promise<UserEntity> {
+  async updateProfile(id: number, dto: UpdateProfileDto): Promise<UserEntity | null> {
     const user = await this.usersRepository.findOne({
       where: { id },
       relations: ['favoriteCategories', 'blacklistCategories'],
@@ -181,18 +205,67 @@ export class UsersService {
 
     if (!user) throw new NotFoundException('User not found');
 
-    if (dto.favoriteCategoryIds !== undefined) {
-      user.favoriteCategories = dto.favoriteCategoryIds.map((categoryId) => ({
-        id: categoryId,
-      })) as any;
+    // Update simple fields first
+    const { favoriteCategoryIds, blacklistCategoryIds, ...simpleFields } = dto;
+    if (Object.keys(simpleFields).length > 0) {
+      await this.usersRepository.update(id, simpleFields);
     }
 
-    if (dto.blacklistCategoryIds !== undefined) {
-      user.blacklistCategories = dto.blacklistCategoryIds.map((categoryId) => ({
-        id: categoryId,
-      })) as any;
+    // Handle favoriteCategories manually
+    if (favoriteCategoryIds !== undefined) {
+      const currentIds = user.favoriteCategories.map((c) => Number(c.id));
+      if (currentIds.length > 0) {
+        await this.usersRepository
+          .createQueryBuilder()
+          .relation(UserEntity, 'favoriteCategories')
+          .of(id)
+          .remove(currentIds);
+      }
+      if (favoriteCategoryIds.length > 0) {
+        await this.usersRepository
+          .createQueryBuilder()
+          .relation(UserEntity, 'favoriteCategories')
+          .of(id)
+          .add(favoriteCategoryIds);
+      }
     }
 
-    return this.usersRepository.save(user);
+    // Handle blacklistCategories manually
+    if (blacklistCategoryIds !== undefined) {
+      const currentIds = user.blacklistCategories.map((c) => Number(c.id));
+      if (currentIds.length > 0) {
+        await this.usersRepository
+          .createQueryBuilder()
+          .relation(UserEntity, 'blacklistCategories')
+          .of(id)
+          .remove(currentIds);
+      }
+      if (blacklistCategoryIds.length > 0) {
+        await this.usersRepository
+          .createQueryBuilder()
+          .relation(UserEntity, 'blacklistCategories')
+          .of(id)
+          .add(blacklistCategoryIds);
+      }
+    }
+
+    return this.findById(id);
+  }
+
+  async updateNotificationSettings(id: number, settings: Record<string, boolean>): Promise<UserEntity> {
+    try {
+      const user = await this.usersRepository.findOne({ where: { id } });
+      if (!user) throw new NotFoundException('User not found');
+
+      user.notificationSettings = {
+        ...(user.notificationSettings || {}),
+        ...settings,
+      };
+
+      return await this.usersRepository.save(user);
+    } catch (error: any) {
+      console.error(`[UsersService] updateNotificationSettings error:`, error.message);
+      throw new BadRequestException(`Tính năng cấu hình thông báo chưa sẵn sàng. Vui lòng thử lại sau.`);
+    }
   }
 }

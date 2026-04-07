@@ -16,10 +16,10 @@ export enum PaymentScheduleStatus {
 
 @Entity({ name: 'payment_schedules' })
 export class PaymentScheduleEntity {
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
-  @Column({ name: 'investment_id', type: 'int' })
+  @Column({ name: 'investment_id', type: 'bigint', unsigned: true })
   investmentId: number;
 
   @Index()
@@ -32,7 +32,7 @@ export class PaymentScheduleEntity {
     scale: 2,
     transformer: {
       to: (value: number) => value,
-      from: (value: string) => parseFloat(value),
+      from: (value: string | null) => (value === null ? 0 : parseFloat(value)),
     },
   })
   amount: number;

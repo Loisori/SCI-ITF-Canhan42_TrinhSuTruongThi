@@ -51,6 +51,7 @@ export class AdminDashboardService {
     totalFundingCapital: number;
     totalUsers: number;
     totalProjects: number;
+    totalTransactions: number;
     systemRevenue: number;
     commissionRate: number;
   }> {
@@ -121,6 +122,7 @@ export class AdminDashboardService {
       totalFundingCapital: Number(totalFundingCapital.toFixed(2)),
       totalUsers,
       totalProjects,
+      totalTransactions: await this.transactionsRepository.count(),
       systemRevenue,
       commissionRate,
     };

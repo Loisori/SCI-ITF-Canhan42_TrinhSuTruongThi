@@ -72,6 +72,10 @@ export class CreateProjectDto {
 
   @IsOptional()
   @IsString()
+  content?: string;
+
+  @IsOptional()
+  @IsString()
   thumbnailUrl?: string;
 
   @IsOptional()

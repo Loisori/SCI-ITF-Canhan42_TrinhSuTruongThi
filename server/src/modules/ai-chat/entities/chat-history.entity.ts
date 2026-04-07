@@ -18,10 +18,10 @@ export enum ChatRole {
 @Entity({ name: 'chat_history' })
 @Index('idx_chat_history_user_created_at', ['userId', 'createdAt'])
 export class ChatHistoryEntity {
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
-  @Column({ name: 'user_id', type: 'int' })
+  @Column({ name: 'user_id', type: 'bigint', unsigned: true })
   userId: number;
 
   @Column({

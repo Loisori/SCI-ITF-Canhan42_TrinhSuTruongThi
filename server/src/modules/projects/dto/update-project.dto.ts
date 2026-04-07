@@ -54,6 +54,10 @@ export class UpdateProjectDto {
 
   @IsOptional()
   @IsString()
+  content?: string;
+
+  @IsOptional()
+  @IsString()
   thumbnailUrl?: string;
 
   @IsOptional()

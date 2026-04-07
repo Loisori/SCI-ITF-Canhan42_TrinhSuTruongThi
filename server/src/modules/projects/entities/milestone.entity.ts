@@ -17,16 +17,22 @@ export enum MilestoneStatus {
 
 @Entity({ name: 'project_milestones' })
 export class ProjectMilestoneEntity {
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
-  @Column({ name: 'project_id', type: 'int' })
+  @Column({ name: 'project_id', type: 'bigint', unsigned: true })
   projectId: number;
 
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
-  @Column({ type: 'int' })
+  @Column({
+    type: 'int',
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | null) => (value === null ? 0 : parseFloat(value)),
+    },
+  })
   percentage: number;
 
   @Column({ type: 'int' })

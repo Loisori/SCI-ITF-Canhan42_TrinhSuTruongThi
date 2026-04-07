@@ -51,7 +51,7 @@ export class ProjectsService {
   ) {}
 
   private toCommissionFraction(commissionRate?: number | null): number {
-    const raw = Number(commissionRate ?? 0);
+    const raw = Number(commissionRate || 0);
     if (!Number.isFinite(raw) || raw <= 0) return 0;
     // Tự động suy luận:
     // - nếu lưu dạng % (5 -> 5%) => fraction = 0.05
@@ -336,7 +336,7 @@ export class ProjectsService {
         title: dto.title,
         slug: dto.contentSlug,
         shortDescription: dto.shortDescription ?? null,
-        content: null,
+        content: dto.content ?? null,
         goalAmount: dto.targetCapital,
         currentAmount: 0,
         minInvestment: dto.minInvestment,
@@ -439,6 +439,9 @@ export class ProjectsService {
       }
       if (dto.shortDescription !== undefined) {
         project.shortDescription = dto.shortDescription;
+      }
+      if (dto.content !== undefined) {
+        project.content = dto.content;
       }
       if (dto.interestRate !== undefined) {
         project.interestRate = Number(dto.interestRate);
@@ -778,11 +781,11 @@ export class ProjectsService {
   }
 
   private serializeProject(project: ProjectEntity) {
-    const targetCapital = Number(project.goalAmount);
-    const currentCapital = Number(project.currentAmount);
+    const targetCapital = Number(project.goalAmount) || 0;
+    const currentCapital = Number(project.currentAmount) || 0;
     const fundingProgress =
       targetCapital > 0
-        ? Number(((currentCapital / targetCapital) * 100).toFixed(2))
+        ? Number(((currentCapital / targetCapital) * 100).toFixed(2)) || 0
         : 0;
 
     const thumbnail =
@@ -801,10 +804,11 @@ export class ProjectsService {
       shortDescription: project.shortDescription,
       contentSlug: project.slug,
       targetCapital,
+      currentAmount: currentCapital, // legacy field name sync
       currentCapital,
-      interestRate: Number(project.interestRate),
-      durationMonths: project.durationMonths,
-      minInvestment: Number(project.minInvestment),
+      interestRate: Number(project.interestRate) || 0,
+      durationMonths: project.durationMonths || 0,
+      minInvestment: Number(project.minInvestment) || 0,
       riskLevel: project.riskLevel,
       fundingProgress,
       status: project.status,

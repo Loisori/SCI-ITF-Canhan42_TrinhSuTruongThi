@@ -6,7 +6,8 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
+  Generated,
 } from 'typeorm';
 import { UserEntity } from '../../users/entities/user.entity';
 import { ProjectCategoryEntity } from './category.entity';
@@ -31,15 +32,39 @@ export enum ProjectStatus {
 
 @Entity({ name: 'projects' })
 export class ProjectEntity {
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryColumn({
+    type: 'bigint',
+    unsigned: true,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | number) => (value === null ? null : Number(value)),
+    },
+  })
+  @Generated('increment')
   id: number;
 
   @Index()
-  @Column({ name: 'owner_id', type: 'int' })
+  @Column({
+    name: 'owner_id',
+    type: 'bigint',
+    unsigned: true,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | number) => (value === null ? null : Number(value)),
+    },
+  })
   ownerId: number;
 
   @Index()
-  @Column({ name: 'category_id', type: 'int' })
+  @Column({
+    name: 'category_id',
+    type: 'bigint',
+    unsigned: true,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | number) => (value === null ? null : Number(value)),
+    },
+  })
   categoryId: number;
 
   @Column({ type: 'varchar', length: 255 })
@@ -61,7 +86,7 @@ export class ProjectEntity {
     scale: 2,
     transformer: {
       to: (value: number) => value,
-      from: (value: string) => parseFloat(value),
+      from: (value: string | null) => (value === null ? 0 : parseFloat(value)),
     },
   })
   goalAmount: number;
@@ -74,7 +99,7 @@ export class ProjectEntity {
     default: 0,
     transformer: {
       to: (value: number) => value,
-      from: (value: string) => parseFloat(value),
+      from: (value: string | null) => (value === null ? 0 : parseFloat(value)),
     },
   })
   currentAmount: number;
@@ -86,7 +111,7 @@ export class ProjectEntity {
     scale: 2,
     transformer: {
       to: (value: number) => value,
-      from: (value: string) => parseFloat(value),
+      from: (value: string | null) => (value === null ? 0 : parseFloat(value)),
     },
   })
   minInvestment: number;
@@ -98,7 +123,7 @@ export class ProjectEntity {
     scale: 2,
     transformer: {
       to: (value: number) => value,
-      from: (value: string) => parseFloat(value),
+      from: (value: string | null) => (value === null ? 0 : parseFloat(value)),
     },
   })
   interestRate: number;
@@ -113,7 +138,7 @@ export class ProjectEntity {
     nullable: true,
     transformer: {
       to: (value: number) => value,
-      from: (value: string) => parseFloat(value),
+      from: (value: string | null) => (value === null ? null : parseFloat(value)),
     },
   })
   commissionRate: number | null;

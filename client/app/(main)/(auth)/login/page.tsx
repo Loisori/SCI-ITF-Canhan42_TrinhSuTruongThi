@@ -8,6 +8,8 @@ import Cookies from "js-cookie";
 import Navbar from "@/components/client/Navbar";
 import api from "@/lib/axios";
 
+import { decodeJwt } from "jose";
+
 const AUTH_CHANGED_EVENT = "auth-changed";
 
 export default function LoginPage() {
@@ -42,9 +44,20 @@ export default function LoginPage() {
         });
         window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
 
-        // Chuyển hướng sang trang Dashboard
-        // router.push("/dashboard");
-        router.push("/");
+        // Giải mã token để lấy role và chuyển hướng phù hợp
+        try {
+          const payload = decodeJwt(response.data.access_token) as { role?: string };
+          const role = payload.role?.toLowerCase();
+          
+          if (role === 'admin') {
+            router.push("/admin-dashboard");
+          } else {
+            router.push("/dashboard");
+          }
+        } catch (e) {
+          router.push("/dashboard");
+        }
+        
         router.refresh(); // Làm mới dữ liệu route
       }
     } catch (err: any) {

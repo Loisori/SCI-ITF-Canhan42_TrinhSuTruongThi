@@ -4,7 +4,8 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
+  Generated,
 } from 'typeorm';
 import { UserEntity } from '../../users/entities/user.entity';
 
@@ -24,10 +25,26 @@ export enum TransactionStatus {
 
 @Entity({ name: 'transactions' })
 export class TransactionEntity {
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryColumn({
+    type: 'bigint',
+    unsigned: true,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | number) => (value === null ? null : Number(value)),
+    },
+  })
+  @Generated('increment')
   id: number;
 
-  @Column({ name: 'user_id', type: 'int' })
+  @Column({
+    name: 'user_id',
+    type: 'bigint',
+    unsigned: true,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | number) => (value === null ? null : Number(value)),
+    },
+  })
   userId: number;
 
   @Column({
@@ -36,7 +53,7 @@ export class TransactionEntity {
     scale: 2,
     transformer: {
       to: (value: number) => value,
-      from: (value: string) => parseFloat(value),
+      from: (value: string | null) => (value === null ? 0 : parseFloat(value)),
     },
   })
   amount: number;

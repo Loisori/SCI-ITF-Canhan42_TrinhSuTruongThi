@@ -9,6 +9,13 @@ import { ProjectDetail } from "@/types/project";
 import { Profile } from "@/types/user";
 import { ToastState } from "@/types/ui";
 import ProjectMilestones from "@/components/client/ProjectMilestones";
+import dynamic from "next/dynamic";
+import rehypeSanitize from "rehype-sanitize";
+
+const MarkdownPreview = dynamic(
+  () => import("@uiw/react-markdown-preview"),
+  { ssr: false, loading: () => <div className="animate-pulse h-64 bg-slate-100 rounded-xl"></div> }
+);
 
 function DetailSkeleton() {
   return (
@@ -277,14 +284,44 @@ export default function ProjectDetailPage() {
                 {project.shortDescription || "Dự án chưa có mô tả ngắn."}
               </p>
 
-              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
+              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 investpro-markdown-preview">
                 <h2 className="text-h6 font-bold mb-3">
-                  Nội dung dự án (Markdown)
+                  Nội dung dự án
                 </h2>
-                <pre className="whitespace-pre-wrap text-smaller text-slate-700 dark:text-slate-300 leading-relaxed">
-                  {project.content ||
-                    "Chưa có nội dung markdown."}
-                </pre>
+                {project.content ? (
+                  <MarkdownPreview 
+                    source={project.content} 
+                    rehypePlugins={[[rehypeSanitize]]} 
+                    style={{ background: 'transparent', color: 'inherit' }}
+                  />
+                ) : (
+                  <p className="text-smaller text-slate-500">Chưa có nội dung markdown.</p>
+                )}
+                
+                <style jsx global>{`
+                  .investpro-markdown-preview .wmde-markdown {
+                    font-family: inherit;
+                  }
+                  .investpro-markdown-preview .wmde-markdown h1,
+                  .investpro-markdown-preview .wmde-markdown h2,
+                  .investpro-markdown-preview .wmde-markdown h3 {
+                    color: var(--color-primary, #4f46e5); /* Use primary color */
+                    border-bottom: none;
+                  }
+                  .dark .investpro-markdown-preview .wmde-markdown h1,
+                  .dark .investpro-markdown-preview .wmde-markdown h2,
+                  .dark .investpro-markdown-preview .wmde-markdown h3 {
+                    color: var(--color-primary, #818cf8); /* Lighter primary for dark mode */
+                  }
+                  .investpro-markdown-preview .wmde-markdown img {
+                    border-radius: 0.75rem;
+                    margin: 1rem 0;
+                    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+                  }
+                  .investpro-markdown-preview .wmde-markdown a {
+                    color: var(--color-primary, #4f46e5);
+                  }
+                `}</style>
               </div>
 
               {/* Milestones & Disputes Component */}

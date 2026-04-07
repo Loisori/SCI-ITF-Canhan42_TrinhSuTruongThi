@@ -2,7 +2,8 @@ import { Exclude } from 'class-transformer';
 import {
   Entity,
   Column,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
+  Generated,
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
@@ -24,7 +25,15 @@ export enum UserRole {
 
 @Entity({ name: 'users' })
 export class UserEntity {
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryColumn({
+    type: 'bigint',
+    unsigned: true,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | number) => (value === null ? null : Number(value)),
+    },
+  })
+  @Generated('increment')
   id: number;
 
   @Column({ type: 'varchar', length: 150, unique: true })
@@ -101,4 +110,17 @@ export class UserEntity {
 
   @OneToMany(() => UserMediaEntity, (media) => media.user)
   media: UserMediaEntity[];
+
+  @Column({
+    name: 'notification_settings',
+    type: 'json',
+    nullable: true,
+    select: false, // Ngăn chặn TypeORM tự động fetch cột này, tránh lỗi Unknown column khi login
+  })
+  notificationSettings: Record<string, boolean> = {
+    email: true,
+    push: true,
+    investment_update: true,
+    milestone_reached: true,
+  };
 }

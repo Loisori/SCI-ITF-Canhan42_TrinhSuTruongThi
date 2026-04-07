@@ -8,6 +8,7 @@ import api from "@/lib/axios";
 import { Me } from "@/types/user";
 import { ProjectCategory } from "@/types/project";
 import MediaLibraryModal from "@/components/client/MediaLibraryModal";
+import MarkdownField from "@/components/client/MarkdownField";
 
 const slugify = (value: string) =>
   value
@@ -41,6 +42,7 @@ export default function CreateProjectPage() {
   const [startDate, setStartDate] = useState(getTodayString());
   const [endDate, setEndDate] = useState("");
   const [shortDescription, setShortDescription] = useState("");
+  const [content, setContent] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [additionalImages, setAdditionalImages] = useState<string[]>([""]);
   const contentSlug = slugify(title);
@@ -119,6 +121,7 @@ export default function CreateProjectPage() {
         status: "pending",
         contentSlug,
         shortDescription,
+        content,
         thumbnailUrl,
         additional_images: additionalImages
           .map((item) => item.trim())
@@ -355,6 +358,14 @@ export default function CreateProjectPage() {
               onChange={(e) => setShortDescription(e.target.value)}
               rows={3}
               className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+            />
+          </div>
+
+          <div className="markdown-field-wrapper">
+            <MarkdownField 
+              value={content} 
+              onChange={setContent} 
+              label="Nội dung chi tiết (Markdown)" 
             />
           </div>
 

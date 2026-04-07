@@ -18,14 +18,14 @@ export enum DisputeStatus {
 
 @Entity({ name: 'project_disputes' })
 export class ProjectDisputeEntity {
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
   @Index()
-  @Column({ name: 'project_id', type: 'int' })
+  @Column({ name: 'project_id', type: 'bigint', unsigned: true })
   projectId: number;
-
-  @Column({ name: 'user_id', type: 'int' })
+ 
+  @Column({ name: 'user_id', type: 'bigint', unsigned: true })
   userId: number;
 
   @Column({ type: 'text' })

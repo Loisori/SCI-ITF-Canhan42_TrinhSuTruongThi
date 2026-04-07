@@ -21,9 +21,9 @@ import { IsInvestorGuard } from '../../common/guards/is-investor.guard';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
-        const expiresIn = configService.get<string>('JWT_EXPIRATION') ?? '3600s';
+        const expiresIn = configService.get<string>('JWT_EXPIRES_IN') ?? '1d';
         return {
-          secret: configService.get<string>('JWT_SECRET') ?? 'replace_me_with_strong_secret',
+          secret: configService.get<string>('JWT_SECRET') ?? 'fallback_secret',
           signOptions: {
             expiresIn,
           },

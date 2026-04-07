@@ -14,10 +14,10 @@ export enum MediaType {
 
 @Entity({ name: 'project_media' })
 export class ProjectMediaEntity {
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
-  @Column({ name: 'project_id', type: 'int' })
+  @Column({ name: 'project_id', type: 'bigint', unsigned: true })
   projectId: number;
 
   @Column({ name: 'url', type: 'varchar', length: 255 })

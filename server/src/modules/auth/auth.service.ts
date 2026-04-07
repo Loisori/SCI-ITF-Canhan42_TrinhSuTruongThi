@@ -32,17 +32,22 @@ export class AuthService {
   }
 
   async validateUser(email: string, pass: string): Promise<UserEntity> {
-    const user = await this.usersService.findByEmail(email.toLowerCase());
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    try {
+      const user = await this.usersService.findByEmail(email.toLowerCase());
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
 
-    const valid = await bcrypt.compare(pass, user.password);
-    if (!valid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+      const valid = await bcrypt.compare(pass, user.password);
+      if (!valid) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
 
-    return user;
+      return user;
+    } catch (error: any) {
+      if (error.status) throw error;
+      throw error;
+    }
   }
 
   async login(loginDto: LoginDto): Promise<{ access_token: string }> {

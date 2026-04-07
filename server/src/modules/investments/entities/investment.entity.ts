@@ -6,7 +6,8 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
+  Generated,
 } from 'typeorm';
 import { UserEntity } from '../../users/entities/user.entity';
 import { ProjectEntity } from '../../projects/entities/project.entity';
@@ -20,15 +21,39 @@ export enum InvestmentStatus {
 
 @Entity({ name: 'investments' })
 export class InvestmentEntity {
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryColumn({
+    type: 'bigint',
+    unsigned: true,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | number) => (value === null ? null : Number(value)),
+    },
+  })
+  @Generated('increment')
   id: number;
 
   @Index()
-  @Column({ name: 'user_id', type: 'int' })
+  @Column({
+    name: 'user_id',
+    type: 'bigint',
+    unsigned: true,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | number) => (value === null ? null : Number(value)),
+    },
+  })
   userId: number;
 
   @Index()
-  @Column({ name: 'project_id', type: 'int' })
+  @Column({
+    name: 'project_id',
+    type: 'bigint',
+    unsigned: true,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | number) => (value === null ? null : Number(value)),
+    },
+  })
   projectId: number;
 
   @Column({
@@ -37,7 +62,7 @@ export class InvestmentEntity {
     scale: 2,
     transformer: {
       to: (value: number) => value,
-      from: (value: string) => parseFloat(value),
+      from: (value: string | null) => (value === null ? 0 : parseFloat(value)),
     },
   })
   amount: number;

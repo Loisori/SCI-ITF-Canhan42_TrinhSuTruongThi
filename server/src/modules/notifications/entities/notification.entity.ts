@@ -17,10 +17,10 @@ export enum NotificationType {
 
 @Entity('notifications')
 export class NotificationEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
-
-  @Column({ name: 'user_id' })
+ 
+  @Column({ name: 'user_id', type: 'bigint', unsigned: true })
   userId: number;
 
   @Column({ type: 'text' })

@@ -5,6 +5,7 @@ export type AdminOverview = {
   totalFundingCapital: number;
   totalUsers: number;
   totalProjects: number;
+  totalTransactions: number;
   systemRevenue: number;
   commissionRate: number;
 };
@@ -22,6 +23,8 @@ export type AdminDashboardUser = {
   totalInvested: number;
   totalReceived: number;
   feeCollected: number;
+  role: string;
+  createdAt: string;
   participatingProjects: Array<{
     id: number;
     title: string;
