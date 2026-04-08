@@ -116,15 +116,6 @@ function ProjectListInner() {
               Danh sách dự án đang huy động vốn công khai cho mọi người.
             </p>
           </div>
-
-          {ownerMode ? (
-            <Link
-              href="/projects/create"
-              className="px-4 py-2 rounded-lg bg-primary text-white text-smaller font-bold whitespace-nowrap"
-            >
-              Tạo dự án mới
-            </Link>
-          ) : null}
         </div>
 
         <div className="space-y-4 mb-8">
