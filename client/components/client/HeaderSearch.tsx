@@ -59,7 +59,7 @@ export default function HeaderSearch() {
   return (
     <div
       ref={wrapRef}
-      className="relative w-full max-w-full md:max-w-xl md:mx-auto lg:mx-6"
+      className="relative w-full max-w-full md:mx-auto lg:mx-6"
     >
       <div className="flex items-stretch rounded-xl h-10 md:h-11 bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 overflow-hidden focus-within:ring-2 focus-within:ring-primary/30">
         <span className="material-symbols-outlined text-slate-400 pl-3 flex items-center text-[20px]">

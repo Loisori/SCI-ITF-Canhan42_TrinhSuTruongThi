@@ -93,7 +93,7 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
           <div className="bg-primary rounded-2xl p-6 text-white shadow-xl shadow-primary/20 relative overflow-hidden">
             <div className="relative z-10">
               <p className="text-smaller font-bold opacity-80 uppercase tracking-widest">Tổng số dư</p>
-              <h2 className="text-h3 font-bold mt-2">{formatVnd(Number(profile.balance))}</h2>
+              <h2 className="text-h5 font-bold mt-2">{formatVnd(Number(profile.balance))}</h2>
             </div>
             <div className="absolute -right-4 -bottom-4 opacity-10 blur-xl scale-150">
               <span className="material-symbols-outlined text-[120px]">account_balance_wallet</span>

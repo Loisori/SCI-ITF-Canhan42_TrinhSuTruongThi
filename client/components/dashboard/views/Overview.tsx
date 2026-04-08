@@ -35,6 +35,38 @@ export default function Overview({ profile }: { profile: UserProfile }) {
         </p>
       </div>
 
+      {/* Information */}
+      <div>
+        <div className="flex gap-5">
+          <div className="relative size-20 rounded-full">
+            <img src={profile.avatarUrl} alt="" className="size-full rounded-full object-cover" />
+          </div>
+          <div>
+            <p className="text-h4 font-bold text-slate-900 dark:text-white">{profile.fullName}</p>
+            <p className="text-smaller text-slate-500">{profile.email}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+        <div className="flex mb-5">
+          <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider mb-2">Thông tin cá nhân</p>
+        </div>
+        <div className="flex justify-between py-2 border-b-[.1rem] border-black">
+          <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider">Họ và tên</p>
+          <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider">{profile.fullName}</p>
+        </div>
+        <div className="flex justify-between py-2 border-b-[.1rem] border-black">
+          <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider">Email</p>
+          <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider">{profile.email}</p>
+        </div>
+        <div className="flex justify-between py-2 border-b-[.1rem] border-black">
+          <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider">Vai trò</p>
+          <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider">{profile.role}</p>
+        </div>
+      </div>
+
+      {/* Overview Information */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
           <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider mb-2">Số dư hiện tại</p>

@@ -19,7 +19,7 @@ import { createTypeOrmConfig } from './config/typeorm.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ['.env', '../.env'],
       expandVariables: true,
     }),
     TypeOrmModule.forRootAsync({

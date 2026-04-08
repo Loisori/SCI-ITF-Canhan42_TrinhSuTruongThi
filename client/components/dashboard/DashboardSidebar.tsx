@@ -59,7 +59,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
       {/* Sidebar container */}
       <aside
         className={`${
-          isSidebarCollapsed ? "w-20" : "w-64"
+          isSidebarCollapsed ? "w-20" : "w-[25rem]"
         } fixed left-0 top-0 h-screen z-50 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 hidden lg:flex flex-col shadow-sm`}
       >
         <Link href="/" className="p-6 flex items-center gap-3 h-20">
