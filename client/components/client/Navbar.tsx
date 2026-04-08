@@ -262,29 +262,6 @@ export default function Navbar() {
                         Dashboard
                       </Link>
 
-                      {/* Settings Link */}
-                      <Link
-                        href="/settings"
-                        className="flex items-center gap-3 px-4 py-2 text-small text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <span className="material-symbols-outlined text-body">
-                          settings
-                        </span>
-                        Cài đặt
-                      </Link>
-
-                      <Link
-                        href="/transactions"
-                        className="flex items-center gap-3 px-4 py-2 text-small text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <span className="material-symbols-outlined text-body">
-                          receipt_long
-                        </span>
-                        Giao dịch
-                      </Link>
-
                       <div className="my-1 border-t border-slate-100 dark:border-slate-800"></div>
 
                       {/* Logout Button */}

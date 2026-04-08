@@ -38,8 +38,8 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
       if (res.data.url) {
         window.location.href = res.data.url;
       }
-    } catch (err) {
-      toast.error("Không thể tạo link nạp tiền");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Không thể tạo link nạp tiền");
     }
   };
 

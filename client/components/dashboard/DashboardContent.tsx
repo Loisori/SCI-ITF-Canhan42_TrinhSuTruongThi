@@ -7,6 +7,7 @@ import WalletView from "./views/WalletView";
 import MyPortfolio from "./views/MyPortfolio";
 import MyProjects from "./views/MyProjects";
 import SettingsView from "./views/SettingsView";
+import TransactionsView from "./views/TransactionsView";
 
 // Admin Views
 import SystemOverview from "./views/admin/SystemOverview";
@@ -25,6 +26,8 @@ export default function DashboardContent({ profile, onUpdate }: { profile: UserP
         return <WalletView profile={profile} />;
       case "portfolio":
         return <MyPortfolio profile={profile} />;
+      case "transactions":
+        return <TransactionsView />;
       case "my-projects":
         return <MyProjects profile={profile} />;
       case "settings":

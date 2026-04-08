@@ -31,7 +31,8 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
 
   const userLinks = [
     { name: "Tổng quan", view: "overview", icon: "grid_view" },
-    { name: "Ví & Giao dịch", view: "wallet", icon: "account_balance_wallet" },
+    { name: "Ví của tôi", view: "wallet", icon: "account_balance_wallet" },
+    { name: "Nhật ký giao dịch", view: "transactions", icon: "receipt_long" },
     { name: "Đầu tư của tôi", view: "portfolio", icon: "insights" },
     ...(role === "owner" ? [
       { name: "Dự án của tôi", view: "my-projects", icon: "rocket_launch" },
