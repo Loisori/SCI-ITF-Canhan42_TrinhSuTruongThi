@@ -29,17 +29,20 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
   ) {}
 
   async handleConnection(client: Socket) {
+    console.log(`[Socket] New connection attempt: ${client.id}`);
     try {
       const authHeader = client.handshake.headers.authorization;
       const token = authHeader?.split(' ')[1] || client.handshake.auth?.token;
       
       if (!token) {
+        console.log(`[Socket] No token provided, disconnecting: ${client.id}`);
         client.disconnect();
         return;
       }
 
       const payload = this.jwtService.verify(token);
       const userId = String(payload.sub);
+      console.log(`[Socket] Auth successful for user ID: ${userId}`);
 
       if (!this.userSockets.has(userId)) {
         this.userSockets.set(userId, new Set());
@@ -50,7 +53,9 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
 
       // Join a distinct room for the user to easily broadcast
       client.join(`user_${userId}`);
+      console.log(`[Socket] Client ${client.id} joined room user_${userId}`);
     } catch (error) {
+      console.error(`[Socket] Verification/Connection error:`, error.message);
       client.disconnect();
     }
   }

@@ -18,6 +18,7 @@ export type Investment = {
     thumbnailUrl: string | null;
     interestRate: number | string;
     durationMonths: number;
+    fundingProgress?: number;
   } | null;
   paymentSchedules: PaymentSchedule[];
 };

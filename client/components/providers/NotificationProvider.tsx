@@ -18,6 +18,8 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
+    let currentSocket: Socket | null = null;
+
     const fetchNotifications = async () => {
       try {
         const token = Cookies.get('access_token');
@@ -31,42 +33,68 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
       }
     };
 
-    fetchNotifications();
-
     const connectSocket = () => {
       const token = Cookies.get('access_token');
-      if (!token) return;
+      if (!token) return null;
 
       const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      // socket.io automatically uses the hostname if not provided, but we can specify it
-      // using the URL without "/api"
       const urlObject = new URL(backendUrl);
       const socketUrl = `${urlObject.protocol}//${urlObject.host}`;
 
+      if (currentSocket) {
+        currentSocket.disconnect();
+      }
+
       const newSocket = io(socketUrl, {
         auth: { token },
+        transports: ['websocket', 'polling'],
+      });
+
+      newSocket.on('connect', () => {
+        console.log('Socket connected successfully:', newSocket.id);
+      });
+
+      newSocket.on('connect_error', (err) => {
+        console.error('Socket connection error:', err.message);
+      });
+
+      newSocket.on('disconnect', (reason) => {
+        console.log('Socket disconnected:', reason);
       });
 
       newSocket.on('notification', (newNotification: Notification) => {
+        console.log('Received notification via socket:', newNotification);
         setNotifications((prev) => [newNotification, ...prev]);
         setUnreadCount((prev) => prev + 1);
 
-        // Optional: show a browser native notification or a toaster popup here
+        // Show toast popup
+        import('react-hot-toast').then((module) => {
+          module.default.success(`Thông báo mới: ${newNotification.message}`, {
+            duration: 5000,
+            icon: '🔔',
+          });
+        });
       });
 
       setSocket(newSocket);
-
+      currentSocket = newSocket;
       return newSocket;
     };
 
-    const socketInstance = connectSocket();
+    // Initial setup
+    if (Cookies.get('access_token')) {
+      fetchNotifications();
+      connectSocket();
+    }
 
     const handleAuthChange = () => {
       if (!Cookies.get('access_token')) {
         setNotifications([]);
         setUnreadCount(0);
-        if (socketInstance) {
-          socketInstance.disconnect();
+        if (currentSocket) {
+          currentSocket.disconnect();
+          currentSocket = null;
+          setSocket(null);
         }
       } else {
         fetchNotifications();
@@ -78,8 +106,8 @@ export const NotificationProvider = ({ children }: NotificationProviderProps) =>
 
     return () => {
       window.removeEventListener('auth-changed', handleAuthChange);
-      if (socketInstance) {
-        socketInstance.disconnect();
+      if (currentSocket) {
+        currentSocket.disconnect();
       }
     };
   }, []);

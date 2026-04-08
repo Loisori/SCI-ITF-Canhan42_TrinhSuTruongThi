@@ -62,15 +62,15 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         {projects.map((p) => (
           <div key={p.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-            <div className="flex flex-col lg:flex-row justify-between gap-6">
-               <div className="flex gap-5 min-w-0">
+            <div className="flex flex-col justify-between gap-6">
+               <div className="min-w-0">
                   {p.thumbnailUrl ? (
-                    <img src={p.thumbnailUrl} alt="" className="w-40 h-28 rounded-2xl object-cover shrink-0" />
+                    <img src={p.thumbnailUrl} alt="" className="w-full h-[20rem] rounded-2xl object-cover shrink-0" />
                   ) : (
-                    <div className="w-40 h-28 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                    <div className="w-full h-[20rem] rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                        <span className="material-symbols-outlined text-slate-300 text-h2">image</span>
                     </div>
                   )}
