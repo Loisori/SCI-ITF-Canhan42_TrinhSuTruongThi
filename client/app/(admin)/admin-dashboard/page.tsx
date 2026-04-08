@@ -6,6 +6,8 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardContent from "@/components/dashboard/DashboardContent";
 import { UserProfile } from "@/types/user";
 
+import { Suspense } from "react";
+
 export default function AdminDashboardPage() {
   const { data: profile, isLoading, refetch } = useQuery({
     queryKey: ["user-profile"],
@@ -14,19 +16,31 @@ export default function AdminDashboardPage() {
 
   if (isLoading) {
     return (
-      <DashboardLayout user={null}>
+      <Suspense fallback={
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="size-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
         </div>
-      </DashboardLayout>
+      }>
+        <DashboardLayout user={null}>
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="size-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        </DashboardLayout>
+      </Suspense>
     );
   }
 
   if (!profile || profile.role !== "admin") return null;
 
   return (
-    <DashboardLayout user={profile}>
-      <DashboardContent profile={profile} onUpdate={refetch} />
-    </DashboardLayout>
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="size-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <DashboardLayout user={profile}>
+        <DashboardContent profile={profile} onUpdate={refetch} />
+      </DashboardLayout>
+    </Suspense>
   );
 }
