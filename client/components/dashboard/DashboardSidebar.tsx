@@ -2,7 +2,8 @@
 
 // Services
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 import { useDashboard } from "@/context/DashboardContext";
 import { UserProfile } from "@/types/user";
 
@@ -19,6 +20,14 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
     setActiveView 
   } = useDashboard();
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    Cookies.remove("access_token", { path: "/" });
+    window.dispatchEvent(new Event("auth-changed"));
+    router.push("/");
+    router.refresh();
+  };
 
   const role = user?.role?.toLowerCase();
   const isAdminPath = pathname.includes("/admin-dashboard");
@@ -116,10 +125,17 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
                       user.fullName?.charAt(0).toUpperCase()
                    )}
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                    <p className="text-[12px] font-bold text-slate-900 dark:text-white truncate">{user.fullName}</p>
                    <p className="text-[10px] text-slate-500 uppercase tracking-tighter truncate">{role}</p>
                 </div>
+                <button 
+                  onClick={handleLogout}
+                  className="p-1.5 shrink-0 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                  title="Đăng xuất"
+                >
+                  <span className="material-symbols-outlined text-base">logout</span>
+                </button>
              </div>
           </div>
         )}
@@ -138,24 +154,36 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
           <span className="font-bold text-h5 text-slate-900 dark:text-white tracking-tight">InvestPro</span>
         </div>
 
-        <nav className="px-4 py-6 space-y-2 overflow-y-auto h-[calc(100vh-80px)]">
-          {links.map((link) => {
-             const isActive = activeView === link.view;
-             return (
-               <button
-                 key={link.view}
-                 onClick={() => handleLinkClick(link.view)}
-                 className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${
-                   isActive
-                     ? "bg-primary text-white shadow-lg shadow-primary/20"
-                     : "text-slate-500 dark:text-slate-400"
-                 }`}
+        <nav className="px-4 py-6 overflow-y-auto h-[calc(100vh-80px)] flex flex-col">
+          <div className="space-y-2 flex-1">
+            {links.map((link) => {
+               const isActive = activeView === link.view;
+               return (
+                 <button
+                   key={link.view}
+                   onClick={() => handleLinkClick(link.view)}
+                   className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${
+                     isActive
+                       ? "bg-primary text-white shadow-lg shadow-primary/20"
+                       : "text-slate-500 dark:text-slate-400"
+                   }`}
+                 >
+                   <span className="material-symbols-outlined">{link.icon}</span>
+                   <span className="text-smaller font-bold">{link.name}</span>
+                 </button>
+               );
+             })}
+          </div>
+          
+          <div className="pt-4 mt-6 border-t border-slate-100 dark:border-slate-800">
+             <button
+                 onClick={handleLogout}
+                 className="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
                >
-                 <span className="material-symbols-outlined">{link.icon}</span>
-                 <span className="text-smaller font-bold">{link.name}</span>
-               </button>
-             );
-           })}
+                 <span className="material-symbols-outlined">logout</span>
+                 <span className="text-smaller font-bold">Đăng xuất</span>
+             </button>
+          </div>
         </nav>
       </div>
     </>

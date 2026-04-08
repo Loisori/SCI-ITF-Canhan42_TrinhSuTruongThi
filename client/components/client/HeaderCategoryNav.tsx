@@ -42,7 +42,7 @@ export default function HeaderCategoryNav() {
       aria-label="Danh mục dự án"
     >
       <Link href="/projects" className="text-[11px] uppercase tracking-wider font-bold text-slate-500 shrink-0 mr-2 hidden sm:inline">
-        Danh mục
+        Khám phá
       </Link>
       {categories.map((c) => (
         <Link
