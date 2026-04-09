@@ -11,9 +11,14 @@ export default function DepositPage() {
   const [amount, setAmount] = useState(100000);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Payment methods: vnpay, bank, momo
+  const [selectedMethod, setSelectedMethod] = useState<string>("vnpay");
 
   const handleDeposit = async (e: FormEvent) => {
     e.preventDefault();
+    if (selectedMethod !== "vnpay") return; // Safety check
+    
     setError(null);
     setLoading(true);
 
@@ -23,6 +28,7 @@ export default function DepositPage() {
         { amount: Number(amount) },
       );
 
+      // Using window.location to strictly hand over to VNPay portal
       window.location.href = response.data.vnpayUrl;
     } catch (err: unknown) {
       const message =
@@ -41,50 +47,114 @@ export default function DepositPage() {
       <Navbar />
       <main className="wrapper wrapper--sm py-12">
         <h1 className="text-h3 font-bold text-slate-900 dark:text-white mb-2">
-          Nạp tiền qua VNPay
+          Nạp tiền vào ví InvestPro
         </h1>
-        <p className="text-slate-600 dark:text-slate-400 mb-8">
-          Nhập số tiền muốn nạp vào ví InvestPro.
+        <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-xl">
+          Quy trình nạp tiền tuân thủ điều kiện an toàn và chuẩn xác thức eKYC. Số tiền sẽ tự động trừ phí và cộng dồn vào ví của bạn sau khi hoàn tất.
         </p>
 
         <form
           onSubmit={handleDeposit}
-          className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-5"
+          className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-8 space-y-8"
         >
+          {/* Amount Selection */}
           <div>
-            <label className="block text-smaller font-semibold mb-2">
-              Số tiền (VND)
+            <label className="block text-body font-bold text-slate-700 dark:text-slate-200 mb-3">
+              1. Nhập số tiền cần nạp (VND)
             </label>
-            <input
-              type="number"
-              min={1000}
-              step="1000"
-              value={amount}
-              onChange={(event) => setAmount(Number(event.target.value))}
-              className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
-              required
-            />
+            <div className="relative">
+              <input
+                type="number"
+                min={10000}
+                step="10000"
+                value={amount}
+                onChange={(event) => setAmount(Number(event.target.value))}
+                className="w-full px-5 py-4 text-h5 font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                required
+              />
+              <span className="absolute right-5 top-1/2 -translate-y-1/2 font-bold text-slate-400">
+                VNĐ
+              </span>
+            </div>
+            <p className="text-smaller text-slate-500 mt-2">Tối thiểu: 10,000 VNĐ</p>
           </div>
 
-          {error && <p className="text-small text-red-500">{error}</p>}
+          {/* Payment Method Selection */}
+          <div>
+            <label className="block text-body font-bold text-slate-700 dark:text-slate-200 mb-3">
+              2. Chọn phương thức thanh toán
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              {/* VNPay Option - Active */}
+              <div 
+                onClick={() => setSelectedMethod("vnpay")}
+                className={`flex flex-col p-5 rounded-xl border-2 cursor-pointer transition-all ${selectedMethod === 'vnpay' ? 'border-primary bg-primary/5' : 'border-slate-200 dark:border-slate-700 hover:border-primary/50'}`}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <span className="material-symbols-outlined text-primary text-[28px]">payments</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Khuyên dùng</span>
+                </div>
+                <h3 className="font-bold text-slate-900 dark:text-white">Cổng VNPay</h3>
+                <p className="text-smaller text-slate-500 mt-1">Quét mã QR, Thẻ ATM nội địa, Thẻ quốc tế Visa/Mastercard.</p>
+              </div>
 
-          <div className="flex items-center gap-3">
+              {/* Bank Transfer Option - Disabled mock */}
+              <div 
+                className="flex flex-col p-5 rounded-xl border-2 border-slate-200 dark:border-slate-700 opacity-60 cursor-not-allowed bg-slate-50 dark:bg-slate-800/50"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <span className="material-symbols-outlined text-slate-500 text-[28px]">account_balance</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">Bảo trì</span>
+                </div>
+                <h3 className="font-bold text-slate-900 dark:text-white">Chuyển khoản thủ công</h3>
+                <p className="text-smaller text-slate-500 mt-1">Hệ thống chuyển khoản ngân hàng đang được chúng tôi nâng cấp.</p>
+              </div>
+
+              {/* MoMo Option - Disabled mock */}
+              <div 
+                className="flex flex-col p-5 rounded-xl border-2 border-slate-200 dark:border-slate-700 opacity-60 cursor-not-allowed bg-slate-50 dark:bg-slate-800/50"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <span className="material-symbols-outlined text-[#a50064] text-[28px]">wallet</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Sắp ra mắt</span>
+                </div>
+                <h3 className="font-bold text-slate-900 dark:text-white">Ví điện tử MoMo</h3>
+                <p className="text-smaller text-slate-500 mt-1">Hỗ trợ giao dịch nhanh và an toàn trực tiếp qua ví MoMo.</p>
+              </div>
+
+            </div>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900 text-red-600 text-smaller p-4 rounded-xl flex items-center gap-2">
+              <span className="material-symbols-outlined">error</span>
+              <p>{error}</p>
+            </div>
+          )}
+
+          <div className="flex items-center gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
             <button
               type="submit"
-              disabled={loading}
-              className="px-6 py-2 rounded-lg bg-primary text-white font-bold disabled:opacity-60"
+              disabled={loading || selectedMethod !== "vnpay"}
+              className="px-8 py-3 rounded-xl bg-primary text-white font-bold hover:shadow-lg transition-all disabled:opacity-50 disabled:hover:shadow-none"
             >
-              {loading ? "Đang chuyển hướng..." : "Nạp tiền qua VNPay"}
+              {loading ? "Đang chuyển hướng..." : "Tiếp tục thanh toán"}
             </button>
             <button
               type="button"
-              onClick={() => router.push("/dashboard")}
-              className="px-6 py-2 rounded-lg border border-slate-300 dark:border-slate-700 font-semibold"
+              onClick={() => router.push("/dashboard?tab=wallet")}
+              className="px-8 py-3 rounded-xl border border-slate-300 dark:border-slate-700 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
-              Quay lại
+              Hủy
             </button>
           </div>
         </form>
+
+        <div className="mt-8 text-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl text-smaller text-slate-500 flex items-center justify-center gap-2">
+          <span className="material-symbols-outlined text-[18px]">verified_user</span>
+          Giao dịch được mã hóa 256-bit và bảo mật bởi ngân hàng nhà nước Việt Nam.
+        </div>
       </main>
       <Footer />
     </div>

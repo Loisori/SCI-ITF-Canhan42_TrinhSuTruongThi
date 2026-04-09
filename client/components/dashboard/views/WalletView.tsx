@@ -7,6 +7,7 @@ import { formatVnd } from "@/lib/utils";
 import { UserProfile } from "@/types/user";
 import { Transaction } from "@/types/transaction";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 export default function WalletView({ profile }: { profile: UserProfile }) {
   const [filterType, setFilterType] = useState<string>("");
@@ -24,24 +25,7 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
     },
   });
 
-  const handleDeposit = async () => {
-    try {
-      const amount = prompt("Nhập số tiền bạn muốn nạp (VNĐ):", "100000");
-      if (!amount) return;
-      const numAmount = parseInt(amount);
-      if (isNaN(numAmount) || numAmount < 10000) {
-        toast.error("Số tiền nạp tối thiểu là 10.000 VNĐ");
-        return;
-      }
 
-      const res = await api.post("/api/payment/create-url", { amount: numAmount });
-      if (res.data.url) {
-        window.location.href = res.data.url;
-      }
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Không thể tạo link nạp tiền");
-    }
-  };
 
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,13 +61,13 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
           <p className="text-slate-600 dark:text-slate-400 text-body mt-1">Quản lý số dư, nạp tiền và yêu cầu rút tiền.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={handleDeposit}
+          <Link
+            href="/dashboard/deposit"
             className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white font-bold hover:shadow-lg transition-all"
           >
             <span className="material-symbols-outlined">payments</span>
             Nạp tiền
-          </button>
+          </Link>
         </div>
       </div>
 

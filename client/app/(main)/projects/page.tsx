@@ -4,7 +4,6 @@ import Footer from "@/components/client/Footer";
 import Navbar from "@/components/client/Navbar";
 import api from "@/lib/axios";
 import { Project, ProjectCategory } from "@/types/project";
-import { Profile } from "@/types/user";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -67,16 +66,7 @@ function ProjectListInner() {
     },
   });
 
-  const { data: role = null } = useQuery({
-    queryKey: ["auth-role-projects-page"],
-    queryFn: async () => {
-      const res = await api.get<Profile>("/api/auth/profile");
-      return res.data.role;
-    },
-    retry: false,
-  });
 
-  const ownerMode = role === "owner";
 
   const pushProjectsUrl = (next: { search?: string; category?: string }) => {
     const params = new URLSearchParams();
