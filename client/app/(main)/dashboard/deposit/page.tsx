@@ -17,26 +17,32 @@ export default function DepositPage() {
 
   const handleDeposit = async (e: FormEvent) => {
     e.preventDefault();
-    if (selectedMethod !== "vnpay") return; // Safety check
+    if (!["vnpay", "momo"].includes(selectedMethod)) return; // Safety check
     
     setError(null);
     setLoading(true);
 
     try {
-      const response = await api.post<{ vnpayUrl: string }>(
-        "/api/payment/create-url",
-        { amount: Number(amount) },
-      );
-
-      // Using window.location to strictly hand over to VNPay portal
-      window.location.href = response.data.vnpayUrl;
+      if (selectedMethod === "vnpay") {
+        const response = await api.post<{ vnpayUrl: string }>(
+          "/api/payment/create-url",
+          { amount: Number(amount) },
+        );
+        window.location.href = response.data.vnpayUrl;
+      } else if (selectedMethod === "momo") {
+        const response = await api.post<{ momoUrl: string }>(
+          "/api/payment/create-momo-url",
+          { amount: Number(amount) },
+        );
+        window.location.href = response.data.momoUrl;
+      }
     } catch (err: unknown) {
       const message =
         (
           err as {
             response?: { data?: { message?: string | string[] } };
           }
-        )?.response?.data?.message ?? "Không thể tạo link thanh toán VNPay.";
+        )?.response?.data?.message ?? "Không thể tạo link thanh toán.";
       setError(Array.isArray(message) ? message[0] : message);
       setLoading(false);
     }
@@ -111,13 +117,14 @@ export default function DepositPage() {
                 <p className="text-smaller text-slate-500 mt-1">Hệ thống chuyển khoản ngân hàng đang được chúng tôi nâng cấp.</p>
               </div>
 
-              {/* MoMo Option - Disabled mock */}
+              {/* MoMo Option - Active */}
               <div 
-                className="flex flex-col p-5 rounded-xl border-2 border-slate-200 dark:border-slate-700 opacity-60 cursor-not-allowed bg-slate-50 dark:bg-slate-800/50"
+                onClick={() => setSelectedMethod("momo")}
+                className={`flex flex-col p-5 rounded-xl border-2 cursor-pointer transition-all ${selectedMethod === 'momo' ? 'border-[#a50064] bg-[#a50064]/5' : 'border-slate-200 dark:border-slate-700 hover:border-[#a50064]/50'}`}
               >
                 <div className="flex items-start justify-between mb-2">
                   <span className="material-symbols-outlined text-[#a50064] text-[28px]">wallet</span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Sắp ra mắt</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Mới</span>
                 </div>
                 <h3 className="font-bold text-slate-900 dark:text-white">Ví điện tử MoMo</h3>
                 <p className="text-smaller text-slate-500 mt-1">Hỗ trợ giao dịch nhanh và an toàn trực tiếp qua ví MoMo.</p>
@@ -136,7 +143,7 @@ export default function DepositPage() {
           <div className="flex items-center gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
             <button
               type="submit"
-              disabled={loading || selectedMethod !== "vnpay"}
+              disabled={loading || !["vnpay", "momo"].includes(selectedMethod)}
               className="px-8 py-3 rounded-xl bg-primary text-white font-bold hover:shadow-lg transition-all disabled:opacity-50 disabled:hover:shadow-none"
             >
               {loading ? "Đang chuyển hướng..." : "Tiếp tục thanh toán"}

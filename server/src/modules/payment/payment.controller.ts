@@ -6,10 +6,13 @@ import { PaymentService } from './payment.service';
 import { CreatePaymentUrlDto } from './dto/create-payment-url.dto';
 import { ConfigService } from '@nestjs/config';
 
+import { MomoService } from './momo.service';
+
 @Controller('payment')
 export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,
+    private readonly momoService: MomoService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -50,5 +53,19 @@ export class PaymentController {
     @Query() query: Record<string, string | string[] | undefined>,
   ) {
     return this.paymentService.handleVnpayIpn(query);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('create-momo-url')
+  async createMomoUrl(
+    @GetUser('id') userId: number,
+    @Body() dto: CreatePaymentUrlDto,
+  ) {
+    return this.momoService.createMomoUrl(userId, dto.amount);
+  }
+
+  @Post('momo-ipn')
+  async momoIpn(@Body() body: Record<string, any>) {
+    return this.momoService.handleMomoIpn(body);
   }
 }
