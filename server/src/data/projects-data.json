@@ -13,7 +13,7 @@
     "minInvestment": 1000000,
     "riskLevel": "medium",
     "fundingProgress": 0,
-    "status": "pending",
+    "status": "funding",
     "startDate": "2026-04-06",
     "endDate": "2026-04-29",
     "category": {
@@ -50,7 +50,7 @@
     "minInvestment": 1000000,
     "riskLevel": "medium",
     "fundingProgress": 0,
-    "status": "pending",
+    "status": "failed",
     "startDate": "2026-04-05",
     "endDate": "2026-05-01",
     "category": {
@@ -99,10 +99,19 @@
     },
     "owner": null,
     "images": [],
-    "isFrozen": false,
+    "isFrozen": true,
     "createdAt": "2026-03-29T08:22:36.000Z",
     "milestones": [],
-    "disputes": [],
+    "disputes": [
+      {
+        "id": "1",
+        "userId": "3",
+        "reason": "121212",
+        "evidenceUrl": null,
+        "status": "open",
+        "createdAt": "2026-04-08T07:20:05.718Z"
+      }
+    ],
     "content": null
   },
   {

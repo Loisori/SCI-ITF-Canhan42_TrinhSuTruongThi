@@ -145,7 +145,7 @@ export class ProjectsService {
   async approveProject(projectId: number) {
     const project = await this.projectsRepository.findOne({
       where: { id: projectId },
-      relations: ['media', 'category', 'owner'],
+      relations: ['owner'],
     });
 
     if (!project) {
@@ -156,10 +156,12 @@ export class ProjectsService {
       throw new BadRequestException('Only pending projects can be approved.');
     }
 
-    project.status = ProjectStatus.FUNDING;
-    await this.projectsRepository.save(project);
-    await this.syncProjectsDataJsonFile();
+    await this.projectsRepository.update(projectId, { 
+      status: ProjectStatus.FUNDING 
+    });
 
+    project.status = ProjectStatus.FUNDING;
+    await this.syncProjectsDataJsonFile();
     await this.notifyProjectOwner(
       project.owner,
       'Dự án của bạn đã được duyệt! Dự án đã được mở để huy động vốn.',
@@ -171,7 +173,7 @@ export class ProjectsService {
   async rejectProject(projectId: number) {
     const project = await this.projectsRepository.findOne({
       where: { id: projectId },
-      relations: ['media', 'category', 'owner'],
+      relations: ['owner'],
     });
 
     if (!project) {
@@ -182,10 +184,13 @@ export class ProjectsService {
       throw new BadRequestException('Only pending projects can be rejected.');
     }
 
-    project.status = ProjectStatus.FAILED;
-    await this.projectsRepository.save(project);
-    await this.syncProjectsDataJsonFile();
+await this.projectsRepository.update(projectId, { 
+      status: ProjectStatus.FAILED 
+    });
 
+    project.status = ProjectStatus.FAILED;
+    
+    await this.syncProjectsDataJsonFile();
     await this.notifyProjectOwner(
       project.owner,
       'Dự án của bạn đã bị từ chối. Vui lòng kiểm tra lại thông tin và gửi lại nếu cần.',
