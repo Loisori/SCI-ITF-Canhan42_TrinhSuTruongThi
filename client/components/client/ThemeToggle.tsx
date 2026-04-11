@@ -3,6 +3,7 @@
 //services
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { Sun, Moon } from "lucide-react";
 
 export default function ThemeToggle() {
   const { theme, resolvedTheme, setTheme } = useTheme();
@@ -27,9 +28,11 @@ export default function ThemeToggle() {
       className="p-2 rounded-xl bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 transition-all flex items-center justify-center border border-transparent dark:border-white/10"
       aria-label="Toggle Theme"
     >
-      <span className="material-symbols-outlined text-[20px] text-primary dark:text-yellow-400">
-        {isDark ? "light_mode" : "dark_mode"}
-      </span>
+      {isDark ? (
+        <Sun className="text-[20px] text-primary dark:text-yellow-400" />
+      ) : (
+        <Moon className="text-[20px] text-primary dark:text-yellow-400" />
+      )}
     </button>
   );
 }

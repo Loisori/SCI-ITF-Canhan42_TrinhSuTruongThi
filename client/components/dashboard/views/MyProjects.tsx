@@ -8,6 +8,7 @@ import { UserProfile } from "@/types/user";
 import { OwnerProject } from "@/types/dashboard";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { Plus, Image, Rocket } from "lucide-react";
 
 export default function MyProjects({ profile }: { profile: UserProfile }) {
   const [activeProject, setActiveProject] = useState<number | null>(null);
@@ -57,7 +58,7 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
           <p className="text-slate-600 dark:text-slate-400 text-body mt-1">Quản lý và cập nhật tiến độ các dự án của bạn.</p>
         </div>
         <Link href="/projects/create" className="px-5 py-2.5 bg-primary text-white font-bold rounded-xl hover:shadow-lg transition-all flex items-center gap-2">
-           <span className="material-symbols-outlined">add</span>
+           <Plus className="w-5 h-5" />
            Tạo dự án mới
         </Link>
       </div>
@@ -71,7 +72,7 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
                     <img src={p.thumbnailUrl} alt="" className="w-full h-[20rem] rounded-2xl object-cover shrink-0" />
                   ) : (
                     <div className="w-full h-[20rem] rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
-                       <span className="material-symbols-outlined text-slate-300 text-h2">image</span>
+                       <Image className="text-slate-300 w-16 h-16" />
                     </div>
                   )}
                   <div className="min-w-0">
@@ -112,67 +113,20 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
                   >
                      Chỉnh sửa
                   </Link>
-                  <button 
-                     onClick={() => setActiveProject(activeProject === p.id ? null : p.id)}
-                     className="w-full py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-smaller transition-all"
+                  <Link 
+                     href={`/dashboard/my-projects/${p.id}`}
+                     className="w-full py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-smaller text-center transition-all block"
                   >
-                     {activeProject === p.id ? "Đóng chi tiết" : "Cập nhật giai đoạn"}
-                  </button>
+                     Quản lý Milestones
+                  </Link>
                </div>
             </div>
-
-            {activeProject === p.id && (
-               <div className="mt-8 pt-8 border-t border-slate-50 dark:border-slate-800 animate-in slide-in-from-top-4 duration-300">
-                  <h4 className="text-smaller font-bold text-slate-900 dark:text-white uppercase tracking-widest mb-6">Các giai đoạn giải ngân (Milestones)</h4>
-                  <div className="space-y-4">
-                     {p.milestones && p.milestones.length > 0 ? p.milestones.map((m: any, idx: number) => (
-                        <div key={idx} className="flex items-start justify-between gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-900">
-                           <div className="flex gap-4">
-                              <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">{idx + 1}</div>
-                              <div>
-                                 <p className="text-smaller font-bold text-slate-900 dark:text-white">{m.title}</p>
-                                 <p className="text-[12px] text-slate-500 mt-1">{m.description}</p>
-                                 <p className="text-[11px] font-bold text-primary mt-2">Dự kiến vốn: {formatVnd(Number(m.fundingAmount))}</p>
-                                 {m.proofUrl && (
-                                    <div className="mt-3 flex items-center gap-2 text-green-600">
-                                       <span className="material-symbols-outlined text-[16px]">task_alt</span>
-                                       <a href={m.proofUrl} target="_blank" className="text-[11px] hover:underline font-bold">Xem minh chứng đã nộp</a>
-                                    </div>
-                                 )}
-                              </div>
-                           </div>
-                           
-                           {m.status === 'pending' || !m.status || m.status === 'waiting' && (
-                              <div className="flex flex-col items-end gap-3">
-                                 <input 
-                                    type="text" 
-                                    placeholder="Dán URL minh chứng..." 
-                                    disabled={m.status === 'active' || !!m.proofUrl}
-                                    onChange={(e) => setProofUrl(e.target.value)}
-                                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-[11px] outline-none min-w-48 placeholder:italic"
-                                 />
-                                 <button 
-                                    disabled={isSubmitting || !!m.proofUrl}
-                                    onClick={() => handleSubmitProof(p.id, m.id)}
-                                    className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-bold rounded-lg hover:shadow-md transition disabled:opacity-30"
-                                 >
-                                    Nộp minh chứng
-                                 </button>
-                              </div>
-                           )}
-                        </div>
-                     )) : (
-                        <p className="text-smaller text-slate-500 italic">Dự án chưa cấu hình giai đoạn giải ngân.</p>
-                     )}
-                  </div>
-               </div>
-            )}
           </div>
         ))}
 
         {projects.length === 0 && (
           <div className="py-20 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 border-dashed">
-             <span className="material-symbols-outlined text-[60px] text-slate-200 mb-4">rocket_launch</span>
+             <Rocket className="text-[60px] text-slate-200 mb-4 mx-auto" />
              <p className="text-smaller text-slate-500">Bạn chưa có dự án nào.</p>
              <Link href="/projects/create" className="text-primary font-bold mt-4 inline-block hover:underline">Khởi tạo dự án đầu tiên</Link>
           </div>

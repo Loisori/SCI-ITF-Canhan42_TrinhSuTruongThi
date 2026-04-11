@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from "@/components/client/Navbar"; // Đảm bảo đúng đường dẫn Navbar của bạn
+import Navbar from "@/components/client/Navbar"; 
+import { MessageSquare, Mail, Phone, ArrowRight, MapPin } from "lucide-react";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -127,12 +128,7 @@ export default function ContactPage() {
               {/* Live Chat Card */}
               <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-start gap-5 hover:border-primary/50 transition-colors">
                 <div className="bg-primary text-white p-3 rounded-xl shadow-md shadow-primary/20">
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    chat
-                  </span>
+                  <MessageSquare className="text-white" />
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 dark:text-white">
@@ -155,9 +151,7 @@ export default function ContactPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                    <span className="material-symbols-outlined text-xl">
-                      mail
-                    </span>
+                      <Mail className="text-xl" />
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-slate-400 uppercase">
@@ -171,9 +165,7 @@ export default function ContactPage() {
 
                 <div className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                    <span className="material-symbols-outlined text-xl">
-                      call
-                    </span>
+                      <Phone className="text-xl" />
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-slate-400 uppercase">
@@ -199,15 +191,11 @@ export default function ContactPage() {
                   </p>
                   <button className="flex items-center gap-2 text-small font-bold text-primary group-hover:gap-3 transition-all">
                     Xem trên bản đồ{" "}
-                    <span className="material-symbols-outlined text-small">
-                      arrow_forward
-                    </span>
+                      <ArrowRight className="text-small" />
                   </button>
                 </div>
                 <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-[120px]">
-                    location_on
-                  </span>
+                    <MapPin className="text-[120px]" />
                 </div>
               </div>
             </div>
@@ -237,9 +225,7 @@ export default function ContactPage() {
                 {/* Bạn có thể nhúng Iframe Google Map vào đây */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl ring-8 ring-primary/20 animate-bounce">
-                    <span className="material-symbols-outlined">
-                      location_on
-                    </span>
+                      <MapPin />
                   </div>
                 </div>
               </div>

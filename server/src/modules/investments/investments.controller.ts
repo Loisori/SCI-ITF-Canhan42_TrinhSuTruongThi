@@ -25,6 +25,12 @@ export class InvestmentsController {
   }
 
   @UseGuards(JwtAuthGuard, IsInvestorGuard)
+  @Get('analytics')
+  getAnalytics(@GetUser('id') userId: number) {
+    return this.investmentsService.getAnalytics(userId);
+  }
+
+  @UseGuards(JwtAuthGuard, IsInvestorGuard)
   @Post()
   invest(
     @GetUser('id') userId: number,

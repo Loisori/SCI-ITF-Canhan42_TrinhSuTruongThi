@@ -145,5 +145,15 @@ export class ProjectsController {
     if (!reason) throw new BadRequestException('reason is required');
     return this.projectsService.createDispute(id, userId, reason, evidenceUrl);
   }
+
+  @UseGuards(JwtAuthGuard, IsOwnerGuard)
+  @Put(':id/milestones')
+  createOrUpdateMilestones(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser('id') ownerId: number,
+    @Body() milestonesData: { title: string; percentage: number; stage: number }[],
+  ) {
+    return this.projectsService.createOrUpdateMilestones(id, ownerId, milestonesData);
+  }
 }
 

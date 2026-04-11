@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
+import { Search, Filter } from "lucide-react";
 
 function ProjectCardSkeleton() {
   return (
@@ -111,7 +112,7 @@ function ProjectListInner() {
         <div className="space-y-4 mb-8">
           <div className="flex w-full items-stretch rounded-xl h-14 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
             <div className="text-slate-400 flex items-center justify-center pl-5">
-              <span className="material-symbols-outlined">search</span>
+              <Search />
             </div>
             <input
               value={searchValue}
@@ -133,9 +134,7 @@ function ProjectListInner() {
 
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2 text-sm font-semibold text-slate-500 uppercase tracking-wider mr-2">
-              <span className="material-symbols-outlined text-lg">
-                filter_list
-              </span>{" "}
+              <Filter className="text-lg" />
               Lọc:
             </div>
             <button

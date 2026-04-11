@@ -584,6 +584,58 @@ export class InvestmentsService {
     }
   }
 
+  async getAnalytics(userId: number) {
+    const investmentsRepo = this.dataSource.getRepository(InvestmentEntity);
+    const schedulesRepo = this.dataSource.getRepository(PaymentScheduleEntity);
+
+    // 1. Allocation data: Group by category
+    const allocation = await investmentsRepo
+      .createQueryBuilder('investment')
+      .leftJoin('investment.project', 'project')
+      .leftJoin('project.category', 'category')
+      .select('category.name', 'category')
+      .addSelect('SUM(investment.amount)', 'value')
+      .where('investment.userId = :userId', { userId })
+      .andWhere('investment.status != :status', { status: InvestmentStatus.WITHDRAWN })
+      .groupBy('category.id')
+      .getRawMany();
+
+    // 2. Projection data: Upcoming interest from payment_schedules
+    // We get all unpaid schedules to project future cash flow
+    const rawProjections = await schedulesRepo
+      .createQueryBuilder('schedule')
+      .leftJoin('schedule.investment', 'investment')
+      .select('schedule.dueDate', 'date')
+      .addSelect('SUM(schedule.amount)', 'amount')
+      .where('investment.userId = :userId', { userId })
+      .andWhere('schedule.status = :status', { status: PaymentScheduleStatus.UNPAID })
+      .groupBy('schedule.dueDate')
+      .orderBy('schedule.dueDate', 'ASC')
+      .getRawMany();
+
+    // Process projections to group by month for a cleaner Area chart
+    const monthlyProjectionMap = new Map<string, number>();
+    for (const row of rawProjections) {
+      const date = new Date(row.date);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const current = monthlyProjectionMap.get(monthKey) ?? 0;
+      monthlyProjectionMap.set(monthKey, current + Number(row.amount));
+    }
+
+    const projection = Array.from(monthlyProjectionMap.entries()).map(([date, amount]) => ({
+      date,
+      amount,
+    }));
+
+    return {
+      allocation: allocation.map(row => ({
+        category: row.category ?? 'Khác',
+        value: Number(row.value),
+      })),
+      projection,
+    };
+  }
+
   private roundCurrency(value: number): number {
     return Math.round(value * 100) / 100;
   }

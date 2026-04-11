@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
+import { ArrowLeft } from "lucide-react";
 
 //types
 import { PendingProject } from "@/types/approval";
@@ -82,7 +83,7 @@ export default function AdminApprovalPage() {
             onClick={() => router.push("/admin-dashboard")}
             className="inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-smaller font-semibold text-slate-700 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           >
-            <span className="material-symbols-outlined">arrow_back</span>
+            <ArrowLeft />
             Quay lại dashboard
           </button>
         </div>

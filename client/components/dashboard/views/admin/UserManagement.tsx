@@ -6,6 +6,7 @@ import { formatVnd } from "@/lib/utils";
 import { AdminDashboardUser } from "@/types/admin";
 import { Transaction } from "@/types/transaction";
 import toast from "react-hot-toast";
+import { Clock, UserCog, SquarePen } from "lucide-react";
 
 export default function UserManagement() {
   const { data: users = [], refetch: refetchUsers } = useQuery({
@@ -49,7 +50,7 @@ export default function UserManagement() {
       {/* Pending Withdrawals Section */}
       <section className="space-y-4">
         <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-           <span className="material-symbols-outlined text-amber-500">pending_actions</span>
+           <Clock className="text-amber-500" />
            Yêu cầu rút tiền chờ duyệt
         </h2>
         
@@ -109,7 +110,7 @@ export default function UserManagement() {
       {/* User Management Section */}
       <section className="space-y-4">
         <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-           <span className="material-symbols-outlined text-primary">manage_accounts</span>
+           <UserCog className="text-primary" />
            Danh sách người dùng
         </h2>
         
@@ -151,7 +152,7 @@ export default function UserManagement() {
                           </td>
                           <td className="px-6 py-4 text-right">
                              <button className="text-slate-400 hover:text-primary transition-colors">
-                                <span className="material-symbols-outlined text-[20px]">edit_square</span>
+                                <SquarePen className="text-[20px]" />
                              </button>
                           </td>
                        </tr>

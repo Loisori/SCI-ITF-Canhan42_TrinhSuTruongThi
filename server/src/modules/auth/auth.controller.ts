@@ -1,4 +1,7 @@
-import { Body, Controller, Post, UseGuards, Get } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Get, Req, Res } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import type { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -8,7 +11,10 @@ import { UserEntity } from '../users/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
@@ -30,5 +36,21 @@ export class AuthController {
   @Get('profile')
   async profile(@GetUser() user: UserEntity) {
     return user;
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req: any) {
+    // Triggers Google Auth
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req: any, @Res() res: Response) {
+    const { access_token } = await this.authService.validateGoogleUser(req.user);
+    const clientUrl = this.configService.get<string>('CLIENT_URL') || 'http://localhost:3000';
+    
+    // Redirect về trang callback của frontend với token
+    return res.redirect(`${clientUrl}/callback?token=${access_token}`);
   }
 }

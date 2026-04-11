@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
+import { Globe, ShieldCheck, Calendar, TrendingUp, Award } from "lucide-react";
 
 export default function AboutPage() {
   return (
@@ -43,9 +44,7 @@ export default function AboutPage() {
             </div>
             <div className="grid md:grid-cols-2 gap-8">
               <div className="p-10 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-white/5">
-                <span className="material-symbols-outlined text-h4 text-primary dark:text-slate-400 mb-4">
-                  language
-                </span>
+                <Globe className="text-h4 text-primary dark:text-slate-400 mb-4" />
                 <h3 className="text-h5 font-bold mb-4">Tầm nhìn chiến lược</h3>
                 <p className="text-body text-slate-600 dark:text-slate-400 leading-relaxed">
                   Trở thành định chế tài chính hàng đầu khu vực trong việc tiên
@@ -55,9 +54,7 @@ export default function AboutPage() {
                 </p>
               </div>
               <div className="p-10 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-white/5">
-                <span className="material-symbols-outlined text-h4 text-primary dark:text-slate-400 mb-4">
-                  verified_user
-                </span>
+                <ShieldCheck className="text-h4 text-primary dark:text-slate-400 mb-4" />
                 <h3 className="text-h5 font-bold mb-4">Sứ mệnh hành động</h3>
                 <p className="text-body text-slate-600 dark:text-slate-400 leading-relaxed">
                   Tối ưu hóa lợi nhuận cho nhà đầu tư thông qua các chiến lược
@@ -84,9 +81,7 @@ export default function AboutPage() {
             <div className="relative space-y-12 before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
               <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
                 <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-primary text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
-                  <span className="material-symbols-outlined text-smaller">
-                    calendar_today
-                  </span>
+                  <Calendar className="size-4" />
                 </div>
                 <div className="w-[calc(100%-4rem)] md:w-[45%] p-6 rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700">
                   <time className="text-small font-bold text-primary">
@@ -103,9 +98,7 @@ export default function AboutPage() {
               </div>
               <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
                 <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-primary text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
-                  <span className="material-symbols-outlined text-smaller">
-                    trending_up
-                  </span>
+                  <TrendingUp className="size-4" />
                 </div>
                 <div className="w-[calc(100%-4rem)] md:w-[45%] p-6 rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700">
                   <time className="text-small font-bold text-primary">
@@ -122,9 +115,7 @@ export default function AboutPage() {
               </div>
               <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
                 <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-primary text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
-                  <span className="material-symbols-outlined text-smaller">
-                    award_star
-                  </span>
+                  <Award className="size-4" />
                 </div>
                 <div className="w-[calc(100%-4rem)] md:w-[45%] p-6 rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700">
                   <time className="text-small font-bold text-primary">

@@ -25,6 +25,11 @@ export class AdminProjectsController {
     return this.projectsService.getPendingProjects();
   }
 
+  @Get('milestones/pending')
+  getPendingMilestones() {
+    return this.projectsService.getPendingMilestones();
+  }
+
   @Get('disputes')
   getFrozenProjects() {
     return this.projectsService.getFrozenProjects();
@@ -46,6 +51,15 @@ export class AdminProjectsController {
     @Param('mId', ParseIntPipe) mId: number,
   ) {
     return this.projectsService.finalizeMilestone(id, mId);
+  }
+
+  @Patch(':id/milestones/:mId/reject')
+  rejectMilestone(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('mId', ParseIntPipe) mId: number,
+    @Body('reason') reason: string,
+  ) {
+    return this.projectsService.rejectMilestone(id, mId, reason);
   }
 
   @Post(':id/disputes/resolve')

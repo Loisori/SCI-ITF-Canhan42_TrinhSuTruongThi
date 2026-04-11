@@ -8,6 +8,7 @@ import { UserProfile } from "@/types/user";
 import { Investment } from "@/types/investment";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { Image, Eye, TriangleAlert, FolderClosed } from "lucide-react";
 
 export default function MyPortfolio({ profile }: { profile: UserProfile }) {
   const [disputingId, setDisputingId] = useState<number | null>(null);
@@ -50,7 +51,7 @@ export default function MyPortfolio({ profile }: { profile: UserProfile }) {
                   <img src={inv.project.thumbnailUrl} alt="" className="w-full h-[20rem] rounded-xl object-cover shrink-0" />
                 ) : (
                   <div className="w-full h-[20rem] rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-slate-300">image</span>
+                    <Image className="text-slate-300" />
                   </div>
                 )}
               </div>
@@ -73,15 +74,15 @@ export default function MyPortfolio({ profile }: { profile: UserProfile }) {
             <div className="mt-6 pt-6 border-t border-slate-50 dark:border-slate-800/50 flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <Link href={`/projects/${inv.project?.id}`} className="text-smaller font-bold text-slate-500 hover:text-primary transition-colors flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[18px]">visibility</span>
+                  <Eye className="text-[18px]" />
                   Xem chi tiết
                 </Link>
                 <button
                   onClick={() => setDisputingId(inv.project?.id || null)}
                   className="text-smaller font-bold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1"
                 >
-                  <span className="material-symbols-outlined text-[18px]">report_problem</span>
-                  Khiếu nại
+                   <TriangleAlert className="text-[18px]" />
+                   Khiếu nại
                 </button>
               </div>
 
@@ -106,7 +107,7 @@ export default function MyPortfolio({ profile }: { profile: UserProfile }) {
 
         {investments.length === 0 && (
           <div className="py-20 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 border-dashed">
-            <span className="material-symbols-outlined text-[60px] text-slate-200 mb-4">folder_off</span>
+            <FolderClosed className="text-[60px] text-slate-200 mb-4 mx-auto" />
             <p className="text-smaller text-slate-500">Bạn chưa có khoản đầu tư nào.</p>
             <Link href="/projects" className="text-primary font-bold mt-4 inline-block hover:underline">Khám phá dự án ngay</Link>
           </div>

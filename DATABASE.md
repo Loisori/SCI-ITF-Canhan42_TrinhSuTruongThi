@@ -68,6 +68,7 @@ CREATE TABLE project_milestones (
     stage INT NOT NULL,
     status ENUM('pending', 'uploading_proof', 'admin_review', 'disbursed') DEFAULT 'pending',
     proof_url TEXT,
+    rejection_reason TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
@@ -100,7 +101,7 @@ CREATE TABLE transactions (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL,
     amount DECIMAL(15, 2) NOT NULL,
-    type ENUM('deposit', 'withdraw', 'invest', 'interest_receive', 'refund') NOT NULL,
+    type ENUM('deposit', 'withdraw', 'invest', 'interest_receive', 'refund', 'disbursement') NOT NULL,
     status ENUM('pending', 'success', 'failed') DEFAULT 'success',
     description VARCHAR(255),
     reference_id INT, -- Note: reference_id is kept as INT for generic IDs

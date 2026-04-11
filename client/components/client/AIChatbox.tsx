@@ -42,11 +42,24 @@ export default function AIChatbox() {
     };
 
     window.addEventListener(PROJECT_CONTEXT_EVENT, onProjectContext);
+    
+    const onChatTrigger = (event: Event) => {
+      const custom = event as CustomEvent<{ message: string }>;
+      if (custom.detail?.message) {
+        setIsOpen(true);
+        // We delay slightly to let the modal open and show the loading state
+        setTimeout(() => {
+          void handleTriggerSend(custom.detail.message);
+        }, 300);
+      }
+    };
+    window.addEventListener("investpro-chat-trigger", onChatTrigger);
 
     return () => {
       window.removeEventListener(PROJECT_CONTEXT_EVENT, onProjectContext);
+      window.removeEventListener("investpro-chat-trigger", onChatTrigger);
     };
-  }, []);
+  }, [canChat, projectContext]); // Add dependencies to ensure handleTriggerSend can use them if needed, or refs
 
   useEffect(() => {
     if (!pathname.startsWith("/projects/")) {
@@ -156,6 +169,32 @@ export default function AIChatbox() {
     }
   };
 
+  const handleTriggerSend = async (message: string) => {
+    if (!canChat || sending) return;
+
+    addMessage("user", message);
+    setSending(true);
+
+    try {
+      // Small pause for "realism" as requested by user
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      const response = await api.post<{ reply: string }>(
+        "/api/ai-chat/message",
+        {
+          message,
+          projectContext,
+        },
+      );
+
+      addMessage("model", response.data.reply || SOFT_FALLBACK_MESSAGE);
+    } catch (error: unknown) {
+      addMessage("model", SOFT_FALLBACK_MESSAGE);
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <div className="fixed bottom-5 right-5 z-[80]">
       {isOpen ? (
@@ -199,16 +238,22 @@ export default function AIChatbox() {
                 <p className="text-[10px] font-bold uppercase tracking-wider opacity-80 mb-1">
                   AI
                 </p>
-                <div className="inline-flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-300 animate-bounce" />
-                  <span
-                    className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-300 animate-bounce"
-                    style={{ animationDelay: "150ms" }}
-                  />
-                  <span
-                    className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-300 animate-bounce"
-                    style={{ animationDelay: "300ms" }}
-                  />
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1.5 mb-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    AI đang phân tích dự án...
+                  </div>
+                  <div className="inline-flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-300 animate-bounce" />
+                    <span
+                      className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-300 animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <span
+                      className="h-2 w-2 rounded-full bg-emerald-500 dark:bg-emerald-300 animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    />
+                  </div>
                 </div>
               </div>
             )}

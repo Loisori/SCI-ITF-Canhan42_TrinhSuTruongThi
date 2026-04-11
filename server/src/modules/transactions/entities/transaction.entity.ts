@@ -15,6 +15,7 @@ export enum TransactionType {
   INVEST = 'invest',
   INTEREST_RECEIVE = 'interest_receive',
   REFUND = 'refund',
+  DISBURSEMENT = 'disbursement',
 }
 
 export enum TransactionStatus {

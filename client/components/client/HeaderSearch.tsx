@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Search } from "lucide-react";
 
 //types
 import type { Project } from "@/types/project";
@@ -62,9 +63,7 @@ export default function HeaderSearch() {
       className="relative w-full max-w-full md:mx-auto"
     >
       <div className="flex items-stretch rounded-xl h-10 md:h-11 bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 overflow-hidden focus-within:ring-2 focus-within:ring-primary/30">
-        <span className="material-symbols-outlined text-slate-400 pl-3 flex items-center text-[20px] m-auto">
-          search
-        </span>
+        <Search className="text-slate-400 pl-3 flex items-center text-[20px] m-auto" />
         <input
           type="search"
           value={raw}

@@ -1,6 +1,7 @@
 
 //services
 import Link from "next/link";
+import { Rocket, Share2, Globe, AtSign, MapPin, Phone, Mail } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -10,9 +11,7 @@ export default function Footer() {
           {/* Cột 1: Brand & Social */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-6">
-              <span className="material-symbols-outlined text-primary dark:text-slate-100 text-h4">
-                rocket_launch
-              </span>
+              <Rocket className="text-primary dark:text-slate-100 text-h4" />
               <h1 className="text-h6 font-extrabold text-primary dark:text-slate-100">
                 InvestPro
               </h1>
@@ -22,15 +21,13 @@ export default function Footer() {
               tương lai thịnh vượng cho nhà đầu tư.
             </p>
             <div className="flex gap-4">
-              {["share", "public", "alternate_email"].map((icon, index) => (
+              {[Share2, Globe, AtSign].map((Icon, index) => (
                 <Link
                   key={index}
                   href="#"
                   className="size-10 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-all text-slate-600 dark:text-slate-300"
                 >
-                  <span className="material-symbols-outlined text-h6">
-                    {icon}
-                  </span>
+                  <Icon className="text-h6" />
                 </Link>
               ))}
             </div>
@@ -109,21 +106,15 @@ export default function Footer() {
             </Link>
             <ul className="space-y-4 text-smaller text-slate-500 dark:text-slate-400">
               <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-body">
-                  location_on
-                </span>
+                <MapPin className="text-body" />
                 <span>Tòa nhà Innovation, Quận 1, TP. HCM</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-body">
-                  call
-                </span>
+                <Phone className="text-body" />
                 <span>1900 1234</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-body">
-                  mail
-                </span>
+                <Mail className="text-body" />
                 <span>contact@investpro.vn</span>
               </li>
             </ul>

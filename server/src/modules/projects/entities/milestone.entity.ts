@@ -48,6 +48,9 @@ export class ProjectMilestoneEntity {
   @Column({ name: 'proof_url', type: 'text', nullable: true })
   proofUrl: string | null;
 
+  @Column({ name: 'rejection_reason', type: 'text', nullable: true })
+  rejectionReason: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 

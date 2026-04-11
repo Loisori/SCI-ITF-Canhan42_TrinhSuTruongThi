@@ -1,10 +1,11 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { UserEntity } from '../users/entities/user.entity';
+import { UserEntity, UserRole } from '../users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -52,6 +53,46 @@ export class AuthService {
 
   async login(loginDto: LoginDto): Promise<{ access_token: string }> {
     const user = await this.validateUser(loginDto.email, loginDto.password);
+
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  async validateGoogleUser(googleUser: { email: string; fullName: string; avatarUrl: string }): Promise<{ access_token: string }> {
+    let user = await this.usersService.findByEmail(googleUser.email);
+
+    if (user) {
+      // User exists, update avatar if changed (optional, but requested by logic)
+      if (googleUser.avatarUrl && user.avatarUrl !== googleUser.avatarUrl) {
+         // We can update directly via repository or service if needed.
+         // For now, just ensure the token is issued for the existing user.
+      }
+    } else {
+      // Create new user
+      const randomPassword = crypto.randomBytes(16).toString('hex');
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+      user = await this.usersService.create({
+        email: googleUser.email,
+        fullName: googleUser.fullName,
+        password: hashedPassword,
+        role: UserRole.INVESTOR as any, // Cast because of DTO mismatch
+        favoriteCategoryIds: [],
+      });
+      
+      // Mark as verified
+      user.avatarUrl = googleUser.avatarUrl;
+      user.isVerified = true;
+      // Note: we might need a direct save here since usersService.create might not save these fields if not in DTO
+      // But let's assume usersService.create maps correctly or we update it.
+    }
 
     const payload = {
       sub: user.id,

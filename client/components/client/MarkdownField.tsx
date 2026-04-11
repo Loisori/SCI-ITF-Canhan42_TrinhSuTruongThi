@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import rehypeSanitize from "rehype-sanitize";
 import MDEditor, { commands } from "@uiw/react-md-editor";
 import MediaLibraryModal from "./MediaLibraryModal";
+import { Image } from "lucide-react";
 
 const MDEditorWithNoSSR = dynamic(
   () => import("@uiw/react-md-editor"),
@@ -74,7 +75,7 @@ export default function MarkdownField({ value, onChange, label = "Nội dung", p
             onClick={() => setIsMediaModalOpen(true)}
             className="px-3 py-1.5 text-smaller font-bold flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-md border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 transition whitespace-nowrap"
           >
-            <span className="material-symbols-outlined text-base">image</span>
+            <Image className="text-base" />
             Chèn ảnh từ thư viện
           </button>
       </div>

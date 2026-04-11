@@ -2,14 +2,13 @@
 
 //services
 import Image from "next/image";
+import { MapPin } from "lucide-react";
 
 export default function ProjectLocation() {
   return (
     <section>
       <h2 className="text-h4 font-black mb-4 flex items-center gap-2">
-        <span className="material-symbols-outlined text-primary">
-          location_on
-        </span>
+        <MapPin className="text-primary" />
         Vị trí dự án
       </h2>
       <div className="w-full h-80 bg-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden relative border border-slate-200 dark:border-slate-800">
@@ -26,9 +25,7 @@ export default function ProjectLocation() {
 
         {/* Pin chỉ vị trí */}
         <div className="absolute inset-0 flex items-center justify-center flex-col gap-2 z-10">
-          <span className="material-symbols-outlined text-primary text-h2 animate-bounce">
-            location_on
-          </span>
+          <MapPin className="text-primary text-h2 animate-bounce" />
           <p className="font-bold text-slate-800 dark:text-slate-200 bg-white/80 dark:bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
             Vinhomes Ocean Park 3, Hưng Yên
           </p>

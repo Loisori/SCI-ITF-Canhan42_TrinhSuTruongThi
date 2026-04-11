@@ -8,6 +8,7 @@ import { AuthController } from './auth.controller';
 import { UserEntity } from '../users/entities/user.entity';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './jwt.strategy';
+import { GoogleStrategy } from './google.strategy';
 
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { IsOwnerGuard } from '../../common/guards/is-owner.guard';
@@ -34,7 +35,7 @@ import { IsInvestorGuard } from '../../common/guards/is-investor.guard';
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, RolesGuard, IsOwnerGuard, IsInvestorGuard],
+  providers: [AuthService, JwtStrategy, GoogleStrategy, RolesGuard, IsOwnerGuard, IsInvestorGuard],
   exports: [AuthService, RolesGuard, IsOwnerGuard, IsInvestorGuard],
 })
 export class AuthModule {}

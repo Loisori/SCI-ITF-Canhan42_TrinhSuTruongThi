@@ -11,6 +11,7 @@ import { ToastState } from "@/types/ui";
 import ProjectMilestones from "@/components/client/ProjectMilestones";
 import dynamic from "next/dynamic";
 import rehypeSanitize from "rehype-sanitize";
+import { BarChart3 } from "lucide-react";
 
 const MarkdownPreview = dynamic(
   () => import("@uiw/react-markdown-preview"),
@@ -107,6 +108,7 @@ export default function ProjectDetailPage() {
               category: project.category ?? null,
               owner: project.owner ?? null,
               endDate: project.endDate,
+              content: project.content,
             }
           : null,
       }),
@@ -415,6 +417,23 @@ export default function ProjectDetailPage() {
                     className="w-full py-2 rounded-lg bg-primary text-white font-bold disabled:opacity-60"
                   >
                     {investing ? "Đang xử lý..." : "Xác nhận đầu tư"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      window.dispatchEvent(
+                        new CustomEvent("investpro-chat-trigger", {
+                          detail: {
+                            message: `Hãy phân tích dự án "${project.title}" cho tôi (Ưu điểm, rủi ro và lợi nhuận dự kiến).`,
+                          },
+                        }),
+                      );
+                    }}
+                    className="w-full py-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800 flex items-center justify-center gap-2 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-all"
+                  >
+                    <BarChart3 className="text-body" />
+                    Phân tích dự án bằng AI
                   </button>
                 </form>
               ) : (

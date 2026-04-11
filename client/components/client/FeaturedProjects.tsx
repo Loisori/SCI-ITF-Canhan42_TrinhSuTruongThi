@@ -7,6 +7,7 @@ import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import { useMemo } from "react";
+import { ArrowRight } from "lucide-react";
 
 //types
 import type { Project } from "@/types/project";
@@ -72,7 +73,7 @@ export default function FeaturedProjects() {
             className="hidden md:flex items-center gap-2 text-primary dark:text-slate-100 font-bold"
           >
             Xem tất cả dự án
-            <span className="material-symbols-outlined">arrow_right_alt</span>
+            <ArrowRight />
           </Link>
         </div>
       </section>
@@ -95,7 +96,7 @@ export default function FeaturedProjects() {
           className="hidden md:flex items-center gap-2 text-primary dark:text-slate-100 font-bold"
         >
           Xem tất cả dự án
-          <span className="material-symbols-outlined">arrow_right_alt</span>
+          <ArrowRight />
         </Link>
       </div>
 

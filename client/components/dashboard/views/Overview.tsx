@@ -6,6 +6,7 @@ import { formatVnd } from "@/lib/utils";
 import { UserProfile } from "@/types/user";
 import { Investment } from "@/types/investment";
 import { Transaction } from "@/types/transaction";
+import { TrendingUp } from "lucide-react";
 
 export default function Overview({ profile }: { profile: UserProfile }) {
   const { data: investments = [] } = useQuery({
@@ -84,7 +85,7 @@ export default function Overview({ profile }: { profile: UserProfile }) {
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 text-center">
-        <span className="material-symbols-outlined text-h1 text-slate-200 dark:text-slate-800 mb-4">insights</span>
+        <TrendingUp className="text-h1 text-slate-200 dark:text-slate-800 mb-4" />
         <h3 className="text-base font-bold text-slate-900 dark:text-white">Phân tích chuyên sâu</h3>
         <p className="text-smaller text-slate-500 mt-2 max-w-md mx-auto">
           Tính năng biểu đồ tăng trưởng và phân tích dòng tiền đang được phát triển và sẽ sớm ra mắt.

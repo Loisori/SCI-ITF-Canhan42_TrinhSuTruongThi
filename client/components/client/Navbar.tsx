@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import api from "@/lib/axios";
+import { Rocket, Bell } from "lucide-react";
 
 //types
 import { NavbarUserProfile } from "@/types/navbar";
@@ -93,9 +94,7 @@ export default function Navbar() {
             href="/"
             className="inline-flex! items-center gap-2 shrink-0 order-1"
           >
-            <span className="material-symbols-outlined text-primary dark:text-slate-100 text-h4">
-              rocket_launch
-            </span>
+            <Rocket className="text-primary dark:text-slate-100 text-h4" />
             <h1 className="text-h6 font-extrabold tracking-tight text-primary dark:text-slate-100">
               InvestPro
             </h1>
@@ -129,7 +128,7 @@ export default function Navbar() {
                     onClick={() => setIsNotifOpen(!isNotifOpen)}
                     className="relative p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-center text-slate-600 dark:text-slate-300"
                   >
-                    <span className="material-symbols-outlined">notifications</span>
+                    <Bell />
                     {unreadCount > 0 && (
                       <span className="absolute top-1 right-1.5 flex h-3 w-3">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>

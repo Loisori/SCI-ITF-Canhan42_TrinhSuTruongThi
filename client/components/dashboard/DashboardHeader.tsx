@@ -3,6 +3,7 @@
 import { useDashboard } from "@/context/DashboardContext";
 import ThemeToggle from "@/components/client/ThemeToggle";
 import { UserProfile } from "@/types/user";
+import { PanelLeftOpen, Menu } from "lucide-react";
 
 interface DashboardHeaderProps {
   user: UserProfile | null;
@@ -19,9 +20,11 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
           onClick={() => setSidebarCollapsed(!isSidebarCollapsed)}
           className="hidden lg:flex p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-500 transition-colors"
         >
-          <span className="material-symbols-outlined">
-            {isSidebarCollapsed ? "menu_open" : "menu"}
-          </span>
+          {isSidebarCollapsed ? (
+            <PanelLeftOpen />
+          ) : (
+            <Menu />
+          )}
         </button>
 
         {/* Mobile Sidebar Toggle */}
@@ -29,7 +32,7 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
           onClick={() => setMobileDrawerOpen(true)}
           className="lg:hidden p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-500"
         >
-          <span className="material-symbols-outlined">menu</span>
+          <Menu />
         </button>
 
         {/* Dynamic Title / Breadcrumb (Simple for now) */}

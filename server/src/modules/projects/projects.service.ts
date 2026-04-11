@@ -613,7 +613,7 @@ export class ProjectsService {
         const ownerTx = transactionsRepo.create({
           userId: ownerId,
           amount: firstDisbursement,
-          type: TransactionType.WITHDRAW,
+          type: TransactionType.DISBURSEMENT,
           status: TransactionStatus.SUCCESS,
           description: `Nhận vốn đợt 1 dự án ${project.title}`,
           referenceId: project.id,
@@ -1071,13 +1071,19 @@ export class ProjectsService {
         const ownerTx = transactionRepo.create({
           userId: project.ownerId,
           amount: milestoneAmount,
-          type: TransactionType.WITHDRAW,
+          type: TransactionType.DISBURSEMENT,
           status: TransactionStatus.SUCCESS,
           description: `Nhận vốn đợt ${milestone.stage} dự án ${project.title}`,
           referenceId: project.id,
         });
         await transactionRepo.save(ownerTx);
       }
+
+      await this.notificationsService.createSpecialNotification(
+        project.ownerId,
+        `Giai đoạn ${milestone.stage} của dự án ${project.title} đã được phê duyệt. Số tiền ${milestoneAmount.toLocaleString('vi-VN')} ₫ đã được cộng vào ví của bạn.`,
+        NotificationType.PAYMENT_SUCCESS
+      );
 
       return milestone;
     });
@@ -1195,5 +1201,90 @@ export class ProjectsService {
         } : null
       }))
     }));
+  }
+
+  async rejectMilestone(projectId: number, milestoneId: number, reason: string) {
+    const milestoneRepo = this.dataSource.getRepository(ProjectMilestoneEntity);
+    const projectRepo = this.dataSource.getRepository(ProjectEntity);
+
+    const milestone = await milestoneRepo.findOne({ where: { id: milestoneId, projectId } });
+    if (!milestone) throw new NotFoundException('Milestone not found');
+    if (milestone.status !== MilestoneStatus.ADMIN_REVIEW) throw new BadRequestException('Milestone is not in review stage');
+
+    const project = await projectRepo.findOne({ where: { id: projectId } });
+    if (!project) throw new NotFoundException('Project not found');
+
+    milestone.status = MilestoneStatus.UPLOADING_PROOF;
+    milestone.rejectionReason = reason;
+
+    await milestoneRepo.save(milestone);
+
+    await this.notificationsService.createSpecialNotification(
+      project.ownerId,
+      `Bằng chứng giải ngân đợt ${milestone.stage} dự án ${project.title} đã bị từ chối. Lý do: ${reason}`,
+      NotificationType.SYSTEM
+    );
+    
+    await this.syncProjectsDataJsonFile();
+    return milestone;
+  }
+
+  async getPendingMilestones() {
+    const milestoneRepo = this.dataSource.getRepository(ProjectMilestoneEntity);
+    const milestones = await milestoneRepo.find({
+      where: { status: MilestoneStatus.ADMIN_REVIEW },
+      relations: ['project', 'project.owner'],
+      order: { createdAt: 'ASC' }
+    });
+
+    return milestones.map(m => ({
+      id: m.id,
+      projectId: m.projectId,
+      title: m.title,
+      percentage: m.percentage,
+      stage: m.stage,
+      status: m.status,
+      proofUrl: m.proofUrl,
+      rejectionReason: m.rejectionReason,
+      createdAt: m.createdAt,
+      project: m.project ? {
+        title: m.project.title,
+        owner: m.project.owner ? {
+          fullName: m.project.owner.fullName,
+          email: m.project.owner.email
+        } : null
+      } : null
+    }));
+  }
+
+  async createOrUpdateMilestones(projectId: number, ownerId: number, milestonesData: { title: string; percentage: number; stage: number }[]) {
+    return this.dataSource.transaction(async (manager) => {
+      const projectRepo = manager.getRepository(ProjectEntity);
+      const milestoneRepo = manager.getRepository(ProjectMilestoneEntity);
+
+      const project = await projectRepo.findOne({ where: { id: projectId }});
+      if (!project) throw new NotFoundException('Project not found');
+      if (project.ownerId !== ownerId) throw new ForbiddenException('Only owner can modify milestones');
+      if (project.status !== ProjectStatus.PENDING) throw new BadRequestException('Can only modify milestones when project is pending');
+
+      const totalPercentage = milestonesData.reduce((sum, m) => sum + Number(m.percentage), 0);
+      if (totalPercentage !== 100) {
+        throw new BadRequestException('Total milestone percentage must exactly equal 100%');
+      }
+
+      await milestoneRepo.delete({ projectId });
+
+      const newMilestones = milestonesData.map(m => milestoneRepo.create({
+        projectId: project.id,
+        title: m.title,
+        percentage: Number(m.percentage),
+        stage: Number(m.stage),
+        status: m.stage === 1 ? MilestoneStatus.DISBURSED : (m.stage === 2 ? MilestoneStatus.UPLOADING_PROOF : MilestoneStatus.PENDING)
+      }));
+
+      await milestoneRepo.save(newMilestones);
+      
+      return newMilestones;
+    });
   }
 }

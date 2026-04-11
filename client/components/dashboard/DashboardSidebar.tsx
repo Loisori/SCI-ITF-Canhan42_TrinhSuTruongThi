@@ -6,6 +6,20 @@ import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { useDashboard } from "@/context/DashboardContext";
 import { UserProfile } from "@/types/user";
+import { 
+  LayoutDashboard, 
+  ClipboardCheck, 
+  Banknote, 
+  Users, 
+  LayoutGrid, 
+  Wallet, 
+  ReceiptText, 
+  TrendingUp, 
+  BarChart3, 
+  Rocket, 
+  Settings, 
+  LogOut 
+} from "lucide-react";
 
 interface DashboardSidebarProps {
   user: UserProfile | null;
@@ -33,20 +47,22 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
   const isAdminPath = pathname.includes("/admin-dashboard");
 
   const adminLinks = [
-    { name: "Hệ thống", view: "system-overview", icon: "dashboard" },
-    { name: "Duyệt dự án", view: "project-approvals", icon: "fact_check" },
-    { name: "Người dùng", view: "user-management", icon: "group" },
+    { name: "Hệ thống", view: "system-overview", icon: LayoutDashboard },
+    { name: "Duyệt dự án", view: "project-approvals", icon: ClipboardCheck },
+    { name: "Giải ngân", view: "disbursements", icon: Banknote },
+    { name: "Người dùng", view: "user-management", icon: Users },
   ];
 
   const userLinks = [
-    { name: "Tổng quan", view: "overview", icon: "grid_view" },
-    { name: "Ví của tôi", view: "wallet", icon: "account_balance_wallet" },
-    { name: "Nhật ký giao dịch", view: "transactions", icon: "receipt_long" },
-    { name: "Đầu tư của tôi", view: "portfolio", icon: "insights" },
+    { name: "Tổng quan", view: "overview", icon: LayoutGrid },
+    { name: "Ví của tôi", view: "wallet", icon: Wallet },
+    { name: "Nhật ký giao dịch", view: "transactions", icon: ReceiptText },
+    { name: "Đầu tư của tôi", view: "portfolio", icon: TrendingUp },
+    { name: "Thống kê", view: "analytics", icon: BarChart3 },
     ...(role === "owner" ? [
-      { name: "Dự án của tôi", view: "my-projects", icon: "rocket_launch" },
+      { name: "Dự án của tôi", view: "my-projects", icon: Rocket },
     ] : []),
-    { name: "Cài đặt", view: "settings", icon: "settings" },
+    { name: "Cài đặt", view: "settings", icon: Settings },
   ];
 
   const links = isAdminPath ? adminLinks : userLinks;
@@ -74,7 +90,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
       >
         <Link href="/" className="p-6 flex items-center gap-3 h-20">
           <div className="size-8 rounded-xl bg-primary flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-white text-base">rocket_launch</span>
+            <Rocket className="text-white text-base" />
           </div>
           {!isSidebarCollapsed && (
             <span className="font-bold text-h5 text-slate-900 dark:text-white tracking-tight">InvestPro</span>
@@ -100,11 +116,9 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
                       : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5"
                   }`}
                 >
-                  <span className={`material-symbols-outlined ${
+                  <link.icon className={`${
                     isActive ? "text-white" : "text-slate-400 group-hover:text-primary"
-                  }`}>
-                    {link.icon}
-                  </span>
+                  }`} />
                   {!isSidebarCollapsed && (
                     <span className="text-smaller font-bold truncate">{link.name}</span>
                   )}
@@ -134,7 +148,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
                   className="p-1.5 shrink-0 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
                   title="Đăng xuất"
                 >
-                  <span className="material-symbols-outlined text-base">logout</span>
+                  <LogOut className="text-base" />
                 </button>
              </div>
           </div>
@@ -149,7 +163,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
       >
         <div className="p-6 h-20 flex items-center gap-3 border-b border-slate-100 dark:border-slate-800">
           <div className="size-8 rounded-xl bg-primary flex items-center justify-center">
-            <span className="material-symbols-outlined text-white text-base">rocket_launch</span>
+            <Rocket className="text-white text-base" />
           </div>
           <span className="font-bold text-h5 text-slate-900 dark:text-white tracking-tight">InvestPro</span>
         </div>
@@ -168,7 +182,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
                        : "text-slate-500 dark:text-slate-400"
                    }`}
                  >
-                   <span className="material-symbols-outlined">{link.icon}</span>
+                   <link.icon />
                    <span className="text-smaller font-bold">{link.name}</span>
                  </button>
                );
@@ -180,7 +194,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
                  onClick={handleLogout}
                  className="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
                >
-                 <span className="material-symbols-outlined">logout</span>
+                  <LogOut />
                  <span className="text-smaller font-bold">Đăng xuất</span>
              </button>
           </div>

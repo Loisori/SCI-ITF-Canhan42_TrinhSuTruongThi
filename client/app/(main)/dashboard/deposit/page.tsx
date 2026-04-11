@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 import api from "@/lib/axios";
+import { Banknote, Landmark, Wallet, CircleAlert, ShieldCheck } from "lucide-react";
 
 export default function DepositPage() {
   const router = useRouter();
@@ -98,7 +99,7 @@ export default function DepositPage() {
                 className={`flex flex-col p-5 rounded-xl border-2 cursor-pointer transition-all ${selectedMethod === 'vnpay' ? 'border-primary bg-primary/5' : 'border-slate-200 dark:border-slate-700 hover:border-primary/50'}`}
               >
                 <div className="flex items-start justify-between mb-2">
-                  <span className="material-symbols-outlined text-primary text-[28px]">payments</span>
+                  <Banknote className="text-primary text-[28px]" />
                   <span className="text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Khuyên dùng</span>
                 </div>
                 <h3 className="font-bold text-slate-900 dark:text-white">Cổng VNPay</h3>
@@ -110,7 +111,7 @@ export default function DepositPage() {
                 className="flex flex-col p-5 rounded-xl border-2 border-slate-200 dark:border-slate-700 opacity-60 cursor-not-allowed bg-slate-50 dark:bg-slate-800/50"
               >
                 <div className="flex items-start justify-between mb-2">
-                  <span className="material-symbols-outlined text-slate-500 text-[28px]">account_balance</span>
+                  <Landmark className="text-slate-500 text-[28px]" />
                   <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">Bảo trì</span>
                 </div>
                 <h3 className="font-bold text-slate-900 dark:text-white">Chuyển khoản thủ công</h3>
@@ -123,7 +124,7 @@ export default function DepositPage() {
                 className={`flex flex-col p-5 rounded-xl border-2 cursor-pointer transition-all ${selectedMethod === 'momo' ? 'border-[#a50064] bg-[#a50064]/5' : 'border-slate-200 dark:border-slate-700 hover:border-[#a50064]/50'}`}
               >
                 <div className="flex items-start justify-between mb-2">
-                  <span className="material-symbols-outlined text-[#a50064] text-[28px]">wallet</span>
+                  <Wallet className="text-[#a50064] text-[28px]" />
                   <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Mới</span>
                 </div>
                 <h3 className="font-bold text-slate-900 dark:text-white">Ví điện tử MoMo</h3>
@@ -133,12 +134,10 @@ export default function DepositPage() {
             </div>
           </div>
 
-          {error && (
             <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900 text-red-600 text-smaller p-4 rounded-xl flex items-center gap-2">
-              <span className="material-symbols-outlined">error</span>
+              <CircleAlert />
               <p>{error}</p>
             </div>
-          )}
 
           <div className="flex items-center gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
             <button
@@ -159,7 +158,7 @@ export default function DepositPage() {
         </form>
 
         <div className="mt-8 text-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl text-smaller text-slate-500 flex items-center justify-center gap-2">
-          <span className="material-symbols-outlined text-[18px]">verified_user</span>
+          <ShieldCheck className="text-[18px]" />
           Giao dịch được mã hóa 256-bit và bảo mật bởi ngân hàng nhà nước Việt Nam.
         </div>
       </main>

@@ -2,6 +2,7 @@
 
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
+import { Gavel, Banknote, Lock } from "lucide-react";
 
 export default function InvestmentRulesPage() {
   return (
@@ -21,7 +22,7 @@ export default function InvestmentRulesPage() {
           <div className="space-y-8">
             <div className="bg-primary/5 dark:bg-white/5 border border-primary/20 p-8 rounded-2xl">
                <h3 className="text-h5 font-bold text-primary dark:text-slate-100 mb-4 flex items-center gap-2">
-                 <span className="material-symbols-outlined">gavel</span>
+                 <Gavel />
                  1. Xác thực Danh Tính (KYC)
                </h3>
                <p className="text-slate-600 dark:text-slate-400">
@@ -31,7 +32,7 @@ export default function InvestmentRulesPage() {
 
             <div className="bg-primary/5 dark:bg-white/5 border border-primary/20 p-8 rounded-2xl">
                <h3 className="text-h5 font-bold text-primary dark:text-slate-100 mb-4 flex items-center gap-2">
-                 <span className="material-symbols-outlined">payments</span>
+                 <Banknote />
                  2. Xác nhận Khởi Tạo khoản Đầu Tư
                </h3>
                <p className="text-slate-600 dark:text-slate-400">
@@ -41,7 +42,7 @@ export default function InvestmentRulesPage() {
 
             <div className="bg-primary/5 dark:bg-white/5 border border-primary/20 p-8 rounded-2xl">
                <h3 className="text-h5 font-bold text-primary dark:text-slate-100 mb-4 flex items-center gap-2">
-                 <span className="material-symbols-outlined">lock_clock</span>
+                 <Lock />
                  3. Phát hành Lợi nhuận & Cột mốc
                </h3>
                <p className="text-slate-600 dark:text-slate-400">

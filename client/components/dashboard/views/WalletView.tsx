@@ -8,6 +8,7 @@ import { UserProfile } from "@/types/user";
 import { Transaction } from "@/types/transaction";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { Banknote, Wallet } from "lucide-react";
 
 export default function WalletView({ profile }: { profile: UserProfile }) {
   const [filterType, setFilterType] = useState<string>("");
@@ -65,7 +66,7 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
             href="/dashboard/deposit"
             className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white font-bold hover:shadow-lg transition-all"
           >
-            <span className="material-symbols-outlined">payments</span>
+            <Banknote />
             Nạp tiền
           </Link>
         </div>
@@ -80,7 +81,7 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
               <h2 className="text-h5 font-bold mt-2">{formatVnd(Number(profile.balance))}</h2>
             </div>
             <div className="absolute -right-4 -bottom-4 opacity-10 blur-xl scale-150">
-              <span className="material-symbols-outlined text-[120px]">account_balance_wallet</span>
+              <Wallet className="text-[120px]" />
             </div>
           </div>
 

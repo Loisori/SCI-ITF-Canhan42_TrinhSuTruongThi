@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/axios";
 import { formatVnd } from "@/lib/utils";
 import { AdminOverview } from "@/types/admin";
+import { Users, Clock, History, TrendingUp, BarChart3 } from "lucide-react";
 
 function StatCard({ title, value, subtext, icon, color = "primary" }: any) {
   const colorClasses: Record<string, string> = {
@@ -21,7 +22,7 @@ function StatCard({ title, value, subtext, icon, color = "primary" }: any) {
           {subtext && <p className="text-[11px] text-slate-400 mt-2 font-medium">{subtext}</p>}
         </div>
         <div className={`p-3 rounded-xl ${colorClasses[color]}`}>
-          <span className="material-symbols-outlined">{icon}</span>
+          <icon.icon className="w-6 h-6" />
         </div>
       </div>
     </div>
@@ -52,28 +53,28 @@ export default function SystemOverview() {
         <StatCard 
           title="Tổng người dùng" 
           value={overview?.totalUsers ?? 0} 
-          icon="group" 
+          icon={{ icon: Users }} 
           color="primary"
           subtext="Hoạt động trên toàn sàn"
         />
         <StatCard 
           title="Dự án chờ duyệt" 
           value={overview?.pendingCount ?? 0} 
-          icon="pending_actions" 
+          icon={{ icon: Clock }} 
           color="amber"
           subtext="Cần xử lý ngay"
         />
         <StatCard 
           title="Tổng giao dịch" 
           value={overview?.totalTransactions ?? 0} 
-          icon="history" 
+          icon={{ icon: History }} 
           color="primary"
           subtext="Nạp/Rút & Đầu tư"
         />
         <StatCard 
           title="Doanh thu HT" 
           value={formatVnd(overview?.systemRevenue ?? 0)} 
-          icon="trending_up" 
+          icon={{ icon: TrendingUp }} 
           color="emerald"
           subtext="Phí giao dịch tích lũy"
         />
@@ -105,7 +106,7 @@ export default function SystemOverview() {
          </div>
 
          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm flex flex-col items-center justify-center text-center">
-            <span className="material-symbols-outlined text-h1 text-slate-100 mb-4 scale-150">analytics</span>
+            <BarChart3 className="text-h1 text-slate-100 mb-4 scale-150 mx-auto" />
             <h3 className="text-base font-bold text-slate-900 dark:text-white">Báo cáo chi tiết</h3>
             <p className="text-smaller text-slate-500 mt-2">Dữ liệu phân tích nâng cao sẽ sớm được tích hợp.</p>
          </div>

@@ -5,6 +5,7 @@ import api from "@/lib/axios";
 import { UserProfile } from "@/types/user";
 import { SettingsCategoryRef, SettingsUser } from "@/types/settings";
 import toast from "react-hot-toast";
+import { User, Lock, Star, Bell, Check, X, ToggleRight, ToggleLeft } from "lucide-react";
 
 export default function SettingsView({ profile, onUpdate }: { profile: UserProfile, onUpdate: () => void }) {
   const [user, setUser] = useState<SettingsUser | null>(null);
@@ -185,10 +186,10 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
         <aside className="lg:w-64 shrink-0 border-slate-200 dark:border-slate-800">
           <nav className="space-y-2 sticky top-20">
             {[
-              { id: "account", label: "Thông tin", icon: "person" },
-              { id: "password", label: "Đổi mật khẩu", icon: "lock" },
-              { id: "categories", label: "Sở thích", icon: "star" },
-              { id: "notifications", label: "Thông báo", icon: "notifications" },
+              { id: "account", label: "Thông tin", icon: User },
+              { id: "password", label: "Đổi mật khẩu", icon: Lock },
+              { id: "categories", label: "Sở thích", icon: Star },
+              { id: "notifications", label: "Thông báo", icon: Bell },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -199,9 +200,7 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                     : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
               >
-                <span className="material-symbols-outlined text-base">
-                   {tab.icon}
-                </span>
+                <tab.icon className="text-base" />
                 {tab.label}
               </button>
             ))}
@@ -386,7 +385,7 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                               : "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-primary/50"
                           }`}
                         >
-                          {isSelected && <span className="material-symbols-outlined text-[14px]">check</span>}
+                          {isSelected && <Check className="text-[14px]" />}
                           {category.name}
                         </button>
                       );
@@ -410,7 +409,7 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                               : "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-red-500/50"
                           }`}
                         >
-                          {isSelected && <span className="material-symbols-outlined text-[14px]">close</span>}
+                          {isSelected && <X className="text-[14px]" />}
                           {category.name}
                         </button>
                       );
@@ -438,7 +437,7 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                     onClick={() => handleToggleNotif("email")}
                     className={`size-10 rounded-full flex items-center justify-center transition-all ${notifSettings.email ? 'bg-primary/20 text-primary' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}`}
                   >
-                    <span className="material-symbols-outlined">{notifSettings.email ? 'toggle_on' : 'toggle_off'}</span>
+                    {notifSettings.email ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
                   </button>
                 </div>
                 
@@ -451,7 +450,7 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                       onClick={() => handleToggleNotif("push")}
                       className={`size-10 rounded-full flex items-center justify-center transition-all ${notifSettings.push ? 'bg-primary/20 text-primary' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}`}
                   >
-                    <span className="material-symbols-outlined">{notifSettings.push ? 'toggle_on' : 'toggle_off'}</span>
+                    {notifSettings.push ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
                   </button>
                 </div>
 
@@ -464,7 +463,7 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                       onClick={() => handleToggleNotif("investment_update")}
                       className={`size-10 rounded-full flex items-center justify-center transition-all ${notifSettings.investment_update ? 'bg-primary/20 text-primary' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}`}
                   >
-                    <span className="material-symbols-outlined">{notifSettings.investment_update ? 'toggle_on' : 'toggle_off'}</span>
+                    {notifSettings.investment_update ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
                   </button>
                 </div>
 
@@ -477,7 +476,7 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                       onClick={() => handleToggleNotif("milestone_reached")}
                       className={`size-10 rounded-full flex items-center justify-center transition-all ${notifSettings.milestone_reached ? 'bg-primary/20 text-primary' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}`}
                   >
-                    <span className="material-symbols-outlined">{notifSettings.milestone_reached ? 'toggle_on' : 'toggle_off'}</span>
+                    {notifSettings.milestone_reached ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
                   </button>
                 </div>
               </div>

@@ -5,6 +5,7 @@ import api from "@/lib/axios";
 import { formatVnd } from "@/lib/utils";
 import { Project } from "@/types/project";
 import toast from "react-hot-toast";
+import { Check, X, ShieldCheck } from "lucide-react";
 
 export default function ProjectApprovals() {
   const { data: pendingProjects = [], refetch, isLoading } = useQuery({
@@ -86,14 +87,14 @@ export default function ProjectApprovals() {
                         onClick={() => approve(p.id)}
                         className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-emerald-500 text-white text-[11px] font-bold hover:shadow-lg transition-all"
                       >
-                        <span className="material-symbols-outlined text-[16px]">check</span>
+                        <Check className="text-[16px]" />
                         Duyệt
                       </button>
                       <button 
                          onClick={() => reject(p.id)}
                          className="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-red-200 text-red-500 text-[11px] font-bold hover:bg-red-50 transition-all"
                       >
-                        <span className="material-symbols-outlined text-[16px]">close</span>
+                        <X className="text-[16px]" />
                         Từ chối
                       </button>
                     </div>
@@ -103,7 +104,7 @@ export default function ProjectApprovals() {
               {pendingProjects.length === 0 && (
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center text-slate-500 text-smaller">
-                    <span className="material-symbols-outlined text-h1 text-slate-200 mb-4 scale-150">verified</span>
+                    <ShieldCheck className="text-h1 text-slate-200 mb-4 scale-150 mx-auto" />
                     <p className="mt-4">Không có dự án nào chờ duyệt.</p>
                   </td>
                 </tr>

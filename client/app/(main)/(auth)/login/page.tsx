@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import Navbar from "@/components/client/Navbar";
 import api from "@/lib/axios";
+import { Rocket, Eye, EyeOff } from "lucide-react";
 
 import { decodeJwt } from "jose";
 
@@ -80,12 +81,7 @@ export default function LoginPage() {
           <div className="relative z-10 max-w-lg text-left">
             <Link href="/" className="mb-12 flex items-center gap-2 group">
               <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center transition-transform group-hover:scale-110">
-                <span
-                  className="material-symbols-outlined text-primary"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  rocket_launch
-                </span>
+                <Rocket className="text-primary" />
               </div>
               <span className="text-2xl font-bold tracking-tight text-white">
                 InvestPro
@@ -179,9 +175,11 @@ export default function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary"
                   >
-                    <span className="material-symbols-outlined text-small">
-                      {showPassword ? "visibility_off" : "visibility"}
-                    </span>
+                    {showPassword ? (
+                      <EyeOff className="text-small" />
+                    ) : (
+                      <Eye className="text-small" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -198,6 +196,27 @@ export default function LoginPage() {
                   "Đăng nhập"
                 )}
               </button>
+
+              <div className="relative my-8">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-slate-100 dark:border-slate-800"></span>
+                </div>
+                <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest bg-white dark:bg-slate-950 px-4 text-slate-400">
+                  Hoặc đăng nhập với
+                </div>
+              </div>
+
+              <a
+                href={`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`}
+                className="w-full py-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 font-bold rounded-lg transition-all flex justify-center items-center gap-3 hover:bg-slate-50 dark:hover:bg-white/5 active:scale-[0.98]"
+              >
+                <img
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  alt="Google"
+                  className="w-5 h-5"
+                />
+                Tiếp tục với Google
+              </a>
             </form>
 
             <footer className="mt-12 text-center">

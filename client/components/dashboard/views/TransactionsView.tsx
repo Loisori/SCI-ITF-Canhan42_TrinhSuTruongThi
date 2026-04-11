@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/axios";
 import { formatVnd } from "@/lib/utils";
 import { Transaction } from "@/types/transaction";
+import { ReceiptText } from "lucide-react";
 
 export default function TransactionsView() {
   const [filterType, setFilterType] = useState<string>("");
@@ -120,7 +121,7 @@ export default function TransactionsView() {
                 {transactions.length === 0 && (
                   <tr>
                     <td colSpan={4} className="px-6 py-12 text-center">
-                      <span className="material-symbols-outlined text-[48px] text-slate-200 dark:text-slate-800 mb-3 block">receipt_long</span>
+                      <ReceiptText className="text-[48px] text-slate-200 dark:text-slate-800 mb-3 mx-auto" />
                       <p className="text-slate-500 text-small font-semibold">Chưa có giao dịch nào phù hợp.</p>
                     </td>
                   </tr>
