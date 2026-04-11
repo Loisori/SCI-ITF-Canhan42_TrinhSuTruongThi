@@ -32,10 +32,10 @@ export default function CreateProjectPage() {
 
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState(0);
-  const [interestRate, setInterestRate] = useState(12);
-  const [durationMonths, setDurationMonths] = useState(12);
-  const [targetCapital, setTargetCapital] = useState(1000000000);
-  const [minInvestment, setMinInvestment] = useState(1000000);
+  const [interestRate, setInterestRate] = useState<number | string>();
+  const [durationMonths, setDurationMonths] = useState<number | string>();
+  const [targetCapital, setTargetCapital] = useState<number | string>();
+  const [minInvestment, setMinInvestment] = useState<number | string>();
   const [riskLevel, setRiskLevel] = useState<"low" | "medium" | "high">(
     "medium",
   );
@@ -228,10 +228,9 @@ export default function CreateProjectPage() {
                 Lãi suất (%)
               </label>
               <input
-                type="number"
-                step="0.01"
-                min="0"
-                max="100"
+                type="text"
+                min="1"
+                max="10"
                 value={interestRate}
                 onChange={(e) => setInterestRate(Number(e.target.value))}
                 required
@@ -244,7 +243,7 @@ export default function CreateProjectPage() {
                 Thời hạn (tháng)
               </label>
               <input
-                type="number"
+                type="text"
                 min="1"
                 value={durationMonths}
                 onChange={(e) => setDurationMonths(Number(e.target.value))}
@@ -258,8 +257,7 @@ export default function CreateProjectPage() {
                 Vốn mục tiêu
               </label>
               <input
-                type="number"
-                step="0.01"
+                type="text"
                 min="1"
                 value={targetCapital}
                 onChange={(e) => setTargetCapital(Number(e.target.value))}
@@ -273,8 +271,7 @@ export default function CreateProjectPage() {
                 Vốn đầu tư tối thiểu
               </label>
               <input
-                type="number"
-                step="0.01"
+                type="text"
                 min="1"
                 value={minInvestment}
                 onChange={(e) => setMinInvestment(Number(e.target.value))}
