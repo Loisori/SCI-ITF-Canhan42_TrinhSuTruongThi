@@ -18,7 +18,7 @@ export enum DisputeStatus {
 
 @Entity({ name: 'project_disputes' })
 export class ProjectDisputeEntity {
-  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
+@PrimaryGeneratedColumn('increment', { type: 'int', unsigned: true })  
   id: number;
 
   @Index()

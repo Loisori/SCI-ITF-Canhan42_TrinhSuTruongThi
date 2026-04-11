@@ -17,7 +17,7 @@ export enum MilestoneStatus {
 
 @Entity({ name: 'project_milestones' })
 export class ProjectMilestoneEntity {
-  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
+  @PrimaryGeneratedColumn('increment', { type: 'int', unsigned: true })  
   id: number;
 
   @Column({ name: 'project_id', type: 'bigint', unsigned: true })

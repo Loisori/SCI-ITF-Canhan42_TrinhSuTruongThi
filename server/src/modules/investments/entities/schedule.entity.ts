@@ -16,7 +16,7 @@ export enum PaymentScheduleStatus {
 
 @Entity({ name: 'payment_schedules' })
 export class PaymentScheduleEntity {
-  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
+  @PrimaryGeneratedColumn('increment', { type: 'int', unsigned: true })
   id: number;
 
   @Column({ name: 'investment_id', type: 'bigint', unsigned: true })
