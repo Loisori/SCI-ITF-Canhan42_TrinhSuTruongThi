@@ -8,6 +8,9 @@ CREATE TABLE users (
     balance DECIMAL(15, 2) DEFAULT 0.00,
     avatar_url VARCHAR(255),
     is_verified TINYINT(1) DEFAULT 0,
+    bio TEXT NULL,
+    cover_photo_url VARCHAR(255) NULL,
+    social_links JSON NULL,
     notification_settings JSON NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

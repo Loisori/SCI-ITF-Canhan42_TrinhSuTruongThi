@@ -2,16 +2,17 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 import api from "@/lib/axios";
 import { ProjectDetail } from "@/types/project";
-import { Profile } from "@/types/user";
+import { Profile, UserProfile } from "@/types/user";
 import { ToastState } from "@/types/ui";
 import ProjectMilestones from "@/components/client/ProjectMilestones";
 import dynamic from "next/dynamic";
 import rehypeSanitize from "rehype-sanitize";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, UserCircle, ChevronRight } from "lucide-react";
 
 const MarkdownPreview = dynamic(
   () => import("@uiw/react-markdown-preview"),
@@ -436,6 +437,54 @@ export default function ProjectDetailPage() {
                     color: var(--color-primary, #4f46e5);
                   }
                 `}</style>
+              </div>
+
+              <div className="col-span-1 md:col-span-1 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                <h2 className="text-h6 font-bold mb-4 flex items-center gap-2">
+                  <UserCircle className="text-primary" size={20} />
+                  Thông tin chủ dự án
+                </h2>
+                {project.owner ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <Link 
+                        href={`/profile/${project.owner.id}`}
+                        className="w-16 h-16 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 hover:opacity-80 transition-opacity"
+                      >
+                        <img 
+                          src={project.owner.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(project.owner.fullName)}&background=random`} 
+                          alt={project.owner.fullName} 
+                          className="w-full h-full object-cover" 
+                        />
+                      </Link>
+                      <div className="flex-1 min-w-0">
+                        <Link 
+                           href={`/profile/${project.owner.id}`}
+                           className="text-h6 font-bold text-slate-900 dark:text-white hover:text-primary transition-colors truncate block"
+                        >
+                          {project.owner.fullName}
+                        </Link>
+                        <p className="text-smaller text-slate-500 truncate">
+                          {project.owner.email}
+                        </p>
+                      </div>
+                    </div>
+                    {project.owner.bio && (
+                      <p className="text-smaller text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3 italic">
+                        "{project.owner.bio}"
+                      </p>
+                    )}
+                    <Link 
+                      href={`/profile/${project.owner.id}`}
+                      className="inline-flex items-center gap-2 text-smallest font-bold text-primary hover:underline group"
+                    >
+                      Xem hồ sơ chi tiết
+                      <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </div>
+                ) : (
+                  <p className="text-smaller text-slate-500">Không có thông tin chủ dự án.</p>
+                )}
               </div>
 
               {/* Milestones & Disputes Component */}

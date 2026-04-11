@@ -9,6 +9,7 @@ import MyProjects from "./views/MyProjects";
 import SettingsView from "./views/SettingsView";
 import TransactionsView from "./views/TransactionsView";
 import AnalyticsView from "./views/AnalyticsView";
+import ProfileView from "./views/ProfileView";
 
 // Admin Views
 import SystemOverview from "./views/admin/SystemOverview";
@@ -34,6 +35,8 @@ export default function DashboardContent({ profile, onUpdate }: { profile: UserP
         return <MyProjects profile={profile} />;
       case "analytics":
         return <AnalyticsView />;
+      case "profile":
+        return <ProfileView profile={profile} />;
       case "settings":
         return <SettingsView profile={profile} onUpdate={onUpdate} />;
 

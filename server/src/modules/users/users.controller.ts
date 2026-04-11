@@ -19,6 +19,7 @@ import { UserEntity, UserRole } from './entities/user.entity';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('users')
 export class UsersController {
@@ -68,6 +69,36 @@ export class UsersController {
     if (!updatedUser) return null;
     const { password: _, ...rest } = updatedUser;
     return rest;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('profile')
+  async updateProfile(
+    @GetUser('id') userId: number,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    const updatedUser = await this.usersService.updateProfile(userId, dto);
+    if (!updatedUser) return null;
+    const { password: _, ...rest } = updatedUser;
+    return rest;
+  }
+
+  @Get(':id/public')
+  async getPublicProfile(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.usersService.findById(id);
+    if (!user) return null;
+    
+    return {
+      id: user.id,
+      fullName: user.fullName,
+      avatarUrl: user.avatarUrl,
+      coverPhotoUrl: user.coverPhotoUrl,
+      bio: user.bio,
+      socialLinks: user.socialLinks,
+      role: user.role,
+      createdAt: user.createdAt,
+      isVerified: user.isVerified,
+    };
   }
 
   // Admin-only routes

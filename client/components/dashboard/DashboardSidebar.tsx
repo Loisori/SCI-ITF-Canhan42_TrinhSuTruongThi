@@ -18,7 +18,8 @@ import {
   BarChart3, 
   Rocket, 
   Settings, 
-  LogOut 
+  LogOut,
+  UserCircle
 } from "lucide-react";
 
 interface DashboardSidebarProps {
@@ -55,6 +56,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
 
   const userLinks = [
     { name: "Tổng quan", view: "overview", icon: LayoutGrid },
+    { name: "Hồ sơ của tôi", view: "profile", icon: UserCircle },
     { name: "Ví của tôi", view: "wallet", icon: Wallet },
     { name: "Nhật ký giao dịch", view: "transactions", icon: ReceiptText },
     { name: "Đầu tư của tôi", view: "portfolio", icon: TrendingUp },

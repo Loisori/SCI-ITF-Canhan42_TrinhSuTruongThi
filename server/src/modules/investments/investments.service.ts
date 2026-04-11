@@ -92,6 +92,55 @@ export class InvestmentsService {
     });
   }
 
+  async getPublicInvestedProjects(userId: number) {
+    const investmentsRepo = this.dataSource.getRepository(InvestmentEntity);
+    
+    // Find all active/completed investments for this user
+    const investments = await investmentsRepo.find({
+      where: { 
+        userId,
+        status: InvestmentStatus.ACTIVE // Or COMPLETED, etc. basically not withdrawn
+      },
+      relations: ['project', 'project.media', 'project.category', 'project.owner'],
+      order: { investedAt: 'DESC' },
+    });
+
+    // Extract unique projects
+    const projectsMap = new Map<number, any>();
+    
+    for (const inv of investments) {
+      if (!inv.project || projectsMap.has(inv.project.id)) continue;
+      
+      const project = inv.project;
+      const thumbnail =
+        project.media?.find((media) => media.isThumbnail)?.url ??
+        project.media?.[0]?.url ??
+        null;
+
+      projectsMap.set(project.id, {
+        id: project.id,
+        title: project.title,
+        slug: project.slug,
+        thumbnailUrl: thumbnail,
+        currentCapital: Number(project.currentAmount),
+        targetCapital: Number(project.goalAmount),
+        status: project.status,
+        category: project.category ? {
+          name: project.category.name,
+          slug: project.category.slug
+        } : null,
+        owner: project.owner ? {
+          fullName: project.owner.fullName
+        } : null,
+        fundingProgress: project.goalAmount > 0 
+          ? Number(((Number(project.currentAmount) / Number(project.goalAmount)) * 100).toFixed(2))
+          : 0
+      });
+    }
+
+    return Array.from(projectsMap.values());
+  }
+
   async invest(userId: number, dto: CreateInvestmentDto) {
     return this.dataSource.transaction(async (manager) => {
       const usersRepo = manager.getRepository(UserEntity);

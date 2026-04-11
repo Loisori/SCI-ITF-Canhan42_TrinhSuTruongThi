@@ -10,6 +10,13 @@ export type SettingsUser = {
   balance: number;
   role: string;
   avatarUrl?: string;
+  bio?: string | null;
+  socialLinks?: {
+    facebook?: string;
+    linkedin?: string;
+    twitter?: string;
+    github?: string;
+  } | null;
   favoriteCategories?: SettingsCategoryRef[];
   blacklistCategories?: SettingsCategoryRef[];
 };

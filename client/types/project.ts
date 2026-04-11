@@ -9,6 +9,14 @@ export type ProjectOwner = {
   id: number;
   fullName: string;
   email: string;
+  avatarUrl?: string | null;
+  bio?: string | null;
+  socialLinks?: {
+    facebook?: string;
+    linkedin?: string;
+    twitter?: string;
+    github?: string;
+  } | null;
 };
 
 export type ProjectMilestone = {

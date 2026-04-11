@@ -89,4 +89,4 @@ npm run dev
 > *InvestPro hướng tới một cộng đồng đầu tư minh bạch, an toàn và thông minh hơn.*
 
 
-11/04/2026: google auth, momo payment,rich text for project
+11/04/2026: google auth, momo payment,rich text for project, trang profile

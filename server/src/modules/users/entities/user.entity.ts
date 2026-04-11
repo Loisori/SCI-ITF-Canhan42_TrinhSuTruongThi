@@ -71,6 +71,24 @@ export class UserEntity {
   @Column({ name: 'is_verified', type: 'boolean', default: false })
   isVerified: boolean;
 
+  @Column({ type: 'text', nullable: true })
+  bio: string | null;
+
+  @Column({ name: 'cover_photo_url', type: 'varchar', length: 255, nullable: true })
+  coverPhotoUrl: string | null;
+
+  @Column({
+    name: 'social_links',
+    type: 'json',
+    nullable: true,
+  })
+  socialLinks: {
+    facebook?: string;
+    linkedin?: string;
+    twitter?: string;
+    github?: string;
+  } | null;
+
   @CreateDateColumn({
     type: 'timestamp',
     name: 'created_at',

@@ -288,7 +288,7 @@ await this.projectsRepository.update(projectId, {
   async getProjectDetail(projectId: number) {
     const project = await this.projectsRepository.findOne({
       where: { id: projectId },
-      relations: ['media', 'category', 'milestones', 'disputes'],
+      relations: ['media', 'category', 'milestones', 'disputes', 'owner'],
     });
 
     if (!project) {
@@ -306,7 +306,7 @@ await this.projectsRepository.update(projectId, {
   async getProjectDetailBySlug(slug: string) {
     const project = await this.projectsRepository.findOne({
       where: { slug },
-      relations: ['media', 'category', 'milestones', 'disputes'],
+      relations: ['media', 'category', 'milestones', 'disputes', 'owner'],
     });
 
     if (!project) {
@@ -832,6 +832,9 @@ await this.projectsRepository.update(projectId, {
             id: project.owner.id,
             fullName: project.owner.fullName,
             email: project.owner.email,
+            avatarUrl: project.owner.avatarUrl,
+            bio: project.owner.bio,
+            socialLinks: project.owner.socialLinks,
           }
         : null,
       images,

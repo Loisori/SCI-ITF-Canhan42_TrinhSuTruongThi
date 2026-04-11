@@ -11,6 +11,7 @@ import { ProjectMilestoneEntity } from './entities/milestone.entity';
 import { ProjectDisputeEntity } from './entities/dispute.entity';
 import { AdminProjectsController } from './admin-projects.controller';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { InvestmentsModule } from '../investments/investments.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     ]),
     AuthModule,
     NotificationsModule,
+    InvestmentsModule,
   ],
   controllers: [
     ProjectsController,

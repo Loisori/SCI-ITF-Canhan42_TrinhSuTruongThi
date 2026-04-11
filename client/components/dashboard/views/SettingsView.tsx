@@ -5,7 +5,8 @@ import api from "@/lib/axios";
 import { UserProfile } from "@/types/user";
 import { SettingsCategoryRef, SettingsUser } from "@/types/settings";
 import toast from "react-hot-toast";
-import { User, Lock, Star, Bell, Check, X, ToggleRight, ToggleLeft } from "lucide-react";
+import { User, Lock, Star, Bell, Check, X, ToggleRight, ToggleLeft, Link as LinkIcon, Webhook, Save, UserCircle, Mail } from "lucide-react";
+import { useForm } from "react-hook-form";
 
 export default function SettingsView({ profile, onUpdate }: { profile: UserProfile, onUpdate: () => void }) {
   const [user, setUser] = useState<SettingsUser | null>(null);
@@ -32,11 +33,56 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
 
   // Notification states
   const [notifSettings, setNotifSettings] = useState<Record<string, boolean>>(profile.notificationSettings || {
-    email: true,
-    push: true,
     investment_update: true,
     milestone_reached: true,
   });
+
+  // React Hook Form for Profile & Social Links
+  const { register, handleSubmit, reset, formState: { isSubmitting, isDirty } } = useForm({
+    defaultValues: {
+      fullName: profile.fullName,
+      bio: profile.bio || "",
+      facebook: profile.socialLinks?.facebook || "",
+      linkedin: profile.socialLinks?.linkedin || "",
+      twitter: profile.socialLinks?.twitter || "",
+      github: profile.socialLinks?.github || "",
+    }
+  });
+
+  useEffect(() => {
+    if (user) {
+        reset({
+            fullName: user.fullName,
+            bio: user.bio || "",
+            facebook: user.socialLinks?.facebook || "",
+            linkedin: user.socialLinks?.linkedin || "",
+            twitter: user.socialLinks?.twitter || "",
+            github: user.socialLinks?.github || "",
+        });
+    }
+  }, [user, reset]);
+
+  const onUpdateProfile = async (data: any) => {
+    try {
+      const payload = {
+        fullName: data.fullName,
+        bio: data.bio,
+        socialLinks: {
+          facebook: data.facebook,
+          linkedin: data.linkedin,
+          twitter: data.twitter,
+          github: data.github,
+        }
+      };
+      
+      const res = await api.patch("/api/users/profile", payload);
+      setUser(prev => prev ? { ...prev, ...res.data } : null);
+      toast.success("Cập nhật thông tin thành công!");
+      onUpdate();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Không thể cập nhật hồ sơ");
+    }
+  };
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -187,6 +233,7 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
           <nav className="space-y-2 sticky top-20">
             {[
               { id: "account", label: "Thông tin", icon: User },
+              { id: "links", label: "Liên kết", icon: LinkIcon },
               { id: "password", label: "Đổi mật khẩu", icon: Lock },
               { id: "categories", label: "Sở thích", icon: Star },
               { id: "notifications", label: "Thông báo", icon: Bell },
@@ -255,29 +302,62 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6">
                   <div>
                     <label className="block text-smaller font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                      Tên đầy đủ
+                       Họ và tên
                     </label>
-                    <input
-                      type="text"
-                      value={user?.fullName || profile.fullName || ""}
-                      readOnly
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-500 text-smaller outline-none"
-                    />
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+                        <UserCircle size={18} />
+                      </div>
+                      <input
+                        {...register("fullName")}
+                        type="text"
+                        placeholder="Nhập họ tên đầy đủ"
+                        className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-smaller outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all"
+                      />
+                    </div>
                   </div>
+
                   <div>
                     <label className="block text-smaller font-semibold text-slate-700 dark:text-slate-300 mb-2">
                       Email
                     </label>
-                    <input
-                      type="email"
-                      value={user?.email || profile.email || ""}
-                      readOnly
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-500 text-smaller outline-none"
+                    <div className="relative">
+                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                        <Mail size={18} />
+                      </div>
+                      <input
+                        type="email"
+                        value={user?.email || profile.email || ""}
+                        readOnly
+                        className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-400 text-smaller outline-none cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-smaller font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Tiểu sử (Bio)
+                    </label>
+                    <textarea
+                      {...register("bio")}
+                      rows={4}
+                      placeholder="Giới thiệu ngắn gọn về bản thân..."
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-smaller outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all resize-none"
                     />
                   </div>
+                </div>
+
+                <div className="pt-4 flex justify-end">
+                   <button
+                    onClick={handleSubmit(onUpdateProfile)}
+                    disabled={isSubmitting || !isDirty}
+                    className="flex items-center gap-2 px-8 py-3 bg-primary text-white text-smaller font-bold rounded-xl hover:shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50 disabled:shadow-none"
+                   >
+                     {isSubmitting ? "Đang lưu..." : <><Save size={18} /> Lưu thay đổi</>}
+                   </button>
                 </div>
 
                 <div>
@@ -291,6 +371,54 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Social Links Tab */}
+          {activeTab === "links" && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+              <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-2">
+                Liên kết mạng xã hội
+              </h2>
+              <p className="text-smaller text-slate-500 mb-8">Kết nối các tài khoản mạng xã hội để người khác dễ dàng tìm thấy bạn.</p>
+
+              <form onSubmit={handleSubmit(onUpdateProfile)} className="space-y-6">
+                <div className="grid grid-cols-1 gap-6">
+                  {[
+                    { id: "facebook", label: "Facebook", icon: Webhook, color: "text-blue-600", placeholder: "facebook.com/username" },
+                    { id: "linkedin", label: "LinkedIn", icon: Webhook, color: "text-blue-700", placeholder: "linkedin.com/in/username" },
+                    { id: "twitter", label: "Twitter (X)", icon: Webhook, color: "text-sky-500", placeholder: "twitter.com/username" },
+                    { id: "github", label: "GitHub", icon: Webhook, color: "text-slate-900 dark:text-white", placeholder: "github.com/username" },
+                  ].map((field) => (
+                    <div key={field.id}>
+                      <label className="block text-smaller font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        {field.label}
+                      </label>
+                      <div className="relative group">
+                        <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${field.color}`}>
+                          <field.icon size={18} />
+                        </div>
+                        <input
+                          {...register(field.id as any)}
+                          type="text"
+                          placeholder={field.placeholder}
+                          className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-smaller outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                   <button
+                    type="submit"
+                    disabled={isSubmitting || !isDirty}
+                    className="flex items-center gap-2 px-8 py-3 bg-primary text-white text-smaller font-bold rounded-xl hover:shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50 disabled:shadow-none"
+                   >
+                     {isSubmitting ? "Đang lưu..." : <><Save size={18} /> Lưu thay đổi</>}
+                   </button>
+                </div>
+              </form>
             </div>
           )}
 

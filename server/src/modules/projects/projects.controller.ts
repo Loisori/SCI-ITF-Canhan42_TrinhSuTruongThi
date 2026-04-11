@@ -13,6 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
+import { InvestmentsService } from '../investments/investments.service';
 import { InvestProjectDto } from './dto/invest-project.dto';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 import { IsOwnerGuard } from '../../common/guards/is-owner.guard';
@@ -24,7 +25,10 @@ import { OptionalAuthGuard } from '../../common/guards/optional-auth.guard';
 
 @Controller('projects')
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  constructor(
+    private readonly projectsService: ProjectsService,
+    private readonly investmentsService: InvestmentsService,
+  ) {}
 
   @UseGuards(OptionalAuthGuard)
   @Get()
@@ -72,6 +76,24 @@ export class ProjectsController {
       Number.isFinite(normalizedPage) ? normalizedPage : 1,
       Number.isFinite(normalizedPageSize) ? normalizedPageSize : 10,
     );
+  }
+  
+  @Get('user/:userId/created')
+  getUserCreatedProjects(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+  ) {
+    const normalizedPage = page ? Number(page) : 1;
+    const normalizedPageSize = pageSize ? Number(pageSize) : 10;
+    return this.projectsService.getOwnerProjects(userId, normalizedPage, normalizedPageSize);
+  }
+
+  @Get('user/:userId/invested')
+  getUserInvestedProjects(
+    @Param('userId', ParseIntPipe) userId: number,
+  ) {
+    return this.investmentsService.getPublicInvestedProjects(userId);
   }
 
   @Get(':id')

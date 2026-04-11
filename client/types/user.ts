@@ -10,8 +10,16 @@ export type UserProfile = {
   email: string;
   role: string;
   avatarUrl?: string;
+  coverPhotoUrl?: string;
+  bio?: string;
   isVerified?: boolean;
   balance?: number | string;
+  socialLinks?: {
+    facebook?: string;
+    linkedin?: string;
+    twitter?: string;
+    github?: string;
+  };
   favoriteCategories?: { id: number; name: string }[];
   blacklistCategories?: { id: number; name: string }[];
   notificationSettings?: Record<string, boolean>;
