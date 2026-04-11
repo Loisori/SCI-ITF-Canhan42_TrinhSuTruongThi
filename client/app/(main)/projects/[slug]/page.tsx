@@ -21,11 +21,11 @@ const MarkdownPreview = dynamic(
 function DetailSkeleton() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse">
-      <section className="lg:col-span-2 space-y-6">
+      <div className="lg:col-span-2 space-y-6">
         <div className="h-10 bg-slate-200 dark:bg-slate-800 rounded" />
         <div className="w-full aspect-video bg-slate-200 dark:bg-slate-800 rounded-xl" />
         <div className="h-24 bg-slate-200 dark:bg-slate-800 rounded" />
-      </section>
+      </div>
       <aside className="space-y-5">
         <div className="h-56 bg-slate-200 dark:bg-slate-800 rounded-xl" />
         <div className="h-44 bg-slate-200 dark:bg-slate-800 rounded-xl" />
@@ -94,22 +94,22 @@ export default function ProjectDetailPage() {
       new CustomEvent("investpro-project-context", {
         detail: project
           ? {
-              id: project.id,
-              title: project.title,
-              shortDescription: project.shortDescription,
-              interestRate: project.interestRate,
-              durationMonths: project.durationMonths,
-              minInvestment: project.minInvestment,
-              targetCapital: project.targetCapital,
-              currentCapital: project.currentCapital,
-              fundingProgress: project.fundingProgress,
-              riskLevel: (project as { riskLevel?: string }).riskLevel ?? null,
-              status: project.status,
-              category: project.category ?? null,
-              owner: project.owner ?? null,
-              endDate: project.endDate,
-              content: project.content,
-            }
+            id: project.id,
+            title: project.title,
+            shortDescription: project.shortDescription,
+            interestRate: project.interestRate,
+            durationMonths: project.durationMonths,
+            minInvestment: project.minInvestment,
+            targetCapital: project.targetCapital,
+            currentCapital: project.currentCapital,
+            fundingProgress: project.fundingProgress,
+            riskLevel: (project as { riskLevel?: string }).riskLevel ?? null,
+            status: project.status,
+            category: project.category ?? null,
+            owner: project.owner ?? null,
+            endDate: project.endDate,
+            content: project.content,
+          }
           : null,
       }),
     );
@@ -227,11 +227,10 @@ export default function ProjectDetailPage() {
       {toast && (
         <div className="fixed top-20 right-5 z-[60]">
           <div
-            className={`px-4 py-3 rounded-lg shadow-lg text-small font-semibold ${
-              toast.type === "success"
-                ? "bg-green-600 text-white"
-                : "bg-red-600 text-white"
-            }`}
+            className={`px-4 py-3 rounded-lg shadow-lg text-small font-semibold ${toast.type === "success"
+              ? "bg-green-600 text-white"
+              : "bg-red-600 text-white"
+              }`}
           >
             {toast.message}
           </div>
@@ -243,63 +242,176 @@ export default function ProjectDetailPage() {
         {!loading && error && <div className="text-red-500">{error}</div>}
 
         {!loading && !error && project && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <section className="lg:col-span-2 space-y-6">
-              <h1 className="text-h3 font-black text-slate-900 dark:text-white">
+          <div>
+            <div className="text-center mb-9">
+              <h1 className="text-h4 font-black text-slate-900 dark:text-white">
                 {project.title}
               </h1>
-
-              {selectedImage && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={selectedImage}
-                  alt={project.title}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 aspect-video object-cover"
-                />
-              )}
-
-              {galleryImages.length > 1 && (
-                <div className="flex flex-wrap gap-3">
-                  {galleryImages.map((image) => (
-                    <button
-                      type="button"
-                      key={image}
-                      onClick={() => setSelectedImage(image)}
-                      className={`rounded-lg overflow-hidden border-2 ${
-                        selectedImage === image
-                          ? "border-primary"
-                          : "border-slate-200 dark:border-slate-700"
-                      }`}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={image}
-                        alt="project gallery"
-                        className="h-20 w-28 object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-body text-slate-600 dark:text-slate-400">
                 {project.shortDescription || "Dự án chưa có mô tả ngắn."}
               </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="md:col-span-2 space-y-6">
+                {selectedImage && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={selectedImage}
+                    alt={project.title}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 aspect-video object-cover"
+                  />
+                )}
 
-              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 investpro-markdown-preview">
+                {galleryImages.length > 1 && (
+                  <div className="flex flex-wrap gap-3">
+                    {galleryImages.map((image) => (
+                      <button
+                        type="button"
+                        key={image}
+                        onClick={() => setSelectedImage(image)}
+                        className={`rounded-lg overflow-hidden border-2 ${selectedImage === image
+                          ? "border-primary"
+                          : "border-slate-200 dark:border-slate-700"
+                          }`}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={image}
+                          alt="project gallery"
+                          className="h-20 w-28 object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <aside className="space-y-5">
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
+                  <div className="space-y-3 text-smaller">
+                    <div className="pt-1">
+                      <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <div
+                          className="bg-primary h-full"
+                          style={{ width: `${baseProgress}%` }}
+                        />
+                      </div>
+                      <p className="mt-1 text-[11px] font-semibold text-orange-600 dark:text-orange-300">
+                        Vượt mục tiêu +{overProgress.toFixed(2)}%
+                      </p>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Đã huy động</span>
+                      <span className="font-bold">
+                        {Number(project.currentCapital).toLocaleString("vi-VN")} đ
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Mục tiêu</span>
+                      <span className="font-bold">
+                        {Number(project.targetCapital).toLocaleString("vi-VN")} đ
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Tiến độ</span>
+                      <span className="font-bold text-primary">
+                        {Number(project.fundingProgress).toFixed(2)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Lãi suất</span>
+                      <span className="font-bold">
+                        {Number(project.interestRate).toFixed(2)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Thời hạn</span>
+                      <span className="font-bold">
+                        {project.durationMonths} tháng
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Tối thiểu</span>
+                      <span className="font-bold">
+                        {Number(project.minInvestment).toLocaleString("vi-VN")} đ
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {canInvest ? (
+                  <form
+                    onSubmit={handleInvest}
+                    className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-3"
+                  >
+                    <label className="block text-smaller font-semibold">
+                      Số tiền đầu tư
+                    </label>
+                    <input
+                      type="number"
+                      // min={Number(project.minInvestment || 1)}
+                      min={Number(project.minInvestment)}
+                      value={amount}
+                      onChange={(e) => setAmount(Number(e.target.value))}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+                    />
+
+                    <button
+                      type="submit"
+                      disabled={investing}
+                      className="w-full py-2 rounded-lg bg-primary text-white font-bold disabled:opacity-60"
+                    >
+                      {investing ? "Đang xử lý..." : "Xác nhận đầu tư"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        window.dispatchEvent(
+                          new CustomEvent("investpro-chat-trigger", {
+                            detail: {
+                              message: `Hãy phân tích dự án "${project.title}" cho tôi (Ưu điểm, rủi ro và lợi nhuận dự kiến).`,
+                            },
+                          }),
+                        );
+                      }}
+                      className="w-full py-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800 flex items-center justify-center gap-2 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-all"
+                    >
+                      <BarChart3 className="text-body" />
+                      Phân tích dự án bằng AI
+                    </button>
+                  </form>
+                ) : (
+                  <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 text-smaller text-slate-600 dark:text-slate-400">
+                    {role !== "investor"
+                      ? "Chỉ tài khoản Investor mới có thể đầu tư dự án."
+                      : "Dự án đã đóng cổng nhận vốn (đã dừng hoặc quá deadline)."}
+                  </div>
+                )}
+
+                <p className="text-smaller text-slate-600 dark:text-slate-400">
+                  Dự án này chỉ được tài trợ nếu đạt đủ mục tiêu trước ngày {project.endDate}.
+                </p>
+              </aside>
+              <div className="col-span-1 md:col-span-3 flex bg-[#f6f2eb] py-9">
+                <div className="w-1/3 text-body">Kickstarter connects creators with backers to fund projects.</div>
+                <div className="w-1/3 text-body">Rewards aren’t guaranteed, but creators must regularly update backers.</div>
+                <div className="w-1/3 text-body">You’re only charged if the project meets its funding goal by the campaign deadline.</div>
+              </div>
+              <div className="col-span-1 md:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 investpro-markdown-preview">
                 <h2 className="text-h6 font-bold mb-3">
                   Nội dung dự án
                 </h2>
                 {project.content ? (
-                  <MarkdownPreview 
-                    source={project.content} 
-                    rehypePlugins={[[rehypeSanitize]]} 
+                  <MarkdownPreview
+                    source={project.content}
+                    rehypePlugins={[[rehypeSanitize]]}
                     style={{ background: 'transparent', color: 'inherit' }}
                   />
                 ) : (
                   <p className="text-smaller text-slate-500">Chưa có nội dung markdown.</p>
                 )}
-                
+
                 <style jsx global>{`
                   .investpro-markdown-preview .wmde-markdown {
                     font-family: inherit;
@@ -328,122 +440,7 @@ export default function ProjectDetailPage() {
 
               {/* Milestones & Disputes Component */}
               <ProjectMilestones project={project} role={role === "business" && project.owner && project.owner.id ? "business" : role} onUpdate={fetchProject} setToast={setToast} />
-            </section>
-
-            <aside className="space-y-5">
-              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
-                <h3 className="text-h6 font-bold mb-4">Thông số đầu tư</h3>
-                <div className="space-y-3 text-smaller">
-                  <div className="flex justify-between">
-                    <span>Lãi suất</span>
-                    <span className="font-bold">
-                      {Number(project.interestRate).toFixed(2)}%
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Thời hạn</span>
-                    <span className="font-bold">
-                      {project.durationMonths} tháng
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Tối thiểu</span>
-                    <span className="font-bold">
-                      {Number(project.minInvestment).toLocaleString("vi-VN")} đ
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Đã huy động</span>
-                    <span className="font-bold">
-                      {Number(project.currentCapital).toLocaleString("vi-VN")} đ
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Mục tiêu</span>
-                    <span className="font-bold">
-                      {Number(project.targetCapital).toLocaleString("vi-VN")} đ
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Tiến độ</span>
-                    <span className="font-bold text-primary">
-                      {Number(project.fundingProgress).toFixed(2)}%
-                    </span>
-                  </div>
-                  <div className="pt-1">
-                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                      <div
-                        className="bg-primary h-full"
-                        style={{ width: `${baseProgress}%` }}
-                      />
-                    </div>
-                    {overProgress > 0 && (
-                      <div className="mt-1.5">
-                        <div className="w-full bg-orange-100 dark:bg-orange-900/30 h-2 rounded-full overflow-hidden">
-                          <div
-                            className="bg-orange-500 h-full"
-                            style={{ width: `${Math.min(overProgress, 100)}%` }}
-                          />
-                        </div>
-                        <p className="mt-1 text-[11px] font-semibold text-orange-600 dark:text-orange-300">
-                          Vượt mục tiêu +{overProgress.toFixed(2)}%
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {canInvest ? (
-                <form
-                  onSubmit={handleInvest}
-                  className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-3"
-                >
-                  <label className="block text-smaller font-semibold">
-                    Số tiền đầu tư
-                  </label>
-                  <input
-                    type="number"
-                    // min={Number(project.minInvestment || 1)}
-                    min={Number(project.minInvestment)}
-                    value={amount}
-                    onChange={(e) => setAmount(Number(e.target.value))}
-                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
-                  />
-
-                  <button
-                    type="submit"
-                    disabled={investing}
-                    className="w-full py-2 rounded-lg bg-primary text-white font-bold disabled:opacity-60"
-                  >
-                    {investing ? "Đang xử lý..." : "Xác nhận đầu tư"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      window.dispatchEvent(
-                        new CustomEvent("investpro-chat-trigger", {
-                          detail: {
-                            message: `Hãy phân tích dự án "${project.title}" cho tôi (Ưu điểm, rủi ro và lợi nhuận dự kiến).`,
-                          },
-                        }),
-                      );
-                    }}
-                    className="w-full py-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800 flex items-center justify-center gap-2 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-all"
-                  >
-                    <BarChart3 className="text-body" />
-                    Phân tích dự án bằng AI
-                  </button>
-                </form>
-              ) : (
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 text-smaller text-slate-600 dark:text-slate-400">
-                  {role !== "investor"
-                    ? "Chỉ tài khoản Investor mới có thể đầu tư dự án."
-                    : "Dự án đã đóng cổng nhận vốn (đã dừng hoặc quá deadline)."}
-                </div>
-              )}
-            </aside>
+            </div>
           </div>
         )}
       </main>
