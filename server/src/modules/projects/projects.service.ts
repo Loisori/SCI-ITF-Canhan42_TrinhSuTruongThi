@@ -35,6 +35,9 @@ import { ProjectCategoryEntity } from './entities/category.entity';
 import { ProjectMilestoneEntity, MilestoneStatus } from './entities/milestone.entity';
 import { ProjectDisputeEntity, DisputeStatus } from './entities/dispute.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/entities/notification.entity';
+
 
 @Injectable()
 export class ProjectsService {
@@ -47,7 +50,9 @@ export class ProjectsService {
     private readonly projectCategoriesRepository: Repository<ProjectCategoryEntity>,
     private readonly dataSource: DataSource,
     private readonly eventEmitter: EventEmitter2,
+    private readonly notificationsService: NotificationsService,
   ) {}
+
 
   private toCommissionFraction(commissionRate?: number | null): number {
     const raw = Number(commissionRate || 0);
