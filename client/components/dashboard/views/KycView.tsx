@@ -75,15 +75,15 @@ export default function KycView({ profile }: { profile: any }) {
       if (frontFile) {
         const formData = new FormData();
         formData.append("file", frontFile);
-        const res = await api.post("/api/users/avatar", formData); // Using existing avatar upload for media
-        frontUrl = res.data.avatarUrl;
+        const res = await api.post("/api/users/kyc/upload", formData);
+        frontUrl = res.data.url;
       }
 
       if (backFile) {
         const formData = new FormData();
         formData.append("file", backFile);
-        const res = await api.post("/api/users/avatar", formData);
-        backUrl = res.data.avatarUrl;
+        const res = await api.post("/api/users/kyc/upload", formData);
+        backUrl = res.data.url;
       }
 
       // 2. Submit KYC
@@ -92,6 +92,7 @@ export default function KycView({ profile }: { profile: any }) {
         frontImageUrl: frontUrl,
         backImageUrl: backUrl,
       });
+
 
       toast.success("Đã gửi yêu cầu xác thực KYC.");
       fetchKycStatus();

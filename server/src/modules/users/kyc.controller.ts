@@ -9,8 +9,12 @@ import {
   Res,
   UseGuards,
   NotFoundException,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
+
 
 import * as https from 'https';
 import { GetUser } from '../../common/decorators/get-user.decorator';
@@ -20,17 +24,31 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { RejectKycDto, SubmitKycDto } from './dto/kyc.dto';
 import { UserEntity, UserRole } from './entities/user.entity';
+
 import { KycService } from './kyc.service';
+import { CloudinaryService } from '../media/cloudinary.service';
+
 
 @Controller('users/kyc')
 @UseGuards(JwtAuthGuard)
 export class KycController {
-  constructor(private readonly kycService: KycService) {}
+  constructor(
+    private readonly kycService: KycService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadKycImage(@UploadedFile() file: Express.Multer.File) {
+    const result = await this.cloudinaryService.uploadImage(file, 'investpro/kyc');
+    return { url: result.secure_url };
+  }
 
   @Post()
   async submitKyc(@GetUser('id') userId: number, @Body() dto: SubmitKycDto) {
     return this.kycService.submitKyc(userId, dto);
   }
+
 
   @Get('status')
   async getMyKycStatus(@GetUser('id') userId: number) {
