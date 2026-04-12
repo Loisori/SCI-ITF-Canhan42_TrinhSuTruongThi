@@ -40,6 +40,7 @@ const Modal = ({ isOpen, onClose, title, children }: ModalProps) => (
 
 export const DepositModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; onClose: () => void; onRefresh: () => void }) => {
   const [amount, setAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<'BANK' | 'MOMO' | 'VNPAY'>('BANK');
   const [isDone, setIsDone] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -54,20 +55,36 @@ export const DepositModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || parseInt(amount) < 100000) {
+    const val = parseInt(amount);
+    if (!val || val < 100000) {
       toast.error("Số tiền tối thiểu là 100.000 VNĐ");
       return;
     }
 
     try {
       setLoading(true);
-      await api.post("/api/wallets/deposit", { amount: parseInt(amount) });
-      setIsDone(true);
-      onRefresh();
+      
+      if (paymentMethod === 'BANK') {
+        await api.post("/api/wallets/deposit", { amount: val });
+        setIsDone(true);
+        onRefresh();
+      } else if (paymentMethod === 'MOMO') {
+        const res = await api.post("/api/payment/create-momo-url", { amount: val });
+        toast.loading("Đang chuyển hướng sang MoMo...");
+        setTimeout(() => {
+          window.location.href = res.data.momoUrl;
+        }, 1000);
+      } else if (paymentMethod === 'VNPAY') {
+        const res = await api.post("/api/payment/create-url", { amount: val });
+        toast.loading("Đang chuyển hướng sang VNPay...");
+        setTimeout(() => {
+          window.location.href = res.data.vnpayUrl;
+        }, 1000);
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Lỗi nạp tiền");
     } finally {
-      setLoading(false);
+      if (paymentMethod === 'BANK') setLoading(false);
     }
   };
 
@@ -93,33 +110,27 @@ export const DepositModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Nạp tiền vào ví">
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 rounded-2xl flex gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
-          <p className="text-[11px] text-amber-800 dark:text-amber-400 font-medium leading-relaxed">
-            Hệ thống đang trong giai đoạn thử nghiệm. Vui lòng chuyển khoản vào tài khoản bên dưới và nhấn "Xác nhận đã chuyển".
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase">Ngân hàng</span>
-              <span className="text-smaller font-bold">{bankName}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase">Số tài khoản</span>
-              <div className="flex items-center gap-2">
-                <span className="text-smaller font-bold">{bankAccount}</span>
-                <button type="button" onClick={() => handleCopy(bankAccount)} className="p-1 hover:bg-white rounded transition-colors">
-                  <Copy className="w-3 h-3 text-primary" />
-                </button>
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase">Chủ tài khoản</span>
-              <span className="text-smaller font-bold">{accountName}</span>
-            </div>
-          </div>
+        {/* Payment Method Selection */}
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { id: 'BANK', name: 'Ngân hàng', icon: <Landmark className="w-5 h-5" /> },
+            { id: 'MOMO', name: 'MoMo', icon: <div className="size-5 bg-pink-500 rounded-lg" /> },
+            { id: 'VNPAY', name: 'VNPay', icon: <div className="size-5 bg-blue-600 rounded-lg" /> }
+          ].map((method) => (
+            <button
+              key={method.id}
+              type="button"
+              onClick={() => setPaymentMethod(method.id as any)}
+              className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
+                paymentMethod === method.id 
+                ? 'border-primary bg-primary/5 text-primary' 
+                : 'border-slate-100 dark:border-slate-800 text-slate-500'
+              }`}
+            >
+              {method.icon}
+              <span className="text-[10px] font-bold uppercase">{method.name}</span>
+            </button>
+          ))}
         </div>
 
         <div>
@@ -134,17 +145,66 @@ export const DepositModal = ({ isOpen, onClose, onRefresh }: { isOpen: boolean; 
           />
         </div>
 
-        <button
-          disabled={loading}
-          type="submit"
-          className="w-full py-4 bg-primary text-white font-black rounded-2xl hover:shadow-xl hover:shadow-primary/20 transition-all flex items-center justify-center gap-2"
-        >
-          {loading ? "Đang xử lý..." : "Xác nhận đã chuyển khoản"}
-        </button>
+        {paymentMethod === 'BANK' ? (
+          <>
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 rounded-2xl flex gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+              <p className="text-[11px] text-amber-800 dark:text-amber-400 font-medium leading-relaxed">
+                Vui lòng chuyển khoản đúng số tiền và nội dung chuyển khoản là Email của bạn.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Ngân hàng</span>
+                <span className="text-smaller font-bold">{bankName}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Số tài khoản</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-smaller font-bold">{bankAccount}</span>
+                  <button type="button" onClick={() => handleCopy(bankAccount)} className="p-1 hover:bg-white rounded transition-colors">
+                    <Copy className="w-3 h-3 text-primary" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Chủ tài khoản</span>
+                <span className="text-smaller font-bold">{accountName}</span>
+              </div>
+            </div>
+
+            <button
+              disabled={loading}
+              type="submit"
+              className="w-full py-4 bg-primary text-white font-black rounded-2xl hover:shadow-xl hover:shadow-primary/20 transition-all flex items-center justify-center gap-2"
+            >
+              {loading ? "Đang xử lý..." : "Xác nhận đã chuyển khoản"}
+            </button>
+          </>
+        ) : (
+          <div className="space-y-4">
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+              <p className="text-smaller text-slate-600 dark:text-slate-400 text-center italic">
+                Hệ thống sẽ chuyển hướng bạn đến cổng thanh toán {paymentMethod === 'MOMO' ? 'MoMo' : 'VNPay'} để hoàn tất giao dịch.
+              </p>
+            </div>
+            <button
+              disabled={loading}
+              type="submit"
+              className={`w-full py-4 text-white font-black rounded-2xl hover:shadow-xl transition-all flex items-center justify-center gap-2 ${
+                paymentMethod === 'MOMO' ? 'bg-[#A50064] hover:shadow-pink-500/20' : 'bg-[#005BAA] hover:shadow-blue-500/20'
+              }`}
+            >
+              {loading ? "Đang xử lý..." : `Thanh toán qua ${paymentMethod === 'MOMO' ? 'MoMo' : 'VNPay'}`}
+            </button>
+          </div>
+        )}
       </form>
     </Modal>
   );
 };
+
 
 export const WithdrawModal = ({ isOpen, onClose, balance, onRefresh }: { isOpen: boolean; onClose: () => void; balance: number; onRefresh: () => void }) => {
   const [amount, setAmount] = useState("");
