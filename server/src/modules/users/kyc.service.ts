@@ -41,8 +41,12 @@ export class KycService {
   }
 
   async getKycStatus(userId: number) {
-    return this.kycRepository.findOne({ where: { userId } });
+    return this.kycRepository.findOne({
+      where: { userId },
+      relations: ['user'],
+    });
   }
+
 
   async getAllPendingKyc() {
     return this.kycRepository.find({

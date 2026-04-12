@@ -17,7 +17,9 @@ export enum TransactionType {
   REFUND = 'refund',
   DISBURSEMENT = 'disbursement',
   REPAYMENT = 'repayment',
+  SYSTEM_LOG = 'system_log',
 }
+
 
 export enum TransactionStatus {
   PENDING = 'pending',

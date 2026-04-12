@@ -10,23 +10,33 @@ export enum KycStatus {
 }
 
 export function useKycCheck() {
-  const { data: kycStatus, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["kyc-status"],
     queryFn: async () => {
       try {
         const res = await api.get("/api/users/kyc/status");
-        return res.data?.status || KycStatus.NOT_SUBMITTED;
+        return {
+          status: res.data?.status || KycStatus.NOT_SUBMITTED,
+          isFrozen: !!res.data?.user?.isFrozen,
+        };
       } catch (err) {
-        return KycStatus.NOT_SUBMITTED;
+        return {
+          status: KycStatus.NOT_SUBMITTED,
+          isFrozen: false,
+        };
       }
     },
   });
 
+  const kycStatus = data?.status || KycStatus.NOT_SUBMITTED;
   const isKycApproved = kycStatus === KycStatus.APPROVED;
+  const isFrozen = !!data?.isFrozen;
 
   return {
     kycStatus,
     isKycApproved,
+    isFrozen,
     isLoading,
   };
 }
+

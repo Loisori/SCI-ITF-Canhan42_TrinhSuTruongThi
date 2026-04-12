@@ -12,7 +12,8 @@ import { Plus, Image, Rocket, ShieldAlert } from "lucide-react";
 import { useKycCheck } from "@/lib/hooks/useKycCheck";
 
 export default function MyProjects({ profile }: { profile: UserProfile }) {
-  const { isKycApproved } = useKycCheck();
+  const { isKycApproved, isFrozen } = useKycCheck();
+
 
   const [activeProject, setActiveProject] = useState<number | null>(null);
   const [proofUrl, setProofUrl] = useState("");
@@ -60,7 +61,16 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
           <h1 className="text-h3 font-bold text-slate-900 dark:text-white">Dự án của tôi</h1>
           <p className="text-slate-600 dark:text-slate-400 text-body mt-1">Quản lý và cập nhật tiến độ các dự án của bạn.</p>
         </div>
-        {isKycApproved ? (
+        {isFrozen ? (
+
+          <button 
+            onClick={() => toast.error("Tài khoản của bạn hiện đang bị đóng băng. Vui lòng liên hệ Admin.")}
+            className="px-5 py-2.5 bg-red-100 text-red-500 font-bold rounded-xl flex items-center gap-2 cursor-not-allowed"
+          >
+            <ShieldAlert className="w-5 h-5" />
+            Tài khoản bị khóa
+          </button>
+        ) : isKycApproved ? (
           <Link href="/projects/create" className="px-5 py-2.5 bg-primary text-white font-bold rounded-xl hover:shadow-lg transition-all flex items-center gap-2">
             <Plus className="w-5 h-5" />
             Tạo dự án mới
@@ -75,6 +85,7 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
           </button>
         )}
       </div>
+
 
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">

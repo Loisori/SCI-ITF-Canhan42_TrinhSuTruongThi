@@ -49,9 +49,12 @@ export class WalletsService {
         throw new BadRequestException('Số dư khả dụng không đủ để thực hiện rút tiền.');
       }
 
-      // Deduct immediately to prevent over-drawing while pending
-      user.balance = Number(user.balance) - amount;
-      await userRepo.save(user);
+      // 4. Trừ tiền Owner ngay lập tức (Atomic)
+      await manager.createQueryBuilder()
+        .update(UserEntity)
+        .set({ balance: () => "balance - :amount" })
+        .where("id = :id", { id: userId, amount })
+        .execute();
 
       const transaction = transactionRepo.create({
         userId,
@@ -65,6 +68,7 @@ export class WalletsService {
       return transactionRepo.save(transaction);
     });
   }
+
 
 
   async adminApproveTransaction(transactionId: number) {
@@ -83,20 +87,19 @@ export class WalletsService {
       }
 
       if (transaction.type === TransactionType.DEPOSIT) {
-        const user = await userRepo.findOne({
-          where: { id: transaction.userId },
-          lock: { mode: 'pessimistic_write' },
-        });
-        if (user) {
-          user.balance = Number(user.balance) + Number(transaction.amount);
-          await userRepo.save(user);
-        }
+        // Cộng tiền - sử dụng Atomic SQL để tránh N+1 locks & race condition
+        await manager.createQueryBuilder()
+          .update(UserEntity)
+          .set({ balance: () => "balance + :amount" })
+          .where("id = :id", { id: transaction.userId, amount: transaction.amount })
+          .execute();
       }
 
       transaction.status = TransactionStatus.SUCCESS;
       return transactionRepo.save(transaction);
     });
   }
+
 
   async adminRejectTransaction(transactionId: number, reason: string) {
     return this.dataSource.transaction(async (manager) => {
@@ -112,16 +115,13 @@ export class WalletsService {
         throw new BadRequestException('Chỉ có thể từ chối giao dịch đang chờ.');
       }
 
-      // If withdrawal, refund the balance
+      // If withdrawal, refund the balance (Atomic)
       if (transaction.type === TransactionType.WITHDRAWAL) {
-        const user = await userRepo.findOne({
-          where: { id: transaction.userId },
-          lock: { mode: 'pessimistic_write' },
-        });
-        if (user) {
-          user.balance = Number(user.balance) + Number(transaction.amount);
-          await userRepo.save(user);
-        }
+        await manager.createQueryBuilder()
+          .update(UserEntity)
+          .set({ balance: () => "balance + :amount" })
+          .where("id = :id", { id: transaction.userId, amount: transaction.amount })
+          .execute();
       }
 
       transaction.status = TransactionStatus.FAILED;
@@ -129,6 +129,7 @@ export class WalletsService {
       return transactionRepo.save(transaction);
     });
   }
+
 
   /**
    * Logic Trả Lãi (The 106k Logic)
@@ -170,12 +171,15 @@ export class WalletsService {
         relations: ['investment'],
       });
 
-      const totalRepaymentAmount = allSchedulesToPay.reduce(
-        (sum, s) => sum + Number(s.amount),
+      // 3. Tính tổng số tiền (Áp dụng "Integer First" để trị Penny Gap)
+      // Nhân 100 để đưa về đơn vị nhỏ nhất (cents), sau đó mới cộng
+      const totalCents = allSchedulesToPay.reduce(
+        (sum, s) => sum + Math.round(Number(s.amount) * 100),
         0,
       );
+      const totalRepaymentAmount = totalCents / 100;
 
-      // 3. Kiểm tra số dư Owner
+      // 4. Kiểm tra & Trừ tiền Owner (Atomic)
       const owner = await userRepo.findOne({
         where: { id: ownerId },
         lock: { mode: 'pessimistic_write' },
@@ -183,13 +187,15 @@ export class WalletsService {
 
       if (!owner || Number(owner.balance) < totalRepaymentAmount) {
         throw new BadRequestException(
-          `Vui lòng nạp thêm tiền để trả nợ. Cần: ${totalRepaymentAmount.toLocaleString('vi-VN')} ₫. Số dư hiện tại: ${owner?.balance.toLocaleString('vi-VN')} ₫.`,
+          `Vui lòng nạp thêm tiền để trả nợ. Cần: ${totalRepaymentAmount.toLocaleString('vi-VN')} ₫.`,
         );
       }
 
-      // 4. Bắt đầu trừ tiền Owner & Cộng tiền Investor
-      owner.balance = Number(owner.balance) - totalRepaymentAmount;
-      await userRepo.save(owner);
+      await manager.createQueryBuilder()
+        .update(UserEntity)
+        .set({ balance: () => "balance - :amount" })
+        .where("id = :id", { id: ownerId, amount: totalRepaymentAmount })
+        .execute();
 
       const ownerRepaymentTx = transactionRepo.create({
         userId: ownerId,
@@ -201,34 +207,35 @@ export class WalletsService {
       });
       const savedOwnerTx = await transactionRepo.save(ownerRepaymentTx);
 
+      // 5. Cộng tiền cho từng Investor (Atomic SQL - Hiệu năng cao)
       for (const s of allSchedulesToPay) {
-        const investor = await userRepo.findOne({
-          where: { id: s.investment.userId },
-          lock: { mode: 'pessimistic_write' },
+        const investorId = s.investment.userId;
+        const amount = Number(s.amount);
+
+        // Update balance bằng SQL trực tiếp - TRIỆT TIÊU N+1 Locks
+        await manager.createQueryBuilder()
+          .update(UserEntity)
+          .set({ balance: () => "balance + :amount" })
+          .where("id = :id", { id: investorId, amount: amount })
+          .execute();
+
+        // Tạo transaction log cho investor
+        const investorTx = transactionRepo.create({
+          userId: investorId,
+          amount: amount,
+          type: TransactionType.INTEREST_RECEIVE,
+          status: TransactionStatus.SUCCESS,
+          description: `Nhận lãi kỳ ${dueDate} dự án ${targetSchedule.investment.project.title}`,
+          referenceId: projectId,
+          parentTransactionId: savedOwnerTx.id,
         });
+        await transactionRepo.save(investorTx);
 
-        if (investor) {
-          const amount = Number(s.amount);
-          investor.balance = Number(investor.balance) + amount;
-          await userRepo.save(investor);
-
-          // Tạo transaction cho investor
-          const investorTx = transactionRepo.create({
-            userId: investor.id,
-            amount: amount,
-            type: TransactionType.INTEREST_RECEIVE,
-            status: TransactionStatus.SUCCESS,
-            description: `Nhận lãi kỳ ${dueDate} dự án ${targetSchedule.investment.project.title}`,
-            referenceId: projectId,
-            parentTransactionId: savedOwnerTx.id, // Linking to owner's batch repayment
-          });
-          await transactionRepo.save(investorTx);
-
-          // Cập nhật trạng thái schedule
-          s.status = PaymentScheduleStatus.PAID;
-          s.paidAt = new Date();
-          await scheduleRepo.save(s);
-        }
+        // Cập nhật trạng thái schedule
+        await manager.update(PaymentScheduleEntity, s.id, {
+          status: PaymentScheduleStatus.PAID,
+          paidAt: new Date(),
+        });
       }
 
       return {
@@ -238,6 +245,7 @@ export class WalletsService {
       };
     });
   }
+
 
   async getTransactionHistory(userId: number) {
     return this.dataSource.getRepository(TransactionEntity).find({

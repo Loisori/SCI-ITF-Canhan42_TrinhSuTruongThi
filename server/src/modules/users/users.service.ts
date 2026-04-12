@@ -8,9 +8,15 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CloudinaryService } from '../media/cloudinary.service';
 import { ProjectCategoryEntity } from '../projects/entities/category.entity';
+import { 
+  TransactionEntity, 
+  TransactionType, 
+  TransactionStatus 
+} from '../transactions/entities/transaction.entity';
 
 @Injectable()
 export class UsersService {
+
   constructor(
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
@@ -271,4 +277,31 @@ export class UsersService {
       throw new BadRequestException(`Tính năng cấu hình thông báo chưa sẵn sàng. Vui lòng thử lại sau.`);
     }
   }
+
+  async freezeAccount(userId: number, reason: string): Promise<UserEntity> {
+    return this.dataSource.transaction(async (manager) => {
+      const userRepo = manager.getRepository(UserEntity);
+      const transactionRepo = manager.getRepository(TransactionEntity);
+
+      const user = await userRepo.findOne({ where: { id: userId } });
+      if (!user) throw new NotFoundException('User không tồn tại.');
+
+      await userRepo.update(userId, { isFrozen: true });
+
+      const log = transactionRepo.create({
+        userId,
+        amount: 0,
+        type: TransactionType.SYSTEM_LOG,
+        status: TransactionStatus.SUCCESS,
+        description: `Hệ thống tự động đóng băng tài khoản do: ${reason}`,
+      });
+      await transactionRepo.save(log);
+
+      const updatedUser = await userRepo.findOne({ where: { id: userId } });
+      if (!updatedUser) throw new NotFoundException('User không tồn tại sau khi cập nhật.');
+      return updatedUser;
+    });
+  }
+
 }
+

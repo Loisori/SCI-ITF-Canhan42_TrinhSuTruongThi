@@ -12,7 +12,9 @@ import { GetUser } from '../../common/decorators/get-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { AccountStatusGuard } from '../../common/guards/account-status.guard';
 import { UserEntity, UserRole } from '../users/entities/user.entity';
+
 import {
   DepositRequestDto,
   RepayMilestoneDto,
@@ -25,7 +27,9 @@ import { WalletsService } from './wallets.service';
 export class WalletsController {
   constructor(private readonly walletsService: WalletsService) {}
 
+  @UseGuards(AccountStatusGuard)
   @Post('deposit')
+
   async requestDeposit(
     @GetUser('id') userId: number,
     @Body() dto: DepositRequestDto,
@@ -33,7 +37,9 @@ export class WalletsController {
     return this.walletsService.requestDeposit(userId, dto.amount);
   }
 
+  @UseGuards(AccountStatusGuard)
   @Post('withdraw')
+
   async requestWithdraw(
     @GetUser('id') userId: number,
     @Body() dto: WithdrawRequestDto,
@@ -56,7 +62,8 @@ export class WalletsController {
 
   @Post('repay')
   @Roles(UserRole.OWNER)
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, AccountStatusGuard)
+
   async repayMilestone(
     @GetUser('id') ownerId: number,
     @Body() dto: RepayMilestoneDto,

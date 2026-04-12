@@ -148,4 +148,8 @@ export class UserEntity {
     investment_update: true,
     milestone_reached: true,
   };
+
+  @Column({ name: 'is_frozen', type: 'boolean', default: false })
+  isFrozen: boolean;
 }
+

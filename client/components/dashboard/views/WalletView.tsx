@@ -12,10 +12,12 @@ import { Banknote, Wallet, ArrowUpRight, ArrowDownLeft, Copy, CheckCircle2, X } 
 import AnimatedNumber from "@/components/ui/AnimatedNumber";
 import { motion, AnimatePresence } from "framer-motion";
 import { DepositModal, WithdrawModal } from "../modals/FintechModals";
-
+import { useKycCheck } from "@/lib/hooks/useKycCheck";
 
 export default function WalletView({ profile }: { profile: UserProfile }) {
+  const { isFrozen } = useKycCheck();
   const [showDepositModal, setShowDepositModal] = useState(false);
+
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
   const [filterType, setFilterType] = useState<string>("");
@@ -70,20 +72,25 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setShowDepositModal(true)}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white font-bold hover:shadow-lg transition-all"
+            onClick={() => isFrozen ? toast.error("Tài khoản bị đóng băng - Không thể nạp tiền.") : setShowDepositModal(true)}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all ${
+              isFrozen ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-primary text-white hover:shadow-lg'
+            }`}
           >
             <Banknote className="w-5 h-5" />
             Nạp tiền
           </button>
           <button
-            onClick={() => setShowWithdrawModal(true)}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl border border-primary text-primary font-bold hover:bg-primary/5 transition-all"
+            onClick={() => isFrozen ? toast.error("Tài khoản bị đóng băng - Không thể rút tiền.") : setShowWithdrawModal(true)}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all ${
+              isFrozen ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'border border-primary text-primary hover:bg-primary/5'
+            }`}
           >
             <ArrowUpRight className="w-5 h-5" />
             Rút tiền
           </button>
         </div>
+
       </div>
 
       <div className="grid grid-cols-1 gap-8">

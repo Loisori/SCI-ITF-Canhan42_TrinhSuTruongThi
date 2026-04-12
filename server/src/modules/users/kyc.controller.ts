@@ -8,8 +8,10 @@ import {
   Post,
   Res,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
-import { Response } from 'express';
+import type { Response } from 'express';
+
 import * as https from 'https';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 
