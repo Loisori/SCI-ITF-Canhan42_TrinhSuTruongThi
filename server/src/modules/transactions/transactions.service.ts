@@ -55,7 +55,7 @@ export class TransactionsService {
       const transaction = this.transactionsRepository.create({
         userId,
         amount: numAmount,
-        type: TransactionType.WITHDRAW,
+        type: TransactionType.WITHDRAWAL,
         status: TransactionStatus.PENDING,
         description: 'Yêu cầu rút tiền từ ví',
       });
@@ -74,7 +74,7 @@ export class TransactionsService {
   async getAllPendingWithdrawals() {
     return this.transactionsRepository.find({
       where: { 
-        type: TransactionType.WITHDRAW,
+        type: TransactionType.WITHDRAWAL,
         status: TransactionStatus.PENDING 
       },
       relations: ['user'],

@@ -22,12 +22,24 @@ export type ProjectOwner = {
 export type ProjectMilestone = {
   id: number;
   title: string;
+  content?: string | null;
   percentage: number;
   stage: number;
-  status: 'pending' | 'uploading_proof' | 'admin_review' | 'disbursed';
-  proofUrl: string | null;
+  status:
+    | 'pending'
+    | 'uploading_proof'
+    | 'voting'
+    | 'admin_review'
+    | 'disbursed'
+    | 'completed'
+    | 'rejected'
+    | 'disputed';
+  evidenceUrls?: string[] | null;
+  disbursementDate?: string | null;
+  votingEndsAt?: string | null;
   createdAt: string;
 };
+
 
 export type ProjectDispute = {
   id: number;
@@ -74,7 +86,9 @@ export type ProjectDetail = {
   isFrozen?: boolean;
   milestones?: ProjectMilestone[];
   disputes?: ProjectDispute[];
+  createdAt: string;
 };
+
 
 export type PendingProject = {
   id: number;

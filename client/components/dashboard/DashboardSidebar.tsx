@@ -50,6 +50,8 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
   const adminLinks = [
     { name: "Hệ thống", view: "system-overview", icon: LayoutDashboard },
     { name: "Duyệt dự án", view: "project-approvals", icon: ClipboardCheck },
+    { name: "Duyệt KYC", view: "kyc-audit", icon: UserCircle },
+    { name: "Duyệt Rút tiền", view: "withdrawal-audit", icon: Wallet },
     { name: "Giải ngân", view: "disbursements", icon: Banknote },
     { name: "Người dùng", view: "user-management", icon: Users },
   ];
@@ -57,15 +59,18 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
   const userLinks = [
     { name: "Tổng quan", view: "overview", icon: LayoutGrid },
     { name: "Hồ sơ của tôi", view: "profile", icon: UserCircle },
+    { name: "Xác minh danh tính", view: "kyc", icon: ClipboardCheck },
     { name: "Ví của tôi", view: "wallet", icon: Wallet },
     { name: "Nhật ký giao dịch", view: "transactions", icon: ReceiptText },
     { name: "Đầu tư của tôi", view: "portfolio", icon: TrendingUp },
     { name: "Thống kê", view: "analytics", icon: BarChart3 },
     ...(role === "owner" ? [
       { name: "Dự án của tôi", view: "my-projects", icon: Rocket },
+      { name: "Thanh toán lãi", view: "repayments", icon: Banknote },
     ] : []),
     { name: "Cài đặt", view: "settings", icon: Settings },
   ];
+
 
   const links = isAdminPath ? adminLinks : userLinks;
 

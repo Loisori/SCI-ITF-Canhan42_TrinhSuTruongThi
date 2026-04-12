@@ -43,7 +43,9 @@ export default function ProjectDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
   const [amount, setAmount] = useState(0);
+
   const [investing, setInvesting] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -72,8 +74,10 @@ export default function ProjectDetailPage() {
       try {
         const me = await api.get<Profile>("/api/auth/profile");
         setRole(me.data.role);
+        setUserId(me.data.id);
       } catch {
         setRole(null);
+        setUserId(null);
       }
     };
 
@@ -470,8 +474,15 @@ export default function ProjectDetailPage() {
               </div>
 
               {/* Milestones & Disputes Component */}
-              <ProjectMilestones project={project} role={role === "business" && project.owner && project.owner.id ? "business" : role} onUpdate={fetchProject} setToast={setToast} />
+              <ProjectMilestones 
+                project={project} 
+                role={role} 
+                currentUserId={userId}
+                onUpdate={fetchProject} 
+                setToast={setToast} 
+              />
             </div>
+
           </div>
         )}
       </main>

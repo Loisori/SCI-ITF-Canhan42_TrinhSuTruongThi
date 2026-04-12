@@ -365,7 +365,7 @@ export class InvestmentsService {
             const ownerTx = transactionsRepo.create({
               userId: project.ownerId,
               amount: firstDisbursement,
-              type: TransactionType.WITHDRAW,
+              type: TransactionType.WITHDRAWAL,
               status: TransactionStatus.SUCCESS,
               description: `Nhận vốn đợt 1 dự án ${project.title}`,
               referenceId: project.id,
@@ -589,8 +589,9 @@ export class InvestmentsService {
             percentage: m.percentage,
             stage: m.stage,
             status: m.status,
-            proofUrl: m.proofUrl,
+            evidenceUrls: m.evidenceUrls,
             createdAt: m.createdAt,
+
           })),
           disputes: project.disputes?.map((d) => ({
             id: d.id,

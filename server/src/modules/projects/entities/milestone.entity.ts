@@ -11,8 +11,12 @@ import { ProjectEntity } from './project.entity';
 export enum MilestoneStatus {
   PENDING = 'pending',
   UPLOADING_PROOF = 'uploading_proof',
+  VOTING = 'voting',
   ADMIN_REVIEW = 'admin_review',
   DISBURSED = 'disbursed',
+  COMPLETED = 'completed',
+  REJECTED = 'rejected',
+  DISPUTED = 'disputed',
 }
 
 @Entity({ name: 'project_milestones' })
@@ -25,6 +29,9 @@ export class ProjectMilestoneEntity {
 
   @Column({ type: 'varchar', length: 255 })
   title: string;
+
+  @Column({ type: 'text', nullable: true })
+  content: string | null;
 
   @Column({
     type: 'int',
@@ -45,11 +52,18 @@ export class ProjectMilestoneEntity {
   })
   status: MilestoneStatus;
 
-  @Column({ name: 'proof_url', type: 'text', nullable: true })
-  proofUrl: string | null;
+  @Column({ name: 'evidence_urls', type: 'simple-json', nullable: true })
+  evidenceUrls: string[] | null;
+
+  @Column({ name: 'disbursement_date', type: 'timestamp', nullable: true })
+  disbursementDate: Date | null;
+
+  @Column({ name: 'voting_ends_at', type: 'timestamp', nullable: true })
+  votingEndsAt: Date | null;
 
   @Column({ name: 'rejection_reason', type: 'text', nullable: true })
   rejectionReason: string | null;
+
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;

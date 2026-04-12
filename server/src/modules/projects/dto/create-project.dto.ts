@@ -11,8 +11,32 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
 import { ProjectRiskLevel, ProjectStatus } from '../entities/project.entity';
+
+export class CreateMilestoneDto {
+  @IsString()
+  @MaxLength(255)
+  title: string;
+
+  @IsOptional()
+  @IsString()
+  content?: string;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  percentage: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(10)
+  stage: number;
+}
+
 
 export class CreateProjectDto {
   @IsString()
@@ -82,4 +106,11 @@ export class CreateProjectDto {
   @IsArray()
   @IsString({ each: true })
   additional_images?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateMilestoneDto)
+  milestones?: CreateMilestoneDto[];
 }
+

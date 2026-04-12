@@ -14,7 +14,9 @@ import { AdminDashboardModule } from './modules/admin-dashboard/admin-dashboard.
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { MediaModule } from './modules/media/media.module';
 import { AiChatModule } from './modules/ai-chat/ai-chat.module';
+import { WalletsModule } from './modules/wallets/wallets.module';
 import { createTypeOrmConfig } from './config/typeorm.config';
+
 
 @Module({
   imports: [
@@ -40,7 +42,9 @@ import { createTypeOrmConfig } from './config/typeorm.config';
     NotificationsModule,
     MediaModule,
     AiChatModule,
+    WalletsModule,
   ],
+
   controllers: [AppController],
   providers: [AppService],
 })

@@ -13,6 +13,8 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
+import { GetUser } from '../../common/decorators/get-user.decorator';
+
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
@@ -25,12 +27,13 @@ export class AdminProjectsController {
     return this.projectsService.getPendingProjects();
   }
 
-  @Get('milestones/pending')
-  getPendingMilestones() {
-    return this.projectsService.getPendingMilestones();
+  @Get('milestones/disputed')
+  getDisputedMilestones() {
+    return this.projectsService.getDisputedMilestones();
   }
 
   @Get('disputes')
+
   getFrozenProjects() {
     return this.projectsService.getFrozenProjects();
   }
@@ -69,5 +72,29 @@ export class AdminProjectsController {
   ) {
     return this.projectsService.resolveDisputes(id, action);
   }
+
+  @Post('milestones/:mId/feedback')
+  adminMilestoneFeedback(
+    @Param('mId', ParseIntPipe) mId: number,
+    @Body('content') content: string,
+    @GetUser('id') adminId: number,
+  ) {
+    return this.projectsService.adminMilestoneFeedback(mId, adminId, content);
+  }
+
+  @Post('milestones/:mId/reset-vote')
+  adminResetMilestoneVote(@Param('mId', ParseIntPipe) mId: number) {
+    return this.projectsService.adminResetMilestoneVote(mId);
+  }
+
+  @Post(':id/terminate')
+  adminTerminateProject(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('reason') reason: string,
+    @GetUser('id') adminId: number,
+  ) {
+    return this.projectsService.adminTerminateProject(id, adminId, reason);
+  }
 }
+
 

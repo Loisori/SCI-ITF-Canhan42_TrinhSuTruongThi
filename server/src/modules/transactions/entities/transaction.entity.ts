@@ -11,11 +11,12 @@ import { UserEntity } from '../../users/entities/user.entity';
 
 export enum TransactionType {
   DEPOSIT = 'deposit',
-  WITHDRAW = 'withdraw',
+  WITHDRAWAL = 'withdrawal',
   INVEST = 'invest',
   INTEREST_RECEIVE = 'interest_receive',
   REFUND = 'refund',
   DISBURSEMENT = 'disbursement',
+  REPAYMENT = 'repayment',
 }
 
 export enum TransactionStatus {
@@ -78,10 +79,25 @@ export class TransactionEntity {
   @Column({ name: 'reference_id', type: 'int', nullable: true })
   referenceId: number | null;
 
+  @Column({ name: 'parent_transaction_id', type: 'bigint', unsigned: true, nullable: true, transformer: { to: (value: number) => value, from: (value: string | number) => (value === null ? null : Number(value)), }, })
+  parentTransactionId: number | null;
+
+  @Column({ name: 'bank_name', type: 'varchar', length: 100, nullable: true })
+  bankName: string | null;
+
+  @Column({ name: 'account_number', type: 'varchar', length: 50, nullable: true })
+  accountNumber: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+
   createdAt: Date;
 
   @ManyToOne(() => UserEntity, (user) => user.transactions)
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
+
+  @ManyToOne(() => TransactionEntity)
+  @JoinColumn({ name: 'parent_transaction_id' })
+  parentTransaction: TransactionEntity | null;
 }
+

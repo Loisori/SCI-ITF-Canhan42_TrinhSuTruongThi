@@ -1,6 +1,8 @@
 export type Profile = {
+  id: number;
   role: string;
 };
+
 
 export type Me = Profile;
 

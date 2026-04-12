@@ -6,6 +6,9 @@ import { UsersController } from './users.controller';
 import { UserMediaEntity } from './entities/user-media.entity';
 import { MediaModule } from '../media/media.module';
 import { ProjectCategoryEntity } from '../projects/entities/category.entity';
+import { KycEntity } from './entities/kyc.entity';
+import { KycService } from './kyc.service';
+import { KycController } from './kyc.controller';
 
 @Module({
   imports: [
@@ -13,11 +16,13 @@ import { ProjectCategoryEntity } from '../projects/entities/category.entity';
       UserEntity,
       UserMediaEntity,
       ProjectCategoryEntity,
+      KycEntity,
     ]),
     MediaModule,
   ],
-  providers: [UsersService],
-  controllers: [UsersController],
-  exports: [UsersService],
+  providers: [UsersService, KycService],
+  controllers: [UsersController, KycController],
+  exports: [UsersService, KycService],
 })
 export class UsersModule {}
+

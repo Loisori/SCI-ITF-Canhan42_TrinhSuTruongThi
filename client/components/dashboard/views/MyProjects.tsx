@@ -8,9 +8,12 @@ import { UserProfile } from "@/types/user";
 import { OwnerProject } from "@/types/dashboard";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { Plus, Image, Rocket } from "lucide-react";
+import { Plus, Image, Rocket, ShieldAlert } from "lucide-react";
+import { useKycCheck } from "@/lib/hooks/useKycCheck";
 
 export default function MyProjects({ profile }: { profile: UserProfile }) {
+  const { isKycApproved } = useKycCheck();
+
   const [activeProject, setActiveProject] = useState<number | null>(null);
   const [proofUrl, setProofUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,11 +60,22 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
           <h1 className="text-h3 font-bold text-slate-900 dark:text-white">Dự án của tôi</h1>
           <p className="text-slate-600 dark:text-slate-400 text-body mt-1">Quản lý và cập nhật tiến độ các dự án của bạn.</p>
         </div>
-        <Link href="/projects/create" className="px-5 py-2.5 bg-primary text-white font-bold rounded-xl hover:shadow-lg transition-all flex items-center gap-2">
-           <Plus className="w-5 h-5" />
-           Tạo dự án mới
-        </Link>
+        {isKycApproved ? (
+          <Link href="/projects/create" className="px-5 py-2.5 bg-primary text-white font-bold rounded-xl hover:shadow-lg transition-all flex items-center gap-2">
+            <Plus className="w-5 h-5" />
+            Tạo dự án mới
+          </Link>
+        ) : (
+          <button 
+            onClick={() => toast.error("Bạn cần hoàn tất xác thực KYC để tạo dự án.")}
+            className="px-5 py-2.5 bg-slate-200 text-slate-500 font-bold rounded-xl flex items-center gap-2 cursor-not-allowed"
+          >
+            <ShieldAlert className="w-5 h-5" />
+            Tạo dự án mới (Yêu cầu KYC)
+          </button>
+        )}
       </div>
+
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         {projects.map((p) => (

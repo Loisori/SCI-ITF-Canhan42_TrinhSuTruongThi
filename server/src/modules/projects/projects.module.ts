@@ -9,7 +9,10 @@ import { ProjectCategoryEntity } from './entities/category.entity';
 import { ProjectMediaEntity } from './entities/media.entity';
 import { ProjectMilestoneEntity } from './entities/milestone.entity';
 import { ProjectDisputeEntity } from './entities/dispute.entity';
+import { MilestoneVoteEntity } from './entities/vote.entity';
+import { MilestoneDiscussionEntity } from './entities/discussion.entity';
 import { AdminProjectsController } from './admin-projects.controller';
+
 import { NotificationsModule } from '../notifications/notifications.module';
 import { InvestmentsModule } from '../investments/investments.module';
 
@@ -21,7 +24,11 @@ import { InvestmentsModule } from '../investments/investments.module';
       ProjectMediaEntity,
       ProjectMilestoneEntity,
       ProjectDisputeEntity,
+      MilestoneVoteEntity,
+      MilestoneDiscussionEntity,
     ]),
+
+
     AuthModule,
     NotificationsModule,
     InvestmentsModule,

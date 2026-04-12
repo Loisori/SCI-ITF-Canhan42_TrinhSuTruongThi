@@ -10,14 +10,21 @@ import SettingsView from "./views/SettingsView";
 import TransactionsView from "./views/TransactionsView";
 import AnalyticsView from "./views/AnalyticsView";
 import ProfileView from "./views/ProfileView";
+import KycView from "./views/KycView";
+import RepaymentView from "./views/RepaymentView";
+
+
 
 // Admin Views
 import SystemOverview from "./views/admin/SystemOverview";
 import ProjectApprovals from "./views/admin/ProjectApprovals";
 import UserManagement from "./views/admin/UserManagement";
 import Disbursements from "./views/admin/Disbursements";
+import KycAudit from "./views/admin/KycAudit";
+import WithdrawalAudit from "./views/admin/WithdrawalAudit";
 
 export default function DashboardContent({ profile, onUpdate }: { profile: UserProfile, onUpdate: () => void }) {
+
   const { activeView } = useDashboard();
 
   const renderView = () => {
@@ -37,7 +44,13 @@ export default function DashboardContent({ profile, onUpdate }: { profile: UserP
         return <AnalyticsView />;
       case "profile":
         return <ProfileView profile={profile} />;
+      case "kyc":
+        return <KycView profile={profile} />;
+      case "repayments":
+        return <RepaymentView profile={profile} />;
       case "settings":
+
+
         return <SettingsView profile={profile} onUpdate={onUpdate} />;
 
       // Admin specific views
@@ -49,8 +62,13 @@ export default function DashboardContent({ profile, onUpdate }: { profile: UserP
         return <UserManagement />;
       case "disbursements":
         return <Disbursements />;
+      case "kyc-audit":
+        return <KycAudit />;
+      case "withdrawal-audit":
+        return <WithdrawalAudit />;
 
       default:
+
         return <Overview profile={profile} />;
     }
   };

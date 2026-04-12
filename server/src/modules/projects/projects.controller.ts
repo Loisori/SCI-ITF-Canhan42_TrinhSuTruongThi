@@ -150,14 +150,56 @@ export class ProjectsController {
     @Param('id', ParseIntPipe) id: number,
     @Param('mId', ParseIntPipe) mId: number,
     @GetUser('id') ownerId: number,
-    @Body('proofUrl') proofUrl: string,
+    @Body('evidenceUrls') evidenceUrls: string[],
   ) {
-    if (!proofUrl) throw new BadRequestException('proofUrl is required');
-    return this.projectsService.uploadMilestoneProof(id, mId, ownerId, proofUrl);
+    if (!evidenceUrls || evidenceUrls.length === 0)
+      throw new BadRequestException('At least one evidence URL is required');
+    return this.projectsService.uploadMilestoneProof(
+      id,
+      mId,
+      ownerId,
+      evidenceUrls,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard) // Only owner of the project can start voting
+  @Post('milestones/:mId/start-voting')
+  startMilestoneVoting(
+    @Param('mId', ParseIntPipe) mId: number,
+    @GetUser('id') userId: number,
+  ) {
+    return this.projectsService.startMilestoneVoting(mId, userId);
+  }
+
+  @UseGuards(JwtAuthGuard) // Only investors of the project can vote
+  @Post('milestones/:mId/vote')
+  submitVote(
+    @Param('mId', ParseIntPipe) mId: number,
+    @GetUser('id') userId: number,
+    @Body('isApprove') isApprove: boolean,
+    @Body('comment') comment?: string,
+  ) {
+    return this.projectsService.submitVote(userId, mId, isApprove, comment);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('milestones/:mId/response')
+  ownerMilestoneResponse(
+    @Param('mId', ParseIntPipe) mId: number,
+    @GetUser('id') userId: number,
+    @Body('content') content: string,
+  ) {
+    return this.projectsService.ownerMilestoneResponse(mId, userId, content);
+  }
+
+  @Get('milestones/:mId/discussions')
+  getMilestoneDiscussions(@Param('mId', ParseIntPipe) mId: number) {
+    return this.projectsService.getMilestoneDiscussions(mId);
   }
 
   @UseGuards(JwtAuthGuard, IsInvestorGuard)
   @Post(':id/disputes')
+
   createDispute(
     @Param('id', ParseIntPipe) id: number,
     @GetUser('id') userId: number,
@@ -167,6 +209,7 @@ export class ProjectsController {
     if (!reason) throw new BadRequestException('reason is required');
     return this.projectsService.createDispute(id, userId, reason, evidenceUrl);
   }
+
 
   @UseGuards(JwtAuthGuard, IsOwnerGuard)
   @Put(':id/milestones')
