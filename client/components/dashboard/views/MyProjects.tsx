@@ -42,7 +42,7 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
     }
     try {
       setIsSubmitting(true);
-      await api.patch(`/api/projects/${projectId}/milestones/${milestoneId}/proof`, { proofUrl });
+      await api.patch(`/api/projects/${projectId}/milestones/${milestoneId}/proof`, { evidenceUrls: [proofUrl] });
       toast.success("Đã gửi minh chứng thành công. Chờ Admin phê duyệt.");
       setProofUrl("");
       setActiveProject(null);

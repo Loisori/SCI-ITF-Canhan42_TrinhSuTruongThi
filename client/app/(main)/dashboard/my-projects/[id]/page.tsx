@@ -88,7 +88,7 @@ export default function MyProjectMilestonesPage() {
   const handleProofSelected = async (url: string) => {
     if (!activeUploadMilestoneId || !project) return;
     try {
-      await api.patch(`/api/projects/${project.id}/milestones/${activeUploadMilestoneId}/proof`, { proofUrl: url });
+      await api.patch(`/api/projects/${project.id}/milestones/${activeUploadMilestoneId}/proof`, { evidenceUrls: [url] });
       setToast({ type: 'success', message: 'Đã nộp minh chứng thành công! Chờ Admin duyệt.'});
       setIsLibraryOpen(false);
       
