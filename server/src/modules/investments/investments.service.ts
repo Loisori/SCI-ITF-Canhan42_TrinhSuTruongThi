@@ -26,14 +26,13 @@ import {
   TransactionType,
 } from '../transactions/entities/transaction.entity';
 import { CreateInvestmentDto } from './dto/create-investment.dto';
-import { NotificationsService } from '../notifications/notifications.service';
-import { NotificationType } from '../notifications/entities/notification.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class InvestmentsService {
   constructor(
     private readonly dataSource: DataSource,
-    private readonly notificationsService: NotificationsService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   private toCommissionFraction(commissionRate?: number | null): number {
@@ -238,36 +237,34 @@ export class InvestmentsService {
 
       await transactionsRepo.save(transaction);
 
-      // Notify owner
-      await this.notificationsService.createSpecialNotification(
-        project.ownerId,
-        `Có người vừa đầu tư ${amount.toLocaleString('vi-VN')} ₫ vào dự án ${project.title} của bạn.`,
-        NotificationType.INVESTMENT_RECEIVED
-      );
-
-      // Check if project reached 100%
-      if (Number(project.currentAmount) >= Number(project.goalAmount)) {
-        const investors = await investmentsRepo.find({
-          where: { projectId: project.id },
-          select: ['userId']
-        });
-        const uniqueInvestorIds = [...new Set(investors.map(i => i.userId))];
-        for (const iId of uniqueInvestorIds) {
-          await this.notificationsService.createSpecialNotification(
-            iId,
-            `Dự án bạn theo dõi (${project.title}) đã đạt 100% mục tiêu!`,
-            NotificationType.PROJECT_UPDATE
-          );
-        }
-      }
-
       return {
         message: 'Đầu tư thành công.',
         investmentId: savedInvestment.id,
         userBalance: user.balance,
         projectCurrentAmount: project.currentAmount,
         paymentScheduleCount: schedules.length,
+        projectTitle: project.title,
+        projectOwnerId: project.ownerId,
+        isGoalReached: Number(project.currentAmount) >= Number(project.goalAmount),
+        amount,
       };
+    }).then((result) => {
+      // Bắn sự kiện ra ngoài Transaction để tránh Lag
+      this.eventEmitter.emit('investment.made', {
+        ownerId: result.projectOwnerId,
+        amount: result.amount,
+        title: result.projectTitle,
+      });
+
+      if (result.isGoalReached) {
+        this.eventEmitter.emit('project.goalReached', {
+          projectId: dto.projectId,
+          title: result.projectTitle,
+          ownerId: result.projectOwnerId,
+        });
+      }
+
+      return result;
     });
   }
 
@@ -433,12 +430,12 @@ export class InvestmentsService {
             });
             await transactionsRepo.save(interestTx);
 
-            // Notify investor about interest paid
-            await this.notificationsService.createSpecialNotification(
+            // Notify investor about interest paid - Emit event instead of direct call
+            this.eventEmitter.emit('project.interestPaid', {
               investorId,
-              `Tiền lãi ${totalInterest.toLocaleString('vi-VN')} ₫ từ dự án ${project.title} đã về ví.`,
-              NotificationType.PAYMENT_SUCCESS
-            );
+              amount: totalInterest,
+              title: project.title,
+            });
           }
 
           continue;
@@ -493,12 +490,12 @@ export class InvestmentsService {
           });
           await transactionsRepo.save(refundTransaction);
 
-          // Notify investor about refund
-          await this.notificationsService.createSpecialNotification(
-            investment.userId,
-            `Dự án ${project.title} không đạt mục tiêu và đã bị hủy. ${amount.toLocaleString('vi-VN')} ₫ đã được hoàn vào ví của bạn.`,
-            NotificationType.PROJECT_UPDATE
-          );
+          // Notify investor about refund - Emit event instead of direct call
+          this.eventEmitter.emit('project.refunded', {
+            investorId: investment.userId,
+            amount,
+            title: project.title,
+          });
 
           refundedInvestments += 1;
           refundedAmount += amount;

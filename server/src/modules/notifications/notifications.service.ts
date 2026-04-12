@@ -27,6 +27,24 @@ export class NotificationsService {
     return saved;
   }
 
+  // notifications.service.ts
+// Thêm hàm này vào class của Lợi
+async createBatchNotifications(configs: { userId: number, message: string, type: NotificationType }[]) {
+  if (!configs || configs.length === 0) return;
+
+  // 1. Ghi hàng loạt (1 lệnh SQL duy nhất - Không gây Lock Timeout)
+  await this.notificationsRepository.insert(configs);
+
+  // 2. Bắn Socket ngầm (Async)
+  configs.forEach(config => {
+    this.notificationsGateway.sendNotificationToUser(config.userId.toString(), {
+      ...config,
+      isRead: false,
+      createdAt: new Date(),
+    });
+  });
+}
+
   async getUserNotifications(userId: number) {
     return this.notificationsRepository.find({
       where: { userId },

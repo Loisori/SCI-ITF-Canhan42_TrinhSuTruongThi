@@ -134,11 +134,6 @@ export default function DepositPage() {
             </div>
           </div>
 
-            <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900 text-red-600 text-smaller p-4 rounded-xl flex items-center gap-2">
-              <CircleAlert />
-              <p>{error}</p>
-            </div>
-
           <div className="flex items-center gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
             <button
               type="submit"

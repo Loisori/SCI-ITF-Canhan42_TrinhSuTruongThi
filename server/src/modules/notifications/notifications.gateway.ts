@@ -13,6 +13,7 @@ import { NotificationsService } from './notifications.service';
   cors: {
     origin: '*', // Customize this based on env in proper implementation
   },
+  transports: ['websocket', 'polling'],
 })
 @Injectable()
 export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {

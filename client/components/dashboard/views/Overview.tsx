@@ -55,15 +55,15 @@ export default function Overview({ profile }: { profile: UserProfile }) {
         </div>
         <div className="flex justify-between py-2 border-b-[.1rem] border-black">
           <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider">Họ và tên</p>
-          <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider">{profile.fullName}</p>
+          <p className="text-smaller font-bold text-slate-500 tracking-wider">{profile.fullName}</p>
         </div>
         <div className="flex justify-between py-2 border-b-[.1rem] border-black">
           <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider">Email</p>
-          <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider">{profile.email}</p>
+          <p className="text-smaller font-bold text-slate-500 tracking-wider">{profile.email}</p>
         </div>
         <div className="flex justify-between py-2 border-b-[.1rem] border-black">
           <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider">Vai trò</p>
-          <p className="text-smaller font-bold text-slate-500 uppercase tracking-wider">{profile.role}</p>
+          <p className="text-smaller font-bold text-slate-500 tracking-wider">{profile.role}</p>
         </div>
       </div>
 

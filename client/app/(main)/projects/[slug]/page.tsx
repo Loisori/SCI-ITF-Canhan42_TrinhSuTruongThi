@@ -297,9 +297,11 @@ export default function ProjectDetailPage() {
                           style={{ width: `${baseProgress}%` }}
                         />
                       </div>
-                      <p className="mt-1 text-[11px] font-semibold text-orange-600 dark:text-orange-300">
-                        Vượt mục tiêu +{overProgress.toFixed(2)}%
-                      </p>
+                      {overProgress > 0 && (
+                        <p className="mt-1 text-[11px] font-semibold text-orange-600 dark:text-orange-300">
+                          Vượt mục tiêu +{overProgress.toFixed(2)}%
+                        </p>
+                      )}
                     </div>
                     <div className="flex justify-between">
                       <span>Đã huy động</span>
@@ -349,8 +351,7 @@ export default function ProjectDetailPage() {
                       Số tiền đầu tư
                     </label>
                     <input
-                      type="number"
-                      // min={Number(project.minInvestment || 1)}
+                      type="text"
                       min={Number(project.minInvestment)}
                       value={amount}
                       onChange={(e) => setAmount(Number(e.target.value))}
@@ -400,9 +401,6 @@ export default function ProjectDetailPage() {
                 <div className="w-1/3 text-body">You’re only charged if the project meets its funding goal by the campaign deadline.</div>
               </div>
               <div className="col-span-1 md:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 investpro-markdown-preview">
-                <h2 className="text-h6 font-bold mb-3">
-                  Nội dung dự án
-                </h2>
                 {project.content ? (
                   <MarkdownPreview
                     source={project.content}
@@ -439,16 +437,11 @@ export default function ProjectDetailPage() {
                 `}</style>
               </div>
 
-              <div className="col-span-1 md:col-span-1 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
-                <h2 className="text-h6 font-bold mb-4 flex items-center gap-2">
-                  <UserCircle className="text-primary" size={20} />
-                  Thông tin chủ dự án
-                </h2>
+              <div className="col-span-1 md:col-span-1 ">
                 {project.owner ? (
-                  <div className="space-y-4">
+                  <Link href={`/profile/${project.owner.id}`} className="block space-y-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
                     <div className="flex items-center gap-4">
-                      <Link 
-                        href={`/profile/${project.owner.id}`}
+                      <div 
                         className="w-16 h-16 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 hover:opacity-80 transition-opacity"
                       >
                         <img 
@@ -456,17 +449,13 @@ export default function ProjectDetailPage() {
                           alt={project.owner.fullName} 
                           className="w-full h-full object-cover" 
                         />
-                      </Link>
+                      </div>
                       <div className="flex-1 min-w-0">
-                        <Link 
-                           href={`/profile/${project.owner.id}`}
+                        <div 
                            className="text-h6 font-bold text-slate-900 dark:text-white hover:text-primary transition-colors truncate block"
                         >
                           {project.owner.fullName}
-                        </Link>
-                        <p className="text-smaller text-slate-500 truncate">
-                          {project.owner.email}
-                        </p>
+                        </div>
                       </div>
                     </div>
                     {project.owner.bio && (
@@ -474,14 +463,7 @@ export default function ProjectDetailPage() {
                         "{project.owner.bio}"
                       </p>
                     )}
-                    <Link 
-                      href={`/profile/${project.owner.id}`}
-                      className="inline-flex items-center gap-2 text-smallest font-bold text-primary hover:underline group"
-                    >
-                      Xem hồ sơ chi tiết
-                      <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </div>
+                  </Link>
                 ) : (
                   <p className="text-smaller text-slate-500">Không có thông tin chủ dự án.</p>
                 )}

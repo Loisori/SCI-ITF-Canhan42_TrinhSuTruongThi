@@ -6,13 +6,13 @@
     "shortDescription": "Return to the world of Arcs with a set of expansions brimming with new strategic options and devious characters.\n",
     "contentSlug": "arcs-beyond-the-reach",
     "targetCapital": 50000,
-    "currentAmount": 0,
-    "currentCapital": 0,
+    "currentAmount": 10000,
+    "currentCapital": 10000,
     "interestRate": 4,
     "durationMonths": 3,
     "minInvestment": 5000,
     "riskLevel": "low",
-    "fundingProgress": 0,
+    "fundingProgress": 20,
     "status": "funding",
     "startDate": "2026-04-11",
     "endDate": "2026-04-13",
@@ -25,7 +25,15 @@
     "owner": {
       "id": 2,
       "fullName": "Xrejji",
-      "email": "xrejji04@gmail.com"
+      "email": "xrejji04@gmail.com",
+      "avatarUrl": "https://res.cloudinary.com/dhxrsiqip/image/upload/v1775898867/investpro/avatars/2/qp0leqyeyth7fwkkt9qq.jpg",
+      "bio": "Cole Wehrle is a tabletop game designer and publisher. His games have sold hundreds of thousands of copies and have been translated into over a dozen languages. He served as the Creative Director at Leder Games until 2025. In 2026 he founded Buried Giant Studios with many of his long-time collaborators, including Kyle Ferrin and his brother Drew.",
+      "socialLinks": {
+        "facebook": "https://www.facebook.com/",
+        "github": "https://www.facebook.com/",
+        "linkedin": "https://www.facebook.com/",
+        "twitter": "https://www.facebook.com/"
+      }
     },
     "images": [
       "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1775898629/investpro/users/2/fcwsd3fb7apmuuwbjpef.jpg",
@@ -44,14 +52,14 @@
     "shortDescription": "Build Your Crew. Earn Your Legend.",
     "contentSlug": "the-official-cyberpunk-trading-card-game",
     "targetCapital": 100000,
-    "currentAmount": 0,
-    "currentCapital": 0,
+    "currentAmount": 130000,
+    "currentCapital": 130000,
     "interestRate": 5,
     "durationMonths": 12,
     "minInvestment": 10000,
     "riskLevel": "medium",
-    "fundingProgress": 0,
-    "status": "funding",
+    "fundingProgress": 130,
+    "status": "completed",
     "startDate": "2026-04-11",
     "endDate": null,
     "category": {
@@ -63,13 +71,84 @@
     "owner": {
       "id": 2,
       "fullName": "Xrejji",
-      "email": "xrejji04@gmail.com"
+      "email": "xrejji04@gmail.com",
+      "avatarUrl": "https://res.cloudinary.com/dhxrsiqip/image/upload/v1775898867/investpro/avatars/2/qp0leqyeyth7fwkkt9qq.jpg",
+      "bio": "Cole Wehrle is a tabletop game designer and publisher. His games have sold hundreds of thousands of copies and have been translated into over a dozen languages. He served as the Creative Director at Leder Games until 2025. In 2026 he founded Buried Giant Studios with many of his long-time collaborators, including Kyle Ferrin and his brother Drew.",
+      "socialLinks": {
+        "facebook": "https://www.facebook.com/",
+        "github": "https://www.facebook.com/",
+        "linkedin": "https://www.facebook.com/",
+        "twitter": "https://www.facebook.com/"
+      }
     },
     "images": [],
-    "isFrozen": false,
+    "isFrozen": true,
     "createdAt": "2026-04-11T02:07:45.158Z",
-    "milestones": [],
-    "disputes": [],
+    "milestones": [
+      {
+        "id": 2,
+        "title": "Giai đoạn 2 (20%)",
+        "percentage": 20,
+        "stage": 2,
+        "status": "uploading_proof",
+        "proofUrl": null,
+        "createdAt": "2026-04-11T03:57:17.315Z"
+      },
+      {
+        "id": 5,
+        "title": "Giai đoạn 5 (20%)",
+        "percentage": 20,
+        "stage": 5,
+        "status": "pending",
+        "proofUrl": null,
+        "createdAt": "2026-04-11T03:57:17.663Z"
+      },
+      {
+        "id": 1,
+        "title": "Giai đoạn 1 (20%)",
+        "percentage": 20,
+        "stage": 1,
+        "status": "disbursed",
+        "proofUrl": null,
+        "createdAt": "2026-04-11T03:57:17.199Z"
+      },
+      {
+        "id": 3,
+        "title": "Giai đoạn 3 (20%)",
+        "percentage": 20,
+        "stage": 3,
+        "status": "pending",
+        "proofUrl": null,
+        "createdAt": "2026-04-11T03:57:17.423Z"
+      },
+      {
+        "id": 4,
+        "title": "Giai đoạn 4 (20%)",
+        "percentage": 20,
+        "stage": 4,
+        "status": "pending",
+        "proofUrl": null,
+        "createdAt": "2026-04-11T03:57:17.544Z"
+      }
+    ],
+    "disputes": [
+      {
+        "id": 2,
+        "userId": "1",
+        "reason": "testing",
+        "evidenceUrl": null,
+        "status": "open",
+        "createdAt": "2026-04-11T03:42:02.681Z"
+      },
+      {
+        "id": 1,
+        "userId": "1",
+        "reason": "testing",
+        "evidenceUrl": null,
+        "status": "open",
+        "createdAt": "2026-04-11T03:42:01.477Z"
+      }
+    ],
     "content": "April 2026 - Kickstarter Campaign Ends\nQ3 2026 - Wave #1 Express Fulfilment begins (Starter Decks, Beta Displays, Add-On Starter Decks, and Add-On Beta Displays from the Netrunner Starter Kit pledge tier and above)\nQ4 2026 - Wave #2 Standard Fulfilment begins (Starter Decks and Beta Displays from the Common Cyberdecks and Quickhacks pledge tiers, Accessories, Add-Ons, and Non-Foil and Foil Lucy Cards)\n\nFrom the end of the Kickstarter campaign to Q3 2026, we’ll provide updates on printing and shipping, leading to the start of each fulfillment wave. For more information, see the Shipping & Taxes section.\n\nDespite our preparation and timelines, delays may still occur. This is the nature of manufacturing complex and innovative products. Potential delays may be associated with shipping, customs, or the manufacturing processes."
   }
 ]

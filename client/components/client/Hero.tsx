@@ -11,7 +11,7 @@ export default function Hero() {
             <span className="inline-flex items-center px-3 py-1 rounded-full text-smallest font-bold bg-primary/10 text-primary dark:bg-white/10 dark:text-slate-100 w-fit">
               Nền tảng đầu tư hàng đầu Việt Nam
             </span>
-            <h2 className="text-h2 lg:text-[7.2rem] font-black leading-[1.1] text-primary dark:text-slate-100">
+            <h2 className="text-h4 lg:text-[7.2rem] font-black leading-[1.1] text-primary dark:text-slate-100">
               Đầu tư thông minh, <br />
               <span className="opacity-60">Kiến tạo tương lai</span>
             </h2>

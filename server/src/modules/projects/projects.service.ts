@@ -34,8 +34,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectCategoryEntity } from './entities/category.entity';
 import { ProjectMilestoneEntity, MilestoneStatus } from './entities/milestone.entity';
 import { ProjectDisputeEntity, DisputeStatus } from './entities/dispute.entity';
-import { NotificationsService } from '../notifications/notifications.service';
-import { NotificationType } from '../notifications/entities/notification.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class ProjectsService {
@@ -47,7 +46,7 @@ export class ProjectsService {
     @InjectRepository(ProjectCategoryEntity)
     private readonly projectCategoriesRepository: Repository<ProjectCategoryEntity>,
     private readonly dataSource: DataSource,
-    private readonly notificationsService: NotificationsService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   private toCommissionFraction(commissionRate?: number | null): number {
@@ -162,10 +161,11 @@ export class ProjectsService {
 
     project.status = ProjectStatus.FUNDING;
     await this.syncProjectsDataJsonFile();
-    await this.notifyProjectOwner(
-      project.owner,
-      'Dự án của bạn đã được duyệt! Dự án đã được mở để huy động vốn.',
-    );
+    
+    this.eventEmitter.emit('project.approved', {
+      ownerId: project.ownerId,
+      title: project.title,
+    });
 
     return this.serializeProject(project);
   }
@@ -189,25 +189,19 @@ await this.projectsRepository.update(projectId, {
     });
 
     project.status = ProjectStatus.FAILED;
-    
     await this.syncProjectsDataJsonFile();
-    await this.notifyProjectOwner(
-      project.owner,
-      'Dự án của bạn đã bị từ chối. Vui lòng kiểm tra lại thông tin và gửi lại nếu cần.',
-    );
+
+    this.eventEmitter.emit('project.rejected', {
+      ownerId: project.ownerId,
+      title: project.title,
+    });
 
     return this.serializeProject(project);
   }
 
   private async notifyProjectOwner(owner: UserEntity, message: string) {
-    if (!owner) {
-      return;
-    }
-
-    // TODO: Replace this console log with a real persistent notification system.
-    console.log(
-      `Notification for owner ${owner.id} <${owner.email}>: ${message}`,
-    );
+    if (!owner) return;
+    console.log(`[DEPRECATED] notifyProjectOwner for owner ${owner.id}: ${message}`);
   }
 
   async getFundingProjects(filters?: {
@@ -681,12 +675,12 @@ await this.projectsRepository.update(projectId, {
         });
         await transactionsRepo.save(interestTx);
 
-        // Notify investor about interest paid
-        await this.notificationsService.createSpecialNotification(
+        // Notify investor about interest paid - Emit event instead of direct call
+        this.eventEmitter.emit('project.interestPaid', {
           investorId,
-          `Tiền lãi ${totalInterest.toLocaleString('vi-VN')} ₫ từ dự án ${project.title} đã về ví.`,
-          NotificationType.PAYMENT_SUCCESS
-        );
+          amount: totalInterest,
+          title: project.title,
+        });
       }
 
       return {
@@ -752,36 +746,32 @@ await this.projectsRepository.update(projectId, {
       await usersRepo.save(user);
       await projectsRepo.save(project);
 
-      // Notify owner
-      await this.notificationsService.createSpecialNotification(
-        project.ownerId,
-        `Có người vừa đầu tư ${amount.toLocaleString('vi-VN')} ₫ vào dự án ${project.title} của bạn.`,
-        NotificationType.INVESTMENT_RECEIVED
-      );
-
-      // Check if project reached 100%
-      if (currentCapital + amount >= Number(project.goalAmount)) {
-        const investmentsRepo = manager.getRepository(InvestmentEntity);
-        const investors = await investmentsRepo.find({
-          where: { projectId: project.id },
-          select: ['userId']
-        });
-        const uniqueInvestorIds = [...new Set(investors.map(i => i.userId))];
-        for (const iId of uniqueInvestorIds) {
-          await this.notificationsService.createSpecialNotification(
-            iId,
-            `Dự án bạn theo dõi (${project.title}) đã đạt 100% mục tiêu!`,
-            NotificationType.PROJECT_UPDATE
-          );
-        }
-      }
-
       return {
         message: 'Investment successful.',
         investedAmount: amount,
         userBalance: user.balance,
         project: this.serializeProject(project),
+        projectTitle: project.title,
+        projectOwnerId: project.ownerId,
+        isGoalReached: currentCapital + amount >= Number(project.goalAmount),
       };
+    }).then((result) => {
+      // Notify owner OUTSIDE transaction
+      this.eventEmitter.emit('investment.made', {
+        ownerId: result.projectOwnerId,
+        amount: result.investedAmount,
+        title: result.projectTitle,
+      });
+
+      if (result.isGoalReached) {
+        this.eventEmitter.emit('project.goalReached', {
+          projectId: dto.projectId,
+          title: result.projectTitle,
+          ownerId: result.projectOwnerId,
+        });
+      }
+
+      return result;
     });
   }
 
