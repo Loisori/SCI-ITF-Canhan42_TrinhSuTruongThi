@@ -85,6 +85,21 @@ export default function MyProjectMilestonesPage() {
     }
   };
 
+  const handleStartVoting = async (milestoneId: number) => {
+    try {
+      setSaving(true);
+      await api.post(`/api/projects/milestones/${milestoneId}/start-voting`);
+      setToast({ type: 'success', message: 'Đã bắt đầu giai đoạn bình chọn (72 giờ).'});
+      const updated = await api.get<ProjectDetail>(`/api/projects/${project.id}`);
+      setProject(updated.data);
+      if (updated.data.milestones) setMilestones(updated.data.milestones);
+    } catch (err: any) {
+      setToast({ type: 'error', message: err.response?.data?.message || 'Không thể bắt đầu bình chọn.' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleProofSelected = async (url: string) => {
     if (!activeUploadMilestoneId || !project) return;
     try {
@@ -241,20 +256,30 @@ export default function MyProjectMilestonesPage() {
                             )}
 
                             {/* UPLOAD ACTION BOUND TO MEDIA LIBRARY MODAL */}
-                            {m.status === 'uploading_proof' && (
-                               <div className="mt-4 flex">
-                                  <button 
-                                     onClick={() => {
-                                        setActiveUploadMilestoneId(m.id);
-                                        setIsLibraryOpen(true);
-                                     }}
-                                     className="px-5 py-2 inline-flex items-center gap-2 bg-slate-900 text-white rounded-lg text-smaller font-bold hover:shadow-lg transition cursor-pointer"
-                                  >
-                                     <Images className="text-[18px]" />
-                                     Cập nhật bằng chứng từ Thư viện
-                                  </button>
-                               </div>
-                            )}
+                             {m.status === 'uploading_proof' && (
+                                <div className="mt-4 flex gap-3">
+                                   <button 
+                                      onClick={() => {
+                                         setActiveUploadMilestoneId(m.id);
+                                         setIsLibraryOpen(true);
+                                      }}
+                                      className="px-5 py-2 inline-flex items-center gap-2 bg-slate-900 text-white rounded-lg text-smaller font-bold hover:shadow-lg transition cursor-pointer"
+                                   >
+                                      <Images className="text-[18px]" />
+                                      Cập nhật bằng chứng
+                                   </button>
+                                   
+                                   {(m.evidenceUrls?.length > 0 || m.proofUrl) && (
+                                     <button 
+                                        onClick={() => handleStartVoting(m.id)}
+                                        className="px-5 py-2 inline-flex items-center gap-2 bg-emerald-600 text-white rounded-lg text-smaller font-bold hover:shadow-lg transition cursor-pointer"
+                                     >
+                                        <CircleCheck className="text-[18px]" />
+                                        Bắt đầu bình chọn
+                                     </button>
+                                   )}
+                                </div>
+                             )}
 
                             {m.proofUrl && m.status !== 'uploading_proof' && (
                                <div className="mt-4 opacity-80 flex items-center gap-2">
