@@ -64,6 +64,12 @@ export class ProjectMilestoneEntity {
   @Column({ name: 'rejection_reason', type: 'text', nullable: true })
   rejectionReason: string | null;
 
+  @Column({ name: 'interval_days', type: 'int', default: 0 })
+  intervalDays: number;
+
+  @Column({ name: 'next_disbursement_date', type: 'timestamp', nullable: true })
+  nextDisbursementDate: Date | null;
+
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;

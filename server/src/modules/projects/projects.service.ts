@@ -89,6 +89,15 @@ export class ProjectsService {
     }));
   }
 
+  async getProjectsByStatus(status: ProjectStatus) {
+    const projects = await this.projectsRepository.find({
+      where: { status },
+      relations: ['media', 'category', 'owner'],
+      order: { createdAt: 'DESC' },
+    });
+    return projects.map((project) => this.serializeProject(project));
+  }
+
   async getPendingProjects() {
     const projects = await this.projectsRepository.find({
       where: {
@@ -188,6 +197,43 @@ export class ProjectsService {
     return this.serializeProject(project);
   }
 
+  async approveFundedProject(projectId: number) {
+    const project = await this.projectsRepository.findOne({
+      where: { id: projectId },
+      relations: ['owner', 'milestones'],
+    });
+
+    if (!project) {
+      throw new NotFoundException('Project not found.');
+    }
+
+    if (project.status !== ProjectStatus.PENDING_ADMIN_REVIEW) {
+      throw new BadRequestException('Chỉ có thể giải ngân cho dự án đã huy động xong và đang chờ duyệt.');
+    }
+
+    const stage1 = project.milestones.find((m) => m.stage === 1);
+    if (!stage1) {
+      throw new BadRequestException('Không tìm thấy thông tin giải ngân đợt 1.');
+    }
+
+    // Set project to ACTIVE
+    await this.projectsRepository.update(projectId, { 
+      status: ProjectStatus.ACTIVE 
+    });
+
+    // Trigger disbursement for Milestone 1
+    const result = await this.disburseMilestoneFunds(stage1.id);
+
+    await this.syncProjectsDataJsonFile();
+    
+    this.eventEmitter.emit('project.activated', {
+      ownerId: project.ownerId,
+      title: project.title,
+    });
+
+    return result;
+  }
+
   async rejectProject(projectId: number) {
     const project = await this.projectsRepository.findOne({
       where: { id: projectId },
@@ -202,7 +248,7 @@ export class ProjectsService {
       throw new BadRequestException('Only pending projects can be rejected.');
     }
 
-await this.projectsRepository.update(projectId, { 
+    await this.projectsRepository.update(projectId, { 
       status: ProjectStatus.FAILED 
     });
 
@@ -215,6 +261,33 @@ await this.projectsRepository.update(projectId, {
     });
 
     return this.serializeProject(project);
+  }
+
+  async simulateMilestoneTime(milestoneId: number) {
+    const milestoneRepo = this.dataSource.getRepository(ProjectMilestoneEntity);
+    const milestone = await milestoneRepo.findOne({
+      where: { id: milestoneId },
+      relations: ['project'],
+    });
+
+    if (!milestone) throw new NotFoundException('Milestone not found');
+
+    const now = new Date();
+    const pastDate = new Date(now.getTime() - 60000); // 1 minute ago
+
+    if (milestone.status === MilestoneStatus.VOTING) {
+      milestone.votingEndsAt = pastDate;
+    } else if (milestone.status === MilestoneStatus.PENDING) {
+      milestone.nextDisbursementDate = pastDate;
+    }
+
+    await milestoneRepo.save(milestone);
+    
+    if (milestone.status === MilestoneStatus.VOTING) {
+      await this.processMilestoneFinalResult(milestone);
+    }
+
+    return { message: 'Thời gian đã được tua nhanh thành công.' };
   }
 
   private async notifyProjectOwner(owner: UserEntity, message: string) {
@@ -376,6 +449,7 @@ await this.projectsRepository.update(projectId, {
         riskLevel: dto.riskLevel ?? ProjectRiskLevel.MEDIUM,
         startDate: dto.startDate ? new Date(dto.startDate) : null,
         endDate: dto.endDate ? new Date(dto.endDate) : null,
+        allowOverfunding: !!dto.allowOverfunding,
         status: dto.status ?? ProjectStatus.PENDING,
       });
 
@@ -435,6 +509,7 @@ await this.projectsRepository.update(projectId, {
             content: m.content,
             percentage: m.percentage,
             stage: m.stage,
+            intervalDays: m.intervalDays ?? 0,
             status: MilestoneStatus.PENDING,
           }),
         );
@@ -818,13 +893,29 @@ await this.projectsRepository.update(projectId, {
       const amount = Number(dto.amount);
       const userBalance = Number(user.balance);
       const currentCapital = Number(project.currentAmount);
+      const goalAmount = Number(project.goalAmount);
 
       if (amount > userBalance) {
-        throw new BadRequestException('Insufficient balance.');
+        throw new BadRequestException('Số dư ví không đủ.');
+      }
+
+      // overfunding checked here
+      if (!project.allowOverfunding && currentCapital + amount > goalAmount) {
+        const remaining = goalAmount - currentCapital;
+        throw new BadRequestException(
+          remaining > 0 
+            ? `Dự án này không cho phép vượt mục tiêu. Bạn chỉ có thể đầu tư tối đa ${remaining.toLocaleString()} ₫.`
+            : 'Dự án đã đạt mục tiêu huy động.'
+        );
       }
 
       user.balance = userBalance - amount;
       project.currentAmount = currentCapital + amount;
+
+      // Auto close funding if goal reached and overfunding disabled
+      if (!project.allowOverfunding && project.currentAmount >= goalAmount) {
+        project.status = ProjectStatus.PENDING_ADMIN_REVIEW;
+      }
 
       await usersRepo.save(user);
       await projectsRepo.save(project);
@@ -890,6 +981,7 @@ await this.projectsRepository.update(projectId, {
       riskLevel: project.riskLevel,
       fundingProgress,
       status: project.status,
+      totalDebt: Number(project.totalDebt || 0),
       startDate: project.startDate,
       endDate: project.endDate,
       category: project.category
@@ -1499,6 +1591,8 @@ await this.projectsRepository.update(projectId, {
       );
     }
 
+    const investorWeight = totalInvested;
+
     let vote = await this.milestoneVotesRepository.findOne({
       where: { milestoneId, userId },
     });
@@ -1506,17 +1600,23 @@ await this.projectsRepository.update(projectId, {
     if (vote) {
       vote.isApprove = isApprove;
       vote.comment = comment || null;
+      vote.investorCapital = investorWeight;
     } else {
       vote = this.milestoneVotesRepository.create({
         milestoneId,
         userId,
         isApprove,
         comment: comment || null,
+        investorCapital: investorWeight,
       });
     }
 
     await this.milestoneVotesRepository.save(vote);
-    return { message: 'Bầu chọn thành công.', isApprove };
+    return { 
+      message: 'Bầu chọn thành công.', 
+      isApprove, 
+      weight: investorWeight.toLocaleString() + ' ₫' 
+    };
   }
 
   async closeExpiredVotes() {
@@ -1543,24 +1643,14 @@ await this.projectsRepository.update(projectId, {
     const project = milestone.project;
     const totalRaised = Number(project.currentAmount);
 
-    // 2. Get all YES votes and calculate total YES weight
+    // 2. Calculate total YES weight from votes
     const yesVotes = await votesRepo.find({
       where: { milestoneId: milestone.id, isApprove: true },
     });
+    const yesWeight = yesVotes.reduce((sum, v) => sum + Number(v.investorCapital), 0);
 
-    let yesWeight = 0;
-    for (const vote of yesVotes) {
-      const userInvestments = await investmentRepo.find({
-        where: { projectId: project.id, userId: vote.userId },
-      });
-      const validInvestment = userInvestments
-        .filter((inv) => inv.status !== InvestmentStatus.WITHDRAWN)
-        .reduce((sum, inv) => sum + Number(inv.amount), 0);
-      yesWeight += validInvestment;
-    }
-
-    // 3. Condition: YES weight > 50% of totalRaised
-    if (yesWeight > totalRaised * 0.5) {
+    // 3. Condition: YES weight >= 50% of totalRaised (User requested >= 50%)
+    if (yesWeight >= totalRaised * 0.5) {
       await this.disburseMilestoneFunds(milestone.id);
     } else {
       milestone.status = MilestoneStatus.DISPUTED;
@@ -1624,8 +1714,23 @@ await this.projectsRepository.update(projectId, {
         where: { projectId: project.id, stage: milestone.stage + 1 },
       });
       if (nextMilestone) {
-        nextMilestone.status = MilestoneStatus.UPLOADING_PROOF;
+        // Calculate when the next milestone can start (Now + current interval)
+        const nextDate = new Date();
+        nextDate.setDate(nextDate.getDate() + (milestone.intervalDays || 0));
+        
+        nextMilestone.status = MilestoneStatus.PENDING;
+        nextMilestone.nextDisbursementDate = nextDate;
         await milestoneRepo.save(nextMilestone);
+      } else {
+        // No more milestones = project fully disbursed
+        project.status = ProjectStatus.COMPLETED;
+        
+        // Calculate final debt: Principal + (Principal * Interest Rate %)
+        const principal = Number(project.currentAmount);
+        const interest = principal * (Number(project.interestRate) / 100);
+        project.totalDebt = principal + interest;
+        
+        await projectRepo.save(project);
       }
 
       // 3. Credit Owner

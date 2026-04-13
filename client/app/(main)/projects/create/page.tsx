@@ -41,16 +41,17 @@ export default function CreateProjectPage() {
   );
   const [startDate, setStartDate] = useState(getTodayString());
   const [endDate, setEndDate] = useState("");
+  const [allowOverfunding, setAllowOverfunding] = useState(false);
   const [shortDescription, setShortDescription] = useState("");
   const [content, setContent] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [additionalImages, setAdditionalImages] = useState<string[]>([""]);
   const [milestones, setMilestones] = useState<
-    { title: string; content: string; percentage: number; stage: number }[]
+    { title: string; content: string; percentage: number; stage: number; intervalDays: number }[]
   >([
-    { title: "Đợt 1: Khởi động", content: "", percentage: 20, stage: 1 },
-    { title: "Đợt 2: Triển khai", content: "", percentage: 30, stage: 2 },
-    { title: "Đợt 3: Hoàn thiện", content: "", percentage: 50, stage: 3 },
+    { title: "Đợt 1: Khởi động", content: "", percentage: 20, stage: 1, intervalDays: 0 },
+    { title: "Đợt 2: Triển khai", content: "", percentage: 30, stage: 2, intervalDays: 30 },
+    { title: "Đợt 3: Hoàn thiện", content: "", percentage: 50, stage: 3, intervalDays: 30 },
   ]);
   const contentSlug = slugify(title);
 
@@ -128,6 +129,7 @@ export default function CreateProjectPage() {
         endDate: endDate || undefined,
         status: "pending",
         contentSlug,
+        allowOverfunding,
         shortDescription,
         content,
         thumbnailUrl,
@@ -137,6 +139,7 @@ export default function CreateProjectPage() {
         milestones: milestones.map((m) => ({
           ...m,
           percentage: Number(m.percentage),
+          intervalDays: Number(m.intervalDays),
         })),
       };
 
@@ -348,6 +351,24 @@ export default function CreateProjectPage() {
             </div>
           </div>
 
+          <div className="flex items-center gap-4 p-4 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/50">
+            <input
+              type="checkbox"
+              id="allowOverfunding"
+              checked={allowOverfunding}
+              onChange={(e) => setAllowOverfunding(e.target.checked)}
+              className="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
+            />
+            <div>
+              <label htmlFor="allowOverfunding" className="text-small font-bold text-slate-900 dark:text-white cursor-pointer">
+                Cho phép đầu tư vượt mục tiêu (Overfunding)
+              </label>
+              <p className="text-[11px] text-slate-500">
+                Nếu bật, dự án tiếp tục nhận vốn đến ngày kết thúc. Nếu tắt, dự án sẽ đóng ngay khi đạt 100%.
+              </p>
+            </div>
+          </div>
+
           <div>
             <label className="block text-smaller font-semibold mb-2">
               Slug (tự động)
@@ -496,7 +517,7 @@ export default function CreateProjectPage() {
               <button
                 type="button"
                 disabled={milestones.length >= 5}
-                onClick={() => setMilestones(prev => [...prev, { title: `Đợt ${prev.length + 1}`, content: "", percentage: 0, stage: prev.length + 1 }])}
+                onClick={() => setMilestones(prev => [...prev, { title: `Đợt ${prev.length + 1}`, content: "", percentage: 0, stage: prev.length + 1, intervalDays: 30 }])}
                 className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg text-smaller font-bold disabled:opacity-50"
               >
                 + Thêm đợt
@@ -521,7 +542,7 @@ export default function CreateProjectPage() {
                       </button>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                     <div className="sm:col-span-2">
                        <input
                         placeholder="Tiêu đề đợt (VD: Khởi động dự án)"
@@ -533,12 +554,22 @@ export default function CreateProjectPage() {
                     <div className="relative">
                       <input
                         type="number"
-                        placeholder="Phần trăm"
+                        placeholder="% vốn"
                         value={m.percentage}
                         onChange={e => setMilestones(prev => prev.map((item, i) => i === index ? { ...item, percentage: Number(e.target.value) } : item))}
                         className="w-full px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-small pr-8"
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-small">%</span>
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        placeholder="Ngày chờ"
+                        value={m.intervalDays}
+                        onChange={e => setMilestones(prev => prev.map((item, i) => i === index ? { ...item, intervalDays: Number(e.target.value) } : item))}
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-small pr-12"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">ngày</span>
                     </div>
                   </div>
                   <textarea

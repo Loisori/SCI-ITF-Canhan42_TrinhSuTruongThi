@@ -8,18 +8,33 @@ import toast from "react-hot-toast";
 import { Check, X, ShieldCheck } from "lucide-react";
 
 export default function ProjectApprovals() {
-  const { data: pendingProjects = [], refetch, isLoading } = useQuery({
+  const { data: pendingProjects = [], refetch: refetchPending, isLoading: loadingPending } = useQuery({
     queryKey: ["admin-pending-projects"],
     queryFn: async () => (await api.get<Project[]>("/api/admin/projects/pending")).data,
+  });
+
+  const { data: fundedReview = [], refetch: refetchFunded, isLoading: loadingFunded } = useQuery({
+    queryKey: ["admin-funded-review"],
+    queryFn: async () => (await api.get<Project[]>("/api/admin/projects/funding-review")).data,
   });
 
   const approve = async (id: number) => {
     try {
       await api.patch(`/api/admin/projects/${id}/approve`);
       toast.success("Dự án đã được duyệt thành công.");
-      refetch();
+      refetchPending();
     } catch (err) {
       toast.error("Không thể duyệt dự án này.");
+    }
+  };
+
+  const approveDisbursement = async (id: number) => {
+    try {
+      await api.patch(`/api/admin/projects/${id}/approve-disbursement`);
+      toast.success("Đã duyệt và giải ngân đợt 1 thành công.");
+      refetchFunded();
+    } catch (err) {
+      toast.error("Không thể duyệt giải ngân đợt 1.");
     }
   };
 
@@ -106,6 +121,62 @@ export default function ProjectApprovals() {
                   <td colSpan={4} className="px-6 py-12 text-center text-slate-500 text-smaller">
                     <ShieldCheck className="text-h1 text-slate-200 mb-4 scale-150 mx-auto" />
                     <p className="mt-4">Không có dự án nào chờ duyệt.</p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {/* Section 2: Funded Projects Awaiting 1st Disbursement */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center bg-indigo-50/30 dark:bg-indigo-900/10">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <span className="size-2 rounded-full bg-indigo-500 animate-pulse"></span>
+            Dự án đã đủ vốn - Chờ duyệt giải ngân đợt 1
+          </h2>
+          <span className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 text-[11px] font-bold uppercase tracking-widest">
+            {fundedReview.length} Review
+          </span>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-slate-50/50 dark:bg-slate-800/20 text-[11px] uppercase text-slate-400 font-bold tracking-widest border-b border-slate-100 dark:border-slate-800">
+              <tr>
+                <th className="px-6 py-4">Dự án</th>
+                <th className="px-6 py-4">Chủ dự án</th>
+                <th className="px-6 py-4">Vốn đạt được</th>
+                <th className="px-6 py-4 text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {fundedReview.map((p: any) => (
+                <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+                  <td className="px-6 py-4">
+                    <p className="text-smaller font-bold text-slate-900 dark:text-white">{p.title}</p>
+                    <p className="text-[10px] text-indigo-500 font-semibold mt-1">Hoàn thành gọi vốn: {p.fundingProgress}%</p>
+                  </td>
+                  <td className="px-6 py-4 text-smaller font-medium text-slate-600 dark:text-slate-400">
+                    {p.owner?.fullName}
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-smaller font-extrabold text-emerald-600">{formatVnd(Number(p.currentAmount))}</p>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button 
+                      onClick={() => approveDisbursement(p.id)}
+                      className="px-4 py-1.5 rounded-lg bg-indigo-600 text-white text-[11px] font-bold hover:bg-indigo-700 transition-all shadow-sm"
+                    >
+                      Duyệt & Giải ngân đợt 1
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {fundedReview.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center text-slate-500 text-smaller italic">
+                    Chưa có dự án nào hoàn thành gọi vốn chờ duyệt.
                   </td>
                 </tr>
               )}

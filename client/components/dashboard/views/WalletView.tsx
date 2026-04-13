@@ -15,7 +15,8 @@ import { DepositModal, WithdrawModal } from "../modals/FintechModals";
 import { useKycCheck } from "@/lib/hooks/useKycCheck";
 
 export default function WalletView({ profile }: { profile: UserProfile }) {
-  const { isFrozen } = useKycCheck();
+  const { isKycApproved, isFrozen } = useKycCheck();
+  // Ensure balance is synchronized with profile
   const [showDepositModal, setShowDepositModal] = useState(false);
 
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
@@ -81,7 +82,11 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
             Nạp tiền
           </button>
           <button
-            onClick={() => isFrozen ? toast.error("Tài khoản bị đóng băng - Không thể rút tiền.") : setShowWithdrawModal(true)}
+            onClick={() => {
+              if (isFrozen) return toast.error("Tài khoản bị đóng băng - Không thể rút tiền.");
+              if (!isKycApproved) return toast.error("Yêu cầu KYC: Bạn cần được Admin phê duyệt KYC mới có thể rút tiền.");
+              setShowWithdrawModal(true);
+            }}
             className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold transition-all ${
               isFrozen ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'border border-primary text-primary hover:bg-primary/5'
             }`}

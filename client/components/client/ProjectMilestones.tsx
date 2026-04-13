@@ -124,6 +124,19 @@ export default function ProjectMilestones({ project, role, currentUserId, onUpda
     }
   };
 
+  const handleSimulateTime = async (milestoneId: number) => {
+    setLoading(true);
+    try {
+      await api.post(`/api/admin/projects/milestones/${milestoneId}/simulate-time`);
+      setToast({ type: "success", message: "Đã tua nhanh thời gian thành công (Voting kết thúc hoặc Interval kết thúc)." });
+      onUpdate();
+    } catch (err: any) {
+      setToast({ type: "error", message: "Lỗi tua nhanh thời gian." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'disbursed':
@@ -139,6 +152,8 @@ export default function ProjectMilestones({ project, role, currentUserId, onUpda
         return { color: 'text-orange-500', icon: Clock, label: 'Đang xét duyệt' };
       case 'rejected':
         return { color: 'text-slate-500', icon: ShieldAlert, label: 'Đã hủy/Từ chối' };
+      case 'waiting_interval':
+        return { color: 'text-indigo-500', icon: Clock, label: 'Đang trong giai đoạn chờ' };
       default:
         return { color: 'text-slate-400', icon: Circle, label: 'Chờ xử lý' };
     }
@@ -167,13 +182,21 @@ export default function ProjectMilestones({ project, role, currentUserId, onUpda
             hoursLeft = Math.max(0, Math.floor((end - now) / (1000 * 60 * 60)));
           }
 
+          const isWaitingInterval = 
+            m.status === 'pending' && 
+            m.nextDisbursementDate && 
+            new Date(m.nextDisbursementDate).getTime() > new Date().getTime();
+
+          const currentConfig = isWaitingInterval ? getStatusConfig('waiting_interval') : config;
+          const CurrentIcon = currentConfig.icon;
+
           return (
             <div key={m.id} className="relative pl-12 group">
               <div className={`absolute left-[11px] top-1 z-10 p-1 bg-white dark:bg-slate-900 rounded-full transition-transform group-hover:scale-110`}>
-                <Icon className={`w-5 h-5 ${config.color}`} />
+                <CurrentIcon className={`w-5 h-5 ${currentConfig.color}`} />
               </div>
 
-              <div className={`bg-slate-50 dark:bg-slate-800/40 p-5 rounded-2xl border ${isDisputed ? 'border-red-200 dark:border-red-900/30 bg-red-50/30' : 'border-slate-200 dark:border-slate-800'} hover:border-primary/30 transition-all duration-300`}>
+              <div className={`bg-slate-50 dark:bg-slate-800/40 p-5 rounded-2xl border ${isDisputed ? 'border-red-200 dark:border-red-900/30 bg-red-50/30' : isWaitingInterval ? 'border-indigo-200 dark:border-indigo-900/30 bg-indigo-50/10' : 'border-slate-200 dark:border-slate-800'} hover:border-primary/30 transition-all duration-300`}>
                 <div className="flex flex-col md:flex-row justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -192,9 +215,15 @@ export default function ProjectMilestones({ project, role, currentUserId, onUpda
                         <span className="w-2 h-2 rounded-full bg-slate-300"></span>
                         Tỷ lệ: {m.percentage}%
                       </div>
-                      <div className={`flex items-center gap-1.5 text-smaller font-bold ${config.color}`}>
-                         {config.label}
+                      <div className={`flex items-center gap-1.5 text-smaller font-bold ${currentConfig.color}`}>
+                         {currentConfig.label}
                       </div>
+
+                      {isWaitingInterval && (
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded-lg">
+                          Mở lại vào: {new Date(m.nextDisbursementDate!).toLocaleDateString('vi-VN')}
+                        </div>
+                      )}
 
                       {m.evidenceUrls && m.evidenceUrls.length > 0 && (
                         <div className="flex gap-2">
@@ -211,7 +240,7 @@ export default function ProjectMilestones({ project, role, currentUserId, onUpda
 
                   <div className="flex flex-col gap-2 justify-center min-w-[200px]">
                     {/* Owner Response Area */}
-                    {isOwner && m.status === 'uploading_proof' && (
+                    {isOwner && (m.status === 'uploading_proof' || (m.status === 'pending' && !isWaitingInterval && m.stage > 1)) && (
                       <div className="flex flex-col gap-2">
                          {activeMilestoneId === m.id ? (
                            <div className="space-y-2">
@@ -281,6 +310,17 @@ export default function ProjectMilestones({ project, role, currentUserId, onUpda
                       >
                         <MessageSquare className="w-4 h-4" />
                         Tranh chấp & Phản hồi
+                      </button>
+                    )}
+
+                    {isAdmin && (m.status === 'voting' || isWaitingInterval) && (
+                      <button 
+                         onClick={() => handleSimulateTime(m.id)}
+                         disabled={loading}
+                         className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-500 text-white rounded-xl font-bold text-smaller hover:bg-indigo-600 transition-all"
+                      >
+                         <Clock className="w-4 h-4" />
+                         Tua nhanh thời gian (Demo)
                       </button>
                     )}
                   </div>

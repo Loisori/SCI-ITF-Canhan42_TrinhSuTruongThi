@@ -86,6 +86,7 @@ export default function MyProjectMilestonesPage() {
   };
 
   const handleStartVoting = async (milestoneId: number) => {
+    if (!project) return; // Guard for TypeScript
     try {
       setSaving(true);
       await api.post(`/api/projects/milestones/${milestoneId}/start-voting`);

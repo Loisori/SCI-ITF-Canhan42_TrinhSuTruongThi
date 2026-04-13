@@ -17,6 +17,7 @@ import { UserEntity, UserRole } from '../users/entities/user.entity';
 
 import {
   DepositRequestDto,
+  RepayDebtDto,
   RepayMilestoneDto,
   WithdrawRequestDto,
 } from './dto/wallet.dto';
@@ -63,12 +64,11 @@ export class WalletsController {
   @Post('repay')
   @Roles(UserRole.OWNER)
   @UseGuards(RolesGuard, AccountStatusGuard)
-
-  async repayMilestone(
+  async repayDebt(
     @GetUser('id') ownerId: number,
-    @Body() dto: RepayMilestoneDto,
+    @Body() dto: RepayDebtDto,
   ) {
-    return this.walletsService.repayMilestoneInterest(ownerId, dto.scheduleId);
+    return this.walletsService.repayProjectDebt(ownerId, dto.projectId, dto.amount);
   }
 
   // Admin routes

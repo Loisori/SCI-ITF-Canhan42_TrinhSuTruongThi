@@ -37,6 +37,7 @@ export type ProjectMilestone = {
   evidenceUrls?: string[] | null;
   disbursementDate?: string | null;
   votingEndsAt?: string | null;
+  nextDisbursementDate?: string | null;
   createdAt: string;
 };
 
@@ -80,6 +81,7 @@ export type ProjectDetail = {
   minInvestment: number | string;
   status: string;
   endDate: string | null;
+  totalDebt?: number | string;
   content: string | null;
   category?: ProjectCategory | null;
   owner?: ProjectOwner | null;

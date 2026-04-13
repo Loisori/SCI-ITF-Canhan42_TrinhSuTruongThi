@@ -20,6 +20,15 @@ export class WithdrawRequestDto {
   accountNumber: string;
 }
 
+export class RepayDebtDto {
+  @IsNumber()
+  projectId: number;
+
+  @IsNumber()
+  @IsPositive()
+  amount: number;
+}
+
 export class RepayMilestoneDto {
   @IsNumber()
   scheduleId: number;

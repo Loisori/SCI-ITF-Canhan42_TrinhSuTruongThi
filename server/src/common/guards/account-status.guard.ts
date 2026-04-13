@@ -38,7 +38,7 @@ export class AccountStatusGuard implements CanActivate {
 
     if (!userRecord.kyc || userRecord.kyc.status !== KycStatus.APPROVED) {
       throw new ForbiddenException(
-        'Thao tác này yêu cầu tài khoản đã hoàn tất xác thực danh tính (KYC) và được phê duyệt.',
+        'Yêu cầu xác thực KYC: Tài khoản của bạn cần hoàn tất xác thực danh tính và được Admin phê duyệt để thực hiện tính năng này.',
       );
     }
 

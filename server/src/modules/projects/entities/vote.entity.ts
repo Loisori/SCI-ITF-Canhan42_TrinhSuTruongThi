@@ -38,6 +38,19 @@ export class MilestoneVoteEntity {
   @Column({ type: 'text', nullable: true })
   comment: string | null;
 
+  @Column({
+    name: 'investor_capital',
+    type: 'decimal',
+    precision: 15,
+    scale: 2,
+    default: 0,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | null) => (value === null ? 0 : parseFloat(value)),
+    },
+  })
+  investorCapital: number;
+
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;

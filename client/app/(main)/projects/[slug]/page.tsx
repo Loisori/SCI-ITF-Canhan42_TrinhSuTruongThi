@@ -12,7 +12,8 @@ import { ToastState } from "@/types/ui";
 import ProjectMilestones from "@/components/client/ProjectMilestones";
 import dynamic from "next/dynamic";
 import rehypeSanitize from "rehype-sanitize";
-import { BarChart3, UserCircle, ChevronRight } from "lucide-react";
+import { BarChart3, UserCircle, ChevronRight, Activity } from "lucide-react";
+import ProjectLifecycleTimeline from "@/components/client/ProjectLifecycleTimeline";
 
 const MarkdownPreview = dynamic(
   () => import("@uiw/react-markdown-preview"),
@@ -471,6 +472,15 @@ export default function ProjectDetailPage() {
                 ) : (
                   <p className="text-smaller text-slate-500">Không có thông tin chủ dự án.</p>
                 )}
+              </div>
+
+              {/* Lifecycle Stage Map */}
+              <div className="col-span-1 md:col-span-3">
+                <ProjectLifecycleTimeline 
+                  status={project.status} 
+                  currentAmount={Number(project.currentCapital)} 
+                  totalDebt={Number(project.totalDebt || 0)} 
+                />
               </div>
 
               {/* Milestones & Disputes Component */}

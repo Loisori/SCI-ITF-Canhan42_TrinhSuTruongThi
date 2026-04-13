@@ -26,6 +26,7 @@ export enum ProjectStatus {
   PENDING = 'pending',
   FUNDING = 'funding',
   ACTIVE = 'active',
+  PENDING_ADMIN_REVIEW = 'pending_admin_review',
   COMPLETED = 'completed',
   FAILED = 'failed',
 }
@@ -172,6 +173,25 @@ export class ProjectEntity {
   @Index()
   @Column({ name: 'is_frozen', type: 'boolean', default: false })
   isFrozen: boolean;
+
+  @Column({ name: 'allow_overfunding', type: 'boolean', default: false })
+  allowOverfunding: boolean;
+
+  @Column({
+    name: 'total_debt',
+    type: 'decimal',
+    precision: 15,
+    scale: 2,
+    default: 0,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | null) => (value === null ? 0 : parseFloat(value)),
+    },
+  })
+  totalDebt: number;
+
+  @Column({ name: 'owner_tier', type: 'int', default: 1 })
+  ownerTier: number;
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

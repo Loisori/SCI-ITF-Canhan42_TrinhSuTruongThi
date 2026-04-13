@@ -12,6 +12,7 @@ import { ProjectDisputeEntity } from './entities/dispute.entity';
 import { MilestoneVoteEntity } from './entities/vote.entity';
 import { MilestoneDiscussionEntity } from './entities/discussion.entity';
 import { AdminProjectsController } from './admin-projects.controller';
+import { TasksService } from './tasks.service';
 
 import { NotificationsModule } from '../notifications/notifications.module';
 import { InvestmentsModule } from '../investments/investments.module';
@@ -38,6 +39,6 @@ import { InvestmentsModule } from '../investments/investments.module';
     ProjectCategoriesController,
     AdminProjectsController,
   ],
-  providers: [ProjectsService],
+  providers: [ProjectsService, TasksService],
 })
 export class ProjectsModule {}

@@ -214,27 +214,33 @@ export const WithdrawModal = ({ isOpen, onClose, balance, onRefresh }: { isOpen:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const val = parseInt(amount);
+    // Loại bỏ dấu chấm, dấu phẩy nếu có và parse
+    const cleanAmount = amount.toString().replace(/[.,\s]/g, "");
+    const val = parseInt(cleanAmount);
+    
+    console.log("[WithdrawModal] Submitting:", { val, balance, bankName, accountNumber });
+
     if (!val || val < 50000) {
       toast.error("Số tiền rút tối thiểu là 50.000 VNĐ");
       return;
     }
     if (!bankName || !accountNumber) {
-      toast.error("Vui lòng nhập thông tin ngân hàng");
+      toast.error("Vui lòng nhập đầy đủ thông tin ngân hàng");
       return;
     }
     if (val > balance) {
-      toast.error("Số dư không đủ");
+      toast.error(`Số dư không đủ (Hiện có: ${balance.toLocaleString()} ₫)`);
       return;
     }
 
     try {
       setLoading(true);
-      await api.post("/api/wallets/withdraw", { 
+      const res = await api.post("/api/wallets/withdraw", { 
         amount: val,
         bankName,
         accountNumber
       });
+      console.log("[WithdrawModal] Success:", res.data);
       toast.success("Yêu cầu rút tiền đã được gửi! Chờ Admin duyệt.");
       onRefresh();
       onClose();
@@ -248,6 +254,13 @@ export const WithdrawModal = ({ isOpen, onClose, balance, onRefresh }: { isOpen:
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Rút tiền về ngân hàng">
       <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 p-4 rounded-2xl flex gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+          <p className="text-[11px] text-amber-800 dark:text-amber-500 font-medium leading-relaxed">
+            Yêu cầu tài khoản đã <strong>Approved KYC</strong>. Tiền sẽ được trừ khỏi số dư ngay khi bạn nhấn gửi yêu cầu.
+          </p>
+        </div>
+
         <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
           <p className="text-[10px] text-slate-400 font-bold uppercase mb-2">Số dư khả dụng</p>
           <p className="text-2xl font-black text-slate-900 dark:text-white">{balance.toLocaleString('vi-VN')} ₫</p>
