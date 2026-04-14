@@ -23,7 +23,7 @@ import { createTypeOrmConfig } from './config/typeorm.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env', '../.env'],
+      envFilePath: ['../.env'],
       expandVariables: true,
     }),
     EventEmitterModule.forRoot(),

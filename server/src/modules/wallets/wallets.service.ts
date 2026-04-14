@@ -10,6 +10,7 @@ import {
   TransactionStatus,
   TransactionType,
 } from '../transactions/entities/transaction.entity';
+import { FinancialCalculator } from '../../common/utils/financial-calculator';
 import { UserEntity, UserRole } from '../users/entities/user.entity';
 import { 
   InvestmentEntity, 
@@ -309,13 +310,11 @@ export class WalletsService {
         relations: ['investment'],
       });
 
-      // 3. Tính tổng số tiền (Áp dụng "Integer First" để trị Penny Gap)
-      // Nhân 100 để đưa về đơn vị nhỏ nhất (cents), sau đó mới cộng
       const totalCents = allSchedulesToPay.reduce(
         (sum, s) => sum + Math.round(Number(s.amount) * 100),
         0,
       );
-      const totalRepaymentAmount = totalCents / 100;
+      const totalRepaymentAmount = FinancialCalculator.round(totalCents / 100);
 
       // 4. Kiểm tra & Trừ tiền Owner (Atomic)
       const owner = await userRepo.findOne({

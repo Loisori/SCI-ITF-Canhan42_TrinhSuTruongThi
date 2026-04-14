@@ -71,6 +71,16 @@ export class WalletsController {
     return this.walletsService.repayProjectDebt(ownerId, dto.projectId, dto.amount);
   }
 
+  @Post('repay-milestone-interest')
+  @Roles(UserRole.OWNER)
+  @UseGuards(RolesGuard, AccountStatusGuard)
+  async repayMilestoneInterest(
+    @GetUser('id') ownerId: number,
+    @Body() dto: RepayMilestoneDto,
+  ) {
+    return this.walletsService.repayMilestoneInterest(ownerId, dto.scheduleId);
+  }
+
   // Admin routes
   @Get('admin/pending-transactions')
   @Roles(UserRole.ADMIN)

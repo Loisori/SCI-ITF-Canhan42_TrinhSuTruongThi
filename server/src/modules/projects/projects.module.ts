@@ -13,6 +13,8 @@ import { MilestoneVoteEntity } from './entities/vote.entity';
 import { MilestoneDiscussionEntity } from './entities/discussion.entity';
 import { AdminProjectsController } from './admin-projects.controller';
 import { TasksService } from './tasks.service';
+import { MilestonesService } from './milestones.service';
+import { VotingService } from './voting.service';
 
 import { NotificationsModule } from '../notifications/notifications.module';
 import { InvestmentsModule } from '../investments/investments.module';
@@ -39,6 +41,7 @@ import { InvestmentsModule } from '../investments/investments.module';
     ProjectCategoriesController,
     AdminProjectsController,
   ],
-  providers: [ProjectsService, TasksService],
+  providers: [ProjectsService, TasksService, MilestonesService, VotingService],
+  exports: [ProjectsService, MilestonesService, VotingService],
 })
 export class ProjectsModule {}
