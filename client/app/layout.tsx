@@ -4,6 +4,7 @@ import "../styles/theme.scss";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { NotificationProvider } from "@/components/providers/NotificationProvider";
+import { SWRegistration } from "@/components/providers/SWRegistration";
 import AIChatbox from "@/components/client/AIChatbox";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
@@ -41,6 +42,19 @@ export const metadata: Metadata = {
     "Startup Funding Portal",
   ].join(", "),
   authors: [{ name: "Huynh Viet Loi", url: "https://investpro.site/" }],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "InvestPro",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+import { Viewport } from "next";
+export const viewport: Viewport = {
+  themeColor: "#002B5B",
 };
 
 import { Toaster } from 'sonner';
@@ -58,6 +72,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <QueryProvider>
             <NotificationProvider>
+              <SWRegistration />
               {children}
               <AIChatbox />
               <Toaster position="top-right" richColors closeButton />
