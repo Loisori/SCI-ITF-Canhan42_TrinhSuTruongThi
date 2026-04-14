@@ -42,13 +42,13 @@ export default function ProjectApprovals() {
     try {
       await api.patch(`/api/admin/projects/${id}/reject`);
       toast.success("Đã từ chối dự án.");
-      refetch();
+      refetchPending();
     } catch (err) {
       toast.error("Không thể từ chối dự án này.");
     }
   };
 
-  if (isLoading) return <div className="space-y-6 animate-pulse">
+  if (loadingPending || loadingFunded) return <div className="space-y-6 animate-pulse">
     <div className="h-10 bg-slate-100 dark:bg-slate-800 w-1/4 rounded-lg" />
     <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-2xl" />
   </div>;
