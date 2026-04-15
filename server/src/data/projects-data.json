@@ -1,5 +1,64 @@
 [
   {
+    "id": 30001,
+    "title": "testingg",
+    "thumbnailUrl": "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1775898670/investpro/users/2/zq5rqlaclqmu34nogd6n.png",
+    "shortDescription": "testing",
+    "contentSlug": "testingg",
+    "targetCapital": 100000,
+    "currentAmount": 0,
+    "interestRate": 4,
+    "durationMonths": 12,
+    "minInvestment": 5000,
+    "riskLevel": "medium",
+    "fundingProgress": 0,
+    "status": "funding",
+    "totalDebt": 0,
+    "startDate": "2026-04-15",
+    "endDate": "2026-04-25",
+    "category": {
+      "id": 3,
+      "name": "Bất động sản",
+      "slug": "real-estate",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/602/602275.png"
+    },
+    "owner": {
+      "id": 2,
+      "fullName": "Xrejji",
+      "email": "xrejji04@gmail.com",
+      "avatarUrl": "https://res.cloudinary.com/dhxrsiqip/image/upload/v1775987714/investpro/avatars/2/chawmnwvagc7klsl5u36.jpg",
+      "bio": null,
+      "socialLinks": null
+    },
+    "images": [
+      "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1775898670/investpro/users/2/zq5rqlaclqmu34nogd6n.png"
+    ],
+    "isFrozen": false,
+    "createdAt": "2026-04-14T18:13:04.744Z",
+    "milestones": [
+      {
+        "id": 30001,
+        "title": "Đợt 1: Khởi động",
+        "percentage": 50,
+        "stage": 1,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-04-14T18:13:05.079Z"
+      },
+      {
+        "id": 30002,
+        "title": "Đợt 2: Triển khai",
+        "percentage": 50,
+        "stage": 2,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-04-14T18:13:05.188Z"
+      }
+    ],
+    "disputes": [],
+    "content": ""
+  },
+  {
     "id": 1,
     "title": "testing",
     "thumbnailUrl": "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1775898670/investpro/users/2/zq5rqlaclqmu34nogd6n.png",
@@ -7,7 +66,6 @@
     "contentSlug": "testing",
     "targetCapital": 100000,
     "currentAmount": 100000,
-    "currentCapital": 100000,
     "interestRate": 5,
     "durationMonths": 5,
     "minInvestment": 10000,
@@ -38,23 +96,12 @@
     "createdAt": "2026-04-12T03:29:37.366Z",
     "milestones": [
       {
-        "id": 1,
-        "title": "Đợt 1: Khởi động",
-        "percentage": 20,
-        "stage": 1,
-        "status": "disbursed",
-        "evidenceUrls": null,
-        "createdAt": "2026-04-12T03:29:37.691Z"
-      },
-      {
         "id": 2,
         "title": "Đợt 2: Triển khai",
         "percentage": 30,
         "stage": 2,
         "status": "disbursed",
-        "evidenceUrls": [
-          "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1775991604/investpro/users/2/gv6xalgd48grfqfupxlp.jpg"
-        ],
+        "evidenceUrls": null,
         "createdAt": "2026-04-12T03:29:37.798Z"
       },
       {
@@ -63,10 +110,17 @@
         "percentage": 50,
         "stage": 3,
         "status": "disbursed",
-        "evidenceUrls": [
-          "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1775898670/investpro/users/2/zq5rqlaclqmu34nogd6n.png"
-        ],
+        "evidenceUrls": null,
         "createdAt": "2026-04-12T03:29:37.903Z"
+      },
+      {
+        "id": 1,
+        "title": "Đợt 1: Khởi động",
+        "percentage": 20,
+        "stage": 1,
+        "status": "disbursed",
+        "evidenceUrls": null,
+        "createdAt": "2026-04-12T03:29:37.691Z"
       }
     ],
     "disputes": [

@@ -27,6 +27,11 @@ export class AdminProjectsController {
     return this.projectsService.getProjectsByStatus(ProjectStatus.PENDING_ADMIN_REVIEW);
   }
 
+  @Get('pending')
+  getPendingProjects() {
+    return this.projectsService.getProjectsByStatus(ProjectStatus.PENDING);
+  }
+
   @Patch(':id/approve-disbursement')
   approveDisbursement(@Param('id', ParseIntPipe) id: number) {
     return this.projectsService.approveFundedProject(id);

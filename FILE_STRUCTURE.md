@@ -7,9 +7,8 @@ SCI-ITF-Canhan42_TrinhSuTruongThi/
 ├── server/                 # NestJS Backend
 ├── API.MD                  # API Documentation
 ├── DATABASE.md             # Database Schema & Migrations
-├── DEVELOPMENT.md          # Development Setup Guide
 ├── FILE_STRUCTURE.md       # Directory Structure (This File)
-├── QUICK_REFERENCE.md      # Command Cheatsheet
+├── MONEYFLOW.md            # Financial Logic Documentation
 ├── README.MD               # Project Overview
 ├── SUMMARY.md              # Project Progress Summary
 ├── package.json            # Workspace Configuration

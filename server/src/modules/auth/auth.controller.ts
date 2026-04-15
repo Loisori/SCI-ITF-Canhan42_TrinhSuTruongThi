@@ -48,7 +48,7 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req: any, @Res() res: Response) {
     const { access_token } = await this.authService.validateGoogleUser(req.user);
-    const clientUrl = this.configService.get<string>('CLIENT_URL') || 'http://localhost:3000';
+    const clientUrl = this.configService.get<string>('CLIENT_URL') || '';
     
     // Redirect về trang callback của frontend với token
     return res.redirect(`${clientUrl}/callback?token=${access_token}`);

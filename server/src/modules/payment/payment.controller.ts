@@ -39,7 +39,7 @@ export class PaymentController {
     const result = await this.paymentService.handleVnpayReturn(query);
 
     const clientBaseUrl =
-      this.configService.get<string>('CLIENT_URL') || 'http://localhost:3000';
+      this.configService.get<string>('CLIENT_URL') || '';
 
     const targetUrl = result.success
       ? `${clientBaseUrl}/dashboard?payment=success&amount=${encodeURIComponent(String(result.amount ?? '0'))}`

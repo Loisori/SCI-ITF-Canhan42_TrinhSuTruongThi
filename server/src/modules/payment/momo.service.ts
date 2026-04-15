@@ -22,13 +22,13 @@ export class MomoService {
 
   async createMomoUrl(userId: number, amount: number) {
     const partnerCode = this.configService.get<string>('MOMO_PARTNER_CODE') || 'MOMO'; // Default to MoMo Sandbox
-    const accessKey = this.configService.get<string>('MOMO_ACCESS_KEY') || 'M8brj9K6E22vXoDB';
-    const secretKey = this.configService.get<string>('MOMO_SECRET_KEY') || 'nqQiVSgDMy809JoPF6OzP5OdPXBUpR25';
+    const accessKey = this.configService.get<string>('MOMO_ACCESS_KEY') || '';
+    const secretKey = this.configService.get<string>('MOMO_SECRET_KEY') || '';
     
     const endpoint = 'https://test-payment.momo.vn/v2/gateway/api/create';
     
-    const clientBaseUrl = this.configService.get<string>('CLIENT_URL') || 'http://localhost:3000';
-    const apiUrl = this.configService.get<string>('API_URL') || 'http://localhost:3001';
+    const clientBaseUrl = this.configService.get<string>('CLIENT_URL') || '';
+    const apiUrl = this.configService.get<string>('API_URL') || '';
 
     // MoMo V2 API strictly requires redirectUrl (not returnUrl)
     const redirectUrl = this.configService.get<string>('MOMO_RETURN_URL') || `${clientBaseUrl}/dashboard?tab=wallet`;

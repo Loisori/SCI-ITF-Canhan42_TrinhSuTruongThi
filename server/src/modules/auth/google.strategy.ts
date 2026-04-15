@@ -6,10 +6,15 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(private configService: ConfigService) {
+    const apiUrl = configService.get<string>('API_URL');
+    if (!apiUrl) {
+      console.error('❌ [Auth] API_URL is not defined in environment variables. Google OAuth will fail.');
+    }
+
     super({
       clientID: configService.get<string>('GOOGLE_CLIENT_ID')!,
       clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET')!,
-      callbackURL: configService.get<string>('API_URL') + '/api/auth/google/callback',
+      callbackURL: (apiUrl || '') + '/api/auth/google/callback',
       scope: ['email', 'profile'],
     });
   }

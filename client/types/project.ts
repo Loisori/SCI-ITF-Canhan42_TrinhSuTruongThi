@@ -26,14 +26,14 @@ export type ProjectMilestone = {
   percentage: number;
   stage: number;
   status:
-    | 'pending'
-    | 'uploading_proof'
-    | 'voting'
-    | 'admin_review'
-    | 'disbursed'
-    | 'completed'
-    | 'rejected'
-    | 'disputed';
+    | "pending"
+    | "uploading_proof"
+    | "voting"
+    | "admin_review"
+    | "disbursed"
+    | "completed"
+    | "rejected"
+    | "disputed";
   evidenceUrls?: string[] | null;
   disbursementDate?: string | null;
   votingEndsAt?: string | null;
@@ -41,13 +41,12 @@ export type ProjectMilestone = {
   createdAt: string;
 };
 
-
 export type ProjectDispute = {
   id: number;
   userId: number;
   reason: string;
   evidenceUrl: string | null;
-  status: 'open' | 'resolved' | 'refunded';
+  status: "open" | "resolved" | "refunded";
   createdAt: string;
 };
 
@@ -59,10 +58,12 @@ export type Project = {
   contentSlug?: string;
   targetCapital: number | string;
   currentCapital: number | string;
+  currentAmount?: number | string;
   fundingProgress: number;
   interestRate: number | string;
   durationMonths: number;
   status: string;
+  endDate?: string | null;
   category?: ProjectCategory | null;
   owner?: ProjectOwner | null;
 };
@@ -90,7 +91,6 @@ export type ProjectDetail = {
   disputes?: ProjectDispute[];
   createdAt: string;
 };
-
 
 export type PendingProject = {
   id: number;

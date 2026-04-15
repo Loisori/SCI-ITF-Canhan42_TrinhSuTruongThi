@@ -6,17 +6,59 @@ import { useQuery } from "@tanstack/react-query";
 import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
 
 //types
 import type { Project } from "@/types/project";
+
+function formatTimeRemaining(
+  endDate: string | null | undefined,
+  nowTimestamp: number,
+): string {
+  if (!endDate) {
+    return "Không giới hạn";
+  }
+
+  const deadline = new Date(endDate);
+  if (Number.isNaN(deadline.getTime())) {
+    return "Không rõ hạn";
+  }
+
+  const diff = deadline.getTime() - nowTimestamp;
+  if (diff <= 0) {
+    return "Đã kết thúc";
+  }
+
+  const totalMinutes = Math.floor(diff / (1000 * 60));
+  if (totalMinutes < 60) {
+    return `Còn ${Math.max(1, totalMinutes)} phút`;
+  }
+
+  const totalHours = Math.floor(totalMinutes / 60);
+  if (totalHours < 24) {
+    const minutes = totalMinutes % 60;
+    return `Còn ${totalHours} giờ ${minutes} phút`;
+  }
+
+  const days = Math.floor(totalHours / 24);
+  const hours = totalHours % 24;
+  if (days < 30) {
+    return `Còn ${days} ngày ${hours} giờ`;
+  }
+
+  const months = Math.floor(days / 30);
+  const remainDays = days % 30;
+  return `Còn ${months} tháng ${remainDays} ngày`;
+}
 
 function projectHref(p: Project) {
   return `/projects/${p.contentSlug ?? p.id}`;
 }
 
 export default function FeaturedProjects() {
+  const [nowTimestamp, setNowTimestamp] = useState(() => Date.now());
+
   const autoplay = useMemo(
     () =>
       Autoplay({
@@ -26,6 +68,16 @@ export default function FeaturedProjects() {
       }),
     [],
   );
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setNowTimestamp(Date.now());
+    }, 60_000);
+
+    return () => {
+      window.clearInterval(id);
+    };
+  }, []);
 
   const [emblaRef] = useEmblaCarousel(
     {
@@ -103,28 +155,39 @@ export default function FeaturedProjects() {
       <div className="wrapper wrapper--lg overflow-hidden" ref={emblaRef}>
         <div className="flex -ml-3">
           {projects.map((project) => {
-            const progress =
-              Number(project.fundingProgress) ||
-              (Number(project.targetCapital) > 0
-                ? Number(
-                    (
-                      (Number(project.currentCapital) /
-                        Number(project.targetCapital)) *
-                      100
-                    ).toFixed(2),
-                  )
-                : 0);
-            const bar = Math.min(progress, 100);
+            const serverProgress = Number(project.fundingProgress);
+            const currentCapital = Number(
+              project.currentCapital ?? project.currentAmount ?? 0,
+            );
+            const targetCapital = Number(project.targetCapital ?? 0);
+
+            const fallbackProgress =
+              targetCapital > 0
+                ? Number(((currentCapital / targetCapital) * 100).toFixed(2))
+                : 0;
+
+            const progress = Number.isFinite(serverProgress)
+              ? serverProgress
+              : fallbackProgress;
+            const bar = Math.max(
+              0,
+              Math.min(Number.isFinite(progress) ? progress : 0, 100),
+            );
+            const timeLeft = formatTimeRemaining(project.endDate, nowTimestamp);
+            const ownerName = project.owner?.fullName?.trim() || "Chủ dự án";
+            const ownerInitial = ownerName.charAt(0).toUpperCase();
 
             return (
               <div
                 key={project.id}
                 className="min-w-0 flex-[0_0_100%] pl-3 sm:flex-[0_0_92%] md:flex-[0_0_48%] lg:flex-[0_0_32%]"
               >
-                <div className="group bg-white dark:bg-white/5 rounded-2xl overflow-hidden border border-slate-100 dark:border-white/10 transition-all hover:shadow-2xl h-full flex flex-col">
+                <Link
+                  href={projectHref(project)}
+                  className="group dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/10 transition-all hover:shadow-2xl h-full flex flex-col"
+                >
                   <div className="relative aspect-[16/10] overflow-hidden bg-slate-200 dark:bg-slate-800">
                     {project.thumbnailUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={project.thumbnailUrl}
                         alt={project.title}
@@ -139,41 +202,62 @@ export default function FeaturedProjects() {
                       Đang gọi vốn
                     </span>
                   </div>
-                  <div className="p-6 flex flex-col flex-1">
+                  <div className="w-full h-2 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className="bg-green-500 h-full rounded-full transition-[width] duration-500"
+                      style={{ width: `${bar}%` }}
+                    />
+                  </div>
+                  <div className="flex">
+                    <div>
+                      {project.owner?.avatarUrl ? (
+                        <img
+                          src={project.owner.avatarUrl}
+                          alt={ownerName}
+                          className="size-8 rounded-full object-cover border border-slate-200 dark:border-slate-700"
+                        />
+                      ) : (
+                        <div className="size-8 rounded-full bg-primary/10 text-primary dark:text-slate-100 border border-primary/20 flex items-center justify-center text-[11px] font-bold">
+                          {ownerInitial}
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-4 px-2 pb-4 flex flex-col flex-1">
+                      <h4 className="text-h6 font-semibold mb-2 text-slate-900 dark:text-white line-clamp-2">
+                        {project.title}
+                      </h4>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="min-w-0">
+                          <p className="text-smallest font-bold text-slate-700 dark:text-slate-200 truncate">
+                            {ownerName}
+                          </p>
+                        </div>
+                      </div>
+                      {/* 
                     {project.category?.name ? (
                       <p className="text-[11px] uppercase tracking-wider font-bold text-primary mb-1">
                         {project.category.name}
                       </p>
                     ) : null}
-                    <h4 className="text-h6 font-bold mb-2 text-slate-900 dark:text-white line-clamp-2">
-                      {project.title}
-                    </h4>
-                    <p className="text-smaller text-slate-500 dark:text-slate-400 mb-5 line-clamp-2 flex-1">
+
+                    <p className="text-smaller text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">
                       {project.shortDescription ||
                         "Khám phá chi tiết dự án và cơ hội đầu tư."}
-                    </p>
-                    <div className="space-y-2 mt-auto">
-                      <div className="flex justify-between text-smaller font-bold text-slate-700 dark:text-slate-200">
-                        <span>Tiến độ</span>
-                        <span className="text-primary dark:text-slate-100">
-                          {progress}%
-                        </span>
-                      </div>
-                      <div className="w-full h-2 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
-                        <div
-                          className="bg-primary h-full rounded-full transition-[width] duration-500"
-                          style={{ width: `${bar}%` }}
-                        />
+                    </p> */}
+
+                      <div className="space-y-2 mt-auto">
+                        <div className="flex justify-between text-smaller font-bold text-slate-700 dark:text-slate-200">
+                          <span className="text-primary dark:text-slate-100">
+                            {timeLeft}
+                          </span>
+                          <span className="text-primary dark:text-slate-100">
+                            {progress}% đã đầu tư
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <Link
-                      href={projectHref(project)}
-                      className="mt-6 block w-full py-3 text-center border-2 border-primary text-primary dark:border-slate-100 dark:text-slate-100 font-bold rounded-xl hover:bg-primary hover:text-white dark:hover:bg-slate-100 dark:hover:text-primary transition-all"
-                    >
-                      Đầu tư
-                    </Link>
                   </div>
-                </div>
+                </Link>
               </div>
             );
           })}
