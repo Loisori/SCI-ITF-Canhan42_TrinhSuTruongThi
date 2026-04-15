@@ -36,12 +36,16 @@ export default function UserManagement() {
 
    const { data: pendingWithdrawals = [], refetch: refetchWithdrawals } = useQuery({
       queryKey: ["admin-pending-withdrawals"],
-      queryFn: async () => (await api.get<Transaction[]>("/api/transactions/admin/pending-withdrawals")).data,
+      queryFn: async () => (await api.get<Transaction[]>("/api/wallets/admin/pending-transactions")).data,
    });
 
    const handleWithdraw = async (id: number, action: 'approve' | 'reject') => {
       try {
-         await api.patch(`/api/transactions/admin/withdraw/${id}/${action}`);
+         if (action === 'approve') {
+            await api.post(`/api/wallets/admin/approve-transaction/${id}`);
+         } else {
+            await api.post(`/api/wallets/admin/reject-transaction/${id}`, { reason: "Admin rejected" });
+         }
          toast.success(action === 'approve' ? "Đã duyệt yêu cầu rút tiền." : "Đã từ chối yêu cầu rút tiền.");
          refetchWithdrawals();
          refetchUsers();

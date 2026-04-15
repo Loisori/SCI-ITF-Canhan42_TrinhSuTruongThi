@@ -83,6 +83,17 @@ export class UsersController {
     return rest;
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Patch('notification-settings')
+  async updateNotificationSettings(
+    @GetUser('id') userId: number,
+    @Body() settings: Record<string, boolean>,
+  ) {
+    const updatedUser = await this.usersService.updateNotificationSettings(userId, settings);
+    const { password: _, ...rest } = updatedUser;
+    return rest;
+  }
+
   @Get(':id/public')
   async getPublicProfile(@Param('id', ParseIntPipe) id: number) {
     const user = await this.usersService.findById(id);

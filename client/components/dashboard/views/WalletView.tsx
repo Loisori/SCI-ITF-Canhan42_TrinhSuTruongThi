@@ -23,8 +23,6 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
 
   const [filterType, setFilterType] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("");
-  const [withdrawAmount, setWithdrawAmount] = useState<string>("");
-  const [isWithdrawing, setIsWithdrawing] = useState(false);
 
   const { data: transactions = [], refetch } = useQuery({
     queryKey: ["transactions-my", filterType, filterStatus],
@@ -36,33 +34,6 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
     },
   });
 
-
-
-  const handleWithdraw = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const amount = parseInt(withdrawAmount);
-    if (isNaN(amount) || amount < 50000) {
-      toast.error("Số tiền rút tối thiểu là 50.000 VNĐ");
-      return;
-    }
-
-    if (amount > Number(profile.balance)) {
-      toast.error("Số dư không đủ để rút tiền");
-      return;
-    }
-
-    try {
-      setIsWithdrawing(true);
-      await api.post("/api/transactions/withdraw", { amount });
-      toast.success("Yêu cầu rút tiền đã được gửi. Chờ Admin phê duyệt.");
-      setWithdrawAmount("");
-      refetch();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Không thể thực hiện yêu cầu rút tiền");
-    } finally {
-      setIsWithdrawing(false);
-    }
-  };
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -78,7 +49,7 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
               isFrozen ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-primary text-white hover:shadow-lg'
             }`}
           >
-            <Banknote className="w-5 h-5" />
+            <Banknote className="size-5" />
             Nạp tiền
           </button>
           <button

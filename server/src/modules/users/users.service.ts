@@ -61,6 +61,7 @@ export class UsersService {
         'user.bio',
         'user.coverPhotoUrl',
         'user.socialLinks',
+        'user.notificationSettings',
         'user.createdAt',
         'user.updatedAt',
         'favoriteCategories.id',

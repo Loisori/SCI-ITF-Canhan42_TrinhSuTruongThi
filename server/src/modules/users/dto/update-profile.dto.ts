@@ -1,4 +1,23 @@
-import { IsArray, IsNumber, IsOptional, IsString, IsObject } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsString, IsObject, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class SocialLinksDto {
+  @IsString()
+  @IsOptional()
+  facebook?: string;
+
+  @IsString()
+  @IsOptional()
+  linkedin?: string;
+
+  @IsString()
+  @IsOptional()
+  twitter?: string;
+
+  @IsString()
+  @IsOptional()
+  github?: string;
+}
 
 export class UpdateProfileDto {
   @IsString()
@@ -13,14 +32,10 @@ export class UpdateProfileDto {
   @IsOptional()
   coverPhotoUrl?: string;
 
-  @IsObject()
+  @ValidateNested()
+  @Type(() => SocialLinksDto)
   @IsOptional()
-  socialLinks?: {
-    facebook?: string;
-    linkedin?: string;
-    twitter?: string;
-    github?: string;
-  };
+  socialLinks?: SocialLinksDto;
 
   @IsArray()
   @IsOptional()
