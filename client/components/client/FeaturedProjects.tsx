@@ -7,7 +7,7 @@ import Autoplay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Timer } from "lucide-react";
 
 //types
 import type { Project } from "@/types/project";
@@ -202,33 +202,34 @@ export default function FeaturedProjects() {
                       Đang gọi vốn
                     </span>
                   </div>
-                  <div className="w-full h-2 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-slate-100 dark:bg-white/10 rounded-b-full overflow-hidden">
                     <div
                       className="bg-green-500 h-full rounded-full transition-[width] duration-500"
                       style={{ width: `${bar}%` }}
                     />
                   </div>
-                  <div className="flex">
-                    <div>
+                  <div className="flex gap-2 mt-4">
+                    <div className="flex flex-col">
                       {project.owner?.avatarUrl ? (
                         <img
                           src={project.owner.avatarUrl}
                           alt={ownerName}
-                          className="size-8 rounded-full object-cover border border-slate-200 dark:border-slate-700"
+                          className="size-11 rounded-full object-cover border border-slate-200 dark:border-slate-700"
                         />
                       ) : (
-                        <div className="size-8 rounded-full bg-primary/10 text-primary dark:text-slate-100 border border-primary/20 flex items-center justify-center text-[11px] font-bold">
+                        <div className="size-11 rounded-full bg-primary/10 text-primary dark:text-slate-100 border border-primary/20 flex items-center justify-center text-[11px] font-bold">
                           {ownerInitial}
                         </div>
                       )}
+                      <Timer className="" />
                     </div>
-                    <div className="mt-4 px-2 pb-4 flex flex-col flex-1">
-                      <h4 className="text-h6 font-semibold mb-2 text-slate-900 dark:text-white line-clamp-2">
+                    <div className="px-2 pb-4 flex flex-col flex-1">
+                      <h4 className="text-h6 font-semibold text-[#282828] dark:text-white line-clamp-3">
                         {project.title}
                       </h4>
-                      <div className="flex items-center gap-2 mb-3">
+                      <div className="flex items-center gap-2 mb-1">
                         <div className="min-w-0">
-                          <p className="text-smallest font-bold text-slate-700 dark:text-slate-200 truncate">
+                          <p className="text-smallest font-bold text-[#656969] dark:text-slate-200 truncate">
                             {ownerName}
                           </p>
                         </div>
@@ -246,11 +247,12 @@ export default function FeaturedProjects() {
                     </p> */}
 
                       <div className="space-y-2 mt-auto">
-                        <div className="flex justify-between text-smaller font-bold text-slate-700 dark:text-slate-200">
-                          <span className="text-primary dark:text-slate-100">
+                        <div className="flex text-smaller font-bold text-[#4D4D4D] dark:text-slate-200">
+                          <span>
                             {timeLeft}
                           </span>
-                          <span className="text-primary dark:text-slate-100">
+                          <span> * </span>
+                          <span>
                             {progress}% đã đầu tư
                           </span>
                         </div>

@@ -91,18 +91,16 @@ export class VotingService {
     });
 
     if (vote) {
-      vote.isApprove = isApprove;
-      vote.comment = comment || null;
-      vote.investorCapital = investorWeight;
-    } else {
-      vote = this.milestoneVotesRepository.create({
-        milestoneId,
-        userId,
-        isApprove,
-        comment: comment || null,
-        investorCapital: investorWeight,
-      });
+      throw new BadRequestException('Bạn đã thực hiện bầu chọn cho giai đoạn này rồi.');
     }
+
+    vote = this.milestoneVotesRepository.create({
+      milestoneId,
+      userId,
+      isApprove,
+      comment: comment || null,
+      investorCapital: investorWeight,
+    });
 
     await this.milestoneVotesRepository.save(vote);
     return { 

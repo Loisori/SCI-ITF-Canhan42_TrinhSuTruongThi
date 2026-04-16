@@ -2,6 +2,7 @@
 
 import { useDashboard } from "@/context/DashboardContext";
 import ThemeToggle from "@/components/client/ThemeToggle";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { UserProfile } from "@/types/user";
 import { PanelLeftOpen, Menu } from "lucide-react";
 
@@ -42,6 +43,7 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
       </div>
 
       <div className="flex items-center gap-3">
+        <LanguageSwitcher />
         <ThemeToggle />
         
         <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1"></div>

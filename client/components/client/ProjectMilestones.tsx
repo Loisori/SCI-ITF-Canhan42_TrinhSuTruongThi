@@ -160,7 +160,7 @@ export default function ProjectMilestones({ project, role, currentUserId, onUpda
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 mt-6 shadow-sm">
+    <div className="col-span-1 md:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 mt-6 shadow-sm">
       <div className="mb-6">
         <h2 className="text-h6 font-black text-slate-900 dark:text-white">Lộ trình dự án & Giải ngân</h2>
         <p className="text-smaller text-slate-500 mt-1">Theo dõi tiến độ và tham gia bình chọn giải ngân.</p>

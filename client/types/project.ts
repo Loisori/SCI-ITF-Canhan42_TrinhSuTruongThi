@@ -76,6 +76,7 @@ export type ProjectDetail = {
   images: string[];
   targetCapital: number | string;
   currentCapital: number | string;
+  currentAmount?: number | string;
   fundingProgress: number;
   interestRate: number | string;
   durationMonths: number;

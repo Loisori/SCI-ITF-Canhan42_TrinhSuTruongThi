@@ -1,0 +1,13 @@
+{
+  "Admin": {
+    "users": "Người dùng",
+    "usersDesc": "Quản lý tài khoản, quyền hạn và phê duyệt rút tiền.",
+    "pendingWithdrawals": "Yêu cầu rút tiền chờ duyệt",
+    "userList": "Danh sách người dùng"
+  },
+  "Navigation": {
+    "language": "Ngôn ngữ",
+    "english": "Tiếng Anh",
+    "vietnamese": "Tiếng Việt"
+  }
+}

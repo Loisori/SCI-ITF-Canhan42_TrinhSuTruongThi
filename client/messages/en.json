@@ -1,0 +1,13 @@
+{
+  "Admin": {
+    "users": "Users",
+    "usersDesc": "Manage accounts, permissions, and approve withdrawals.",
+    "pendingWithdrawals": "Pending Withdrawals",
+    "userList": "User List"
+  },
+  "Navigation": {
+    "language": "Language",
+    "english": "English",
+    "vietnamese": "Vietnamese"
+  }
+}

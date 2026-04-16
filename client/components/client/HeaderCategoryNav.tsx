@@ -38,10 +38,10 @@ export default function HeaderCategoryNav() {
   return (
     <nav
       id="category"
-      className="flex items-center gap-1 md:gap-2 py-2 border-t border-primary/10 dark:border-white/10 overflow-x-auto [scrollbar-width:thin]"
+      className="flex justify-center items-center gap-1 md:gap-2 py-2 overflow-x-auto [scrollbar-width:thin]"
       aria-label="Danh mục dự án"
     >
-      <Link href="/projects" className="text-[11px] uppercase tracking-wider font-bold text-slate-500 shrink-0 mr-2 hidden sm:inline">
+      <Link href="/projects" className="text-smaller uppercase tracking-wider font-bold text-slate-500 shrink-0 mr-2 hidden sm:inline border-r border-slate-300 dark:border-slate-800 pr-2">
         Khám phá
       </Link>
       {categories.map((c) => (

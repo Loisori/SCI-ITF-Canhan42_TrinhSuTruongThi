@@ -108,6 +108,7 @@ export default function ProjectDetailPage() {
             minInvestment: project.minInvestment,
             targetCapital: project.targetCapital,
             currentCapital: project.currentCapital,
+            currentAmount: project.currentAmount,
             fundingProgress: project.fundingProgress,
             riskLevel: (project as { riskLevel?: string }).riskLevel ?? null,
             status: project.status,
@@ -264,7 +265,7 @@ export default function ProjectDetailPage() {
                   <img
                     src={selectedImage}
                     alt={project.title}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 aspect-video object-cover"
+                    className="w-full border border-slate-200 dark:border-slate-800 aspect-video object-cover"
                   />
                 )}
 
@@ -293,10 +294,10 @@ export default function ProjectDetailPage() {
               </div>
 
               <aside className="space-y-5">
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5">
+                <div className="rounded-xl p-5">
                   <div className="space-y-3 text-smaller">
                     <div className="pt-1">
-                      <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <div className="w-full bg-slate-300 dark:bg-slate-800 h-2 overflow-hidden">
                         <div
                           className="bg-primary h-full"
                           style={{ width: `${baseProgress}%` }}
@@ -308,22 +309,21 @@ export default function ProjectDetailPage() {
                         </p>
                       )}
                     </div>
-                    <div className="flex justify-between">
-                      <span>Đã huy động</span>
-                      <span className="font-bold">
-                        {Number(project.currentCapital).toLocaleString("vi-VN")} đ
+                    {/* <div className="flex justify-between">
+                      <span>Tiến độ</span>
+                      <span className="font-bold text-primary">
+                        {Number(project.fundingProgress).toFixed(2)}%
+                      </span>
+                    </div> */}
+                    <div className="flex">
+                      <span className="font-bold text-h5">
+                        {Number(project.currentAmount).toLocaleString("vi-VN")} đ
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Mục tiêu</span>
                       <span className="font-bold">
                         {Number(project.targetCapital).toLocaleString("vi-VN")} đ
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Tiến độ</span>
-                      <span className="font-bold text-primary">
-                        {Number(project.fundingProgress).toFixed(2)}%
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -338,12 +338,6 @@ export default function ProjectDetailPage() {
                         {project.durationMonths} tháng
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Tối thiểu</span>
-                      <span className="font-bold">
-                        {Number(project.minInvestment).toLocaleString("vi-VN")} đ
-                      </span>
-                    </div>
                   </div>
                 </div>
 
@@ -355,6 +349,12 @@ export default function ProjectDetailPage() {
                     <label className="block text-smaller font-semibold">
                       Số tiền đầu tư
                     </label>
+                    <div className="flex justify-between">
+                      <span>Tối thiểu</span>
+                      <span className="font-bold">
+                        {Number(project.minInvestment).toLocaleString("vi-VN")} đ
+                      </span>
+                    </div>
                     <input
                       type="text"
                       min={Number(project.minInvestment)}
@@ -446,18 +446,18 @@ export default function ProjectDetailPage() {
                 {project.owner ? (
                   <Link href={`/profile/${project.owner.id}`} className="block space-y-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
                     <div className="flex items-center gap-4">
-                      <div 
+                      <div
                         className="w-16 h-16 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 hover:opacity-80 transition-opacity"
                       >
-                        <img 
-                          src={project.owner.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(project.owner.fullName)}&background=random`} 
-                          alt={project.owner.fullName} 
-                          className="w-full h-full object-cover" 
+                        <img
+                          src={project.owner.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(project.owner.fullName)}&background=random`}
+                          alt={project.owner.fullName}
+                          className="w-full h-full object-cover"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div 
-                           className="text-h6 font-bold text-slate-900 dark:text-white hover:text-primary transition-colors truncate block"
+                        <div
+                          className="text-h6 font-bold text-slate-900 dark:text-white hover:text-primary transition-colors truncate block"
                         >
                           {project.owner.fullName}
                         </div>
@@ -476,20 +476,20 @@ export default function ProjectDetailPage() {
 
               {/* Lifecycle Stage Map */}
               <div className="col-span-1 md:col-span-3">
-                <ProjectLifecycleTimeline 
-                  status={project.status} 
-                  currentAmount={Number(project.currentCapital)} 
-                  totalDebt={Number(project.totalDebt || 0)} 
+                <ProjectLifecycleTimeline
+                  status={project.status}
+                  currentAmount={Number(project.currentCapital)}
+                  totalDebt={Number(project.totalDebt || 0)}
                 />
               </div>
 
               {/* Milestones & Disputes Component */}
-              <ProjectMilestones 
-                project={project} 
-                role={role} 
+              <ProjectMilestones
+                project={project}
+                role={role}
                 currentUserId={userId}
-                onUpdate={fetchProject} 
-                setToast={setToast} 
+                onUpdate={fetchProject}
+                setToast={setToast}
               />
             </div>
 

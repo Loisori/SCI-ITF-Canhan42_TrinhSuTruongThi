@@ -28,6 +28,8 @@ type DashboardUser = {
   totalInvested: number;
   totalReceived: number;
   feeCollected: number;
+  role: string;
+  createdAt: Date;
   participatingProjects: DashboardProjectParticipation[];
 };
 
@@ -144,7 +146,7 @@ export class AdminDashboardService {
 
     const [users, total] = await this.usersRepository.findAndCount({
       where: { role: targetRole },
-      select: ['id', 'fullName', 'email', 'balance'],
+      select: ['id', 'fullName', 'email', 'balance', 'role', 'createdAt'],
       order: { createdAt: 'DESC' },
       skip: (page - 1) * pageSize,
       take: pageSize,
@@ -243,6 +245,8 @@ export class AdminDashboardService {
         totalInvested: Number(totalInvested.toFixed(2)),
         totalReceived: Number(totalReceived.toFixed(2)),
         feeCollected: Number(feeCollected.toFixed(2)),
+        role: user.role,
+        createdAt: user.createdAt,
         participatingProjects,
       });
     }

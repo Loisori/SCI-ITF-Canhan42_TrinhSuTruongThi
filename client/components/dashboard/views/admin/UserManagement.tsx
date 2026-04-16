@@ -8,16 +8,16 @@ import { AdminDashboardUser } from "@/types/admin";
 import { Transaction } from "@/types/transaction";
 import toast from "react-hot-toast";
 import { Clock, UserCog, SquarePen, ChevronLeft, ChevronRight, User, Briefcase } from "lucide-react";
+import { useTranslations } from 'next-intl';
 
 export default function UserManagement() {
+   const t = useTranslations('Admin');
    const [page, setPage] = useState(1);
    const limit = 10;
    
-   // 1. Quản lý Role đang chọn (Mặc định là investor để tránh lỗi 400)
    const [selectedRole, setSelectedRole] = useState<'investor' | 'owner'>('investor');
 
    const { data: usersData, refetch: refetchUsers } = useQuery({
-      // 2. QueryKey phải bao gồm cả selectedRole để fetch lại khi đổi tab
       queryKey: ["admin-users", page, selectedRole], 
       queryFn: async () => {
          const res = await api.get("/api/admin/dashboard/users", {
@@ -54,28 +54,28 @@ export default function UserManagement() {
       }
    };
 
-   const updateRole = async (userId: number, newRole: string) => {
-      try {
-         await api.patch(`/api/users/${userId}/role`, { role: newRole });
-         toast.success("Cập nhật quyền hạn thành công.");
-         refetchUsers();
-      } catch (err) {
-         toast.error("Không thể cập nhật quyền hạn.");
-      }
-   };
+   // const updateRole = async (userId: number, newRole: string) => {
+   //    try {
+   //       await api.patch(`/api/users/${userId}/role`, { role: newRole });
+   //       toast.success("Cập nhật quyền hạn thành công.");
+   //       refetchUsers();
+   //    } catch (err) {
+   //       toast.error("Không thể cập nhật quyền hạn.");
+   //    }
+   // };
 
    return (
       <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
          <div>
-            <h1 className="text-h3 font-bold text-slate-900 dark:text-white">Người dùng</h1>
-            <p className="text-slate-600 dark:text-slate-400 text-body mt-1">Quản lý tài khoản, quyền hạn và phê duyệt rút tiền.</p>
+            <h1 className="text-h3 font-bold text-slate-900 dark:text-white">{t('users')}</h1>
+            <p className="text-slate-600 dark:text-slate-400 text-body mt-1">{t('usersDesc')}</p>
          </div>
 
          {/* Pending Withdrawals Section - GIỮ NGUYÊN */}
          <section className="space-y-4">
             <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                <Clock className="text-amber-500" />
-               Yêu cầu rút tiền chờ duyệt
+               {t('pendingWithdrawals')}
             </h2>
             {/* ... Nội dung bảng rút tiền giữ nguyên ... */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-amber-200 dark:border-amber-900/30 overflow-hidden shadow-sm">
@@ -121,7 +121,7 @@ export default function UserManagement() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   <UserCog className="text-primary" />
-                  Danh sách người dùng
+                  {t('userList')}
                </h2>
 
                {/* 3. UI TABS LỌC ROLE MỚI */}
@@ -154,28 +154,29 @@ export default function UserManagement() {
                         </tr>
                      </thead>
                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {users.map((u: any) => (
-                           <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                        {users.map((user: any) => (
+                           <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                               <td className="px-6 py-4">
-                                 <p className="text-smaller font-bold text-slate-900 dark:text-white">{u.fullName}</p>
-                                 <p className="text-[10px] text-slate-500 mt-0.5">{u.email}</p>
+                                 <p className="text-smaller font-bold text-slate-900 dark:text-white">{user.fullName}</p>
+                                 <p className="text-[10px] text-slate-500 mt-0.5">{user.email}</p>
                               </td>
                               <td className="px-6 py-4">
-                                 <select
-                                    value={u.role}
-                                    onChange={(e) => updateRole(u.id, e.target.value)}
+                                 {/* <select
+                                    value={user.role}
+                                    onChange={(e) => updateRole(user.id, e.target.value)}
                                     className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 text-[11px] outline-none font-bold text-primary"
                                  >
                                     <option value="investor">Investor</option>
                                     <option value="owner">Owner</option>
                                     <option value="admin">Admin</option>
-                                 </select>
+                                 </select> */}
+                                 <p className="text-[11px] text-slate-500">{user.role}</p>
                               </td>
                               <td className="px-6 py-4">
-                                 <p className="text-smaller font-bold text-green-600 dark:text-green-400">{formatVnd(Number(u.balance))}</p>
+                                 <p className="text-smaller font-bold text-green-600 dark:text-green-400">{formatVnd(Number(user.balance))}</p>
                               </td>
                               <td className="px-6 py-4">
-                                 <p className="text-[11px] text-slate-500">{new Date(u.createdAt).toLocaleDateString('vi-VN')}</p>
+                                 <p className="text-[11px] text-slate-500">{new Date(user.createdAt).toLocaleDateString('vi-VN')}</p>
                               </td>
                               <td className="px-6 py-4 text-right">
                                  <button className="text-slate-400 hover:text-primary transition-colors">
