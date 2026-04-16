@@ -12,14 +12,14 @@ export default function DepositPage() {
   const [amount, setAmount] = useState(100000);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Payment methods: vnpay, bank, momo
   const [selectedMethod, setSelectedMethod] = useState<string>("vnpay");
 
   const handleDeposit = async (e: FormEvent) => {
     e.preventDefault();
     if (!["vnpay", "momo"].includes(selectedMethod)) return; // Safety check
-    
+
     setError(null);
     setLoading(true);
 
@@ -92,9 +92,9 @@ export default function DepositPage() {
               2. Chọn phương thức thanh toán
             </label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
+
               {/* VNPay Option - Active */}
-              <div 
+              <div
                 onClick={() => setSelectedMethod("vnpay")}
                 className={`flex flex-col p-5 rounded-xl border-2 cursor-pointer transition-all ${selectedMethod === 'vnpay' ? 'border-primary bg-primary/5' : 'border-slate-200 dark:border-slate-700 hover:border-primary/50'}`}
               >
@@ -107,7 +107,7 @@ export default function DepositPage() {
               </div>
 
               {/* Bank Transfer Option - Disabled mock */}
-              <div 
+              <div
                 className="flex flex-col p-5 rounded-xl border-2 border-slate-200 dark:border-slate-700 opacity-60 cursor-not-allowed bg-slate-50 dark:bg-slate-800/50"
               >
                 <div className="flex items-start justify-between mb-2">
@@ -119,7 +119,7 @@ export default function DepositPage() {
               </div>
 
               {/* MoMo Option - Active */}
-              <div 
+              <div
                 onClick={() => setSelectedMethod("momo")}
                 className={`flex flex-col p-5 rounded-xl border-2 cursor-pointer transition-all ${selectedMethod === 'momo' ? 'border-[#a50064] bg-[#a50064]/5' : 'border-slate-200 dark:border-slate-700 hover:border-[#a50064]/50'}`}
               >
@@ -153,7 +153,7 @@ export default function DepositPage() {
         </form>
 
         <div className="mt-8 text-center bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl text-smaller text-slate-500 flex items-center justify-center gap-2">
-          <ShieldCheck className="text-[18px]" />
+          <ShieldCheck className="text-body" />
           Giao dịch được mã hóa 256-bit và bảo mật bởi ngân hàng nhà nước Việt Nam.
         </div>
       </main>

@@ -48,7 +48,7 @@ export default function PrivacyPolicyPage() {
             </p>
 
             <hr className="my-8 border-slate-200 dark:border-slate-800" />
-            <p className="text-[14px]">
+            <p className="text-smaller">
               Nếu có đóng góp hoặc câu hỏi về Quyền Bảo Mật xin liên hệ: privacy@investpro.vn
             </p>
           </div>

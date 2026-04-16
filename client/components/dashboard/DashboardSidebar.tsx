@@ -6,18 +6,18 @@ import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { useDashboard } from "@/context/DashboardContext";
 import { UserProfile } from "@/types/user";
-import { 
-  LayoutDashboard, 
-  ClipboardCheck, 
-  Banknote, 
-  Users, 
-  LayoutGrid, 
-  Wallet, 
-  ReceiptText, 
-  TrendingUp, 
-  BarChart3, 
-  Rocket, 
-  Settings, 
+import {
+  LayoutDashboard,
+  ClipboardCheck,
+  Banknote,
+  Users,
+  LayoutGrid,
+  Wallet,
+  ReceiptText,
+  TrendingUp,
+  BarChart3,
+  Rocket,
+  Settings,
   LogOut,
   UserCircle
 } from "lucide-react";
@@ -27,12 +27,12 @@ interface DashboardSidebarProps {
 }
 
 export default function DashboardSidebar({ user }: DashboardSidebarProps) {
-  const { 
-    isSidebarCollapsed, 
+  const {
+    isSidebarCollapsed,
     isMobileDrawerOpen,
-    setMobileDrawerOpen, 
-    activeView, 
-    setActiveView 
+    setMobileDrawerOpen,
+    activeView,
+    setActiveView
   } = useDashboard();
   const pathname = usePathname();
   const router = useRouter();
@@ -91,9 +91,8 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
 
       {/* Sidebar container */}
       <aside
-        className={`${
-          isSidebarCollapsed ? "w-20" : "w-[25rem]"
-        } fixed left-0 top-0 h-screen z-50 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 hidden lg:flex flex-col shadow-sm`}
+        className={`${isSidebarCollapsed ? "w-20" : "w-[25rem]"
+          } fixed left-0 top-0 h-screen z-50 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 hidden lg:flex flex-col shadow-sm`}
       >
         <Link href="/" className="p-6 flex items-center gap-3 h-20">
           <div className="size-8 rounded-xl bg-primary flex items-center justify-center shrink-0">
@@ -117,15 +116,13 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
                 <button
                   key={link.view}
                   onClick={() => handleLinkClick(link.view)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${
-                    isActive
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${isActive
                       ? "bg-primary text-white shadow-lg shadow-primary/20"
                       : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5"
-                  }`}
+                    }`}
                 >
-                  <link.icon className={`${
-                    isActive ? "text-white" : "text-slate-400 group-hover:text-primary"
-                  }`} />
+                  <link.icon className={`${isActive ? "text-white" : "text-slate-400 group-hover:text-primary"
+                    }`} />
                   {!isSidebarCollapsed && (
                     <span className="text-smaller font-bold truncate">{link.name}</span>
                   )}
@@ -138,35 +135,34 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
         {/* User Profile Mini */}
         {!isSidebarCollapsed && user && (
           <div className="p-4 border-t border-slate-100 dark:border-slate-800/50">
-             <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-white/5">
-                <div className="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-smaller overflow-hidden shrink-0">
-                   {user.avatarUrl ? (
-                      <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
-                   ) : (
-                      user.fullName?.charAt(0).toUpperCase()
-                   )}
-                </div>
-                <div className="min-w-0 flex-1">
-                   <p className="text-[12px] font-bold text-slate-900 dark:text-white truncate">{user.fullName}</p>
-                   <p className="text-[10px] text-slate-500 uppercase tracking-tighter truncate">{role}</p>
-                </div>
-                <button 
-                  onClick={handleLogout}
-                  className="p-1.5 shrink-0 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
-                  title="Đăng xuất"
-                >
-                  <LogOut className="text-base" />
-                </button>
-             </div>
+            <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-white/5">
+              <div className="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-smaller overflow-hidden shrink-0">
+                {user.avatarUrl ? (
+                  <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  user.fullName?.charAt(0).toUpperCase()
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-smallest font-bold text-slate-900 dark:text-white truncate">{user.fullName}</p>
+                <p className="text-[10px] text-slate-500 uppercase tracking-tighter truncate">{role}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="p-1.5 shrink-0 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                title="Đăng xuất"
+              >
+                <LogOut className="text-base" />
+              </button>
+            </div>
           </div>
         )}
       </aside>
 
       {/* Mobile Drawer */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 transform lg:hidden transition-transform duration-300 ${
-          isMobileDrawerOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 transform lg:hidden transition-transform duration-300 ${isMobileDrawerOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="p-6 h-20 flex items-center gap-3 border-b border-slate-100 dark:border-slate-800">
           <div className="size-8 rounded-xl bg-primary flex items-center justify-center">
@@ -178,32 +174,31 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
         <nav className="px-4 py-6 overflow-y-auto h-[calc(100vh-80px)] flex flex-col">
           <div className="space-y-2 flex-1">
             {links.map((link) => {
-               const isActive = activeView === link.view;
-               return (
-                 <button
-                   key={link.view}
-                   onClick={() => handleLinkClick(link.view)}
-                   className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${
-                     isActive
-                       ? "bg-primary text-white shadow-lg shadow-primary/20"
-                       : "text-slate-500 dark:text-slate-400"
-                   }`}
-                 >
-                   <link.icon />
-                   <span className="text-smaller font-bold">{link.name}</span>
-                 </button>
-               );
-             })}
+              const isActive = activeView === link.view;
+              return (
+                <button
+                  key={link.view}
+                  onClick={() => handleLinkClick(link.view)}
+                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${isActive
+                      ? "bg-primary text-white shadow-lg shadow-primary/20"
+                      : "text-slate-500 dark:text-slate-400"
+                    }`}
+                >
+                  <link.icon />
+                  <span className="text-smaller font-bold">{link.name}</span>
+                </button>
+              );
+            })}
           </div>
-          
+
           <div className="pt-4 mt-6 border-t border-slate-100 dark:border-slate-800">
-             <button
-                 onClick={handleLogout}
-                 className="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
-               >
-                  <LogOut />
-                 <span className="text-smaller font-bold">Đăng xuất</span>
-             </button>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
+            >
+              <LogOut />
+              <span className="text-smaller font-bold">Đăng xuất</span>
+            </button>
           </div>
         </nav>
       </div>

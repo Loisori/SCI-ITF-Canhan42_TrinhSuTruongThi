@@ -74,15 +74,15 @@ export default function MyPortfolio({ profile }: { profile: UserProfile }) {
             <div className="mt-6 pt-6 border-t border-slate-50 dark:border-slate-800/50 flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <Link href={`/projects/${inv.project?.id}`} className="text-smaller font-bold text-slate-500 hover:text-primary transition-colors flex items-center gap-1">
-                  <Eye className="text-[18px]" />
+                  <Eye className="text-body" />
                   Xem chi tiết
                 </Link>
                 <button
                   onClick={() => setDisputingId(inv.project?.id || null)}
                   className="text-smaller font-bold text-red-500 hover:text-red-600 transition-colors flex items-center gap-1"
                 >
-                   <TriangleAlert className="text-[18px]" />
-                   Khiếu nại
+                  <TriangleAlert className="text-body" />
+                  Khiếu nại
                 </button>
               </div>
 

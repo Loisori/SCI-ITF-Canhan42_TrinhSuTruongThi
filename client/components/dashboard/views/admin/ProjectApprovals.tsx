@@ -67,7 +67,7 @@ export default function ProjectApprovals() {
             {pendingProjects.length} Pending
           </span>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-slate-50/50 dark:bg-slate-800/20 text-[11px] uppercase text-slate-400 font-bold tracking-widest border-b border-slate-100 dark:border-slate-800">
@@ -87,10 +87,10 @@ export default function ProjectApprovals() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                       <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[11px] font-bold uppercase">
-                          {p.owner?.fullName?.charAt(0)}
-                       </div>
-                       <p className="text-smaller font-bold text-slate-700 dark:text-slate-200">{p.owner?.fullName}</p>
+                      <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[11px] font-bold uppercase">
+                        {p.owner?.fullName?.charAt(0)}
+                      </div>
+                      <p className="text-smaller font-bold text-slate-700 dark:text-slate-200">{p.owner?.fullName}</p>
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -98,18 +98,18 @@ export default function ProjectApprovals() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                      <button 
+                      <button
                         onClick={() => approve(p.id)}
                         className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-emerald-500 text-white text-[11px] font-bold hover:shadow-lg transition-all"
                       >
-                        <Check className="text-[16px]" />
+                        <Check className="text-small" />
                         Duyệt
                       </button>
-                      <button 
-                         onClick={() => reject(p.id)}
-                         className="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-red-200 text-red-500 text-[11px] font-bold hover:bg-red-50 transition-all"
+                      <button
+                        onClick={() => reject(p.id)}
+                        className="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-red-200 text-red-500 text-[11px] font-bold hover:bg-red-50 transition-all"
                       >
-                        <X className="text-[16px]" />
+                        <X className="text-small" />
                         Từ chối
                       </button>
                     </div>
@@ -139,7 +139,7 @@ export default function ProjectApprovals() {
             {fundedReview.length} Review
           </span>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-slate-50/50 dark:bg-slate-800/20 text-[11px] uppercase text-slate-400 font-bold tracking-widest border-b border-slate-100 dark:border-slate-800">
@@ -164,7 +164,7 @@ export default function ProjectApprovals() {
                     <p className="text-smaller font-extrabold text-emerald-600">{formatVnd(Number(p.currentAmount))}</p>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button 
+                    <button
                       onClick={() => approveDisbursement(p.id)}
                       className="px-4 py-1.5 rounded-lg bg-indigo-600 text-white text-[11px] font-bold hover:bg-indigo-700 transition-all shadow-sm"
                     >

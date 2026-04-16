@@ -14,15 +14,15 @@ export default function UserManagement() {
    const t = useTranslations('Admin');
    const [page, setPage] = useState(1);
    const limit = 10;
-   
+
    const [selectedRole, setSelectedRole] = useState<'investor' | 'owner'>('investor');
 
    const { data: usersData, refetch: refetchUsers } = useQuery({
-      queryKey: ["admin-users", page, selectedRole], 
+      queryKey: ["admin-users", page, selectedRole],
       queryFn: async () => {
          const res = await api.get("/api/admin/dashboard/users", {
             params: {
-               page, 
+               page,
                limit,
                role: selectedRole
             },
@@ -180,7 +180,7 @@ export default function UserManagement() {
                               </td>
                               <td className="px-6 py-4 text-right">
                                  <button className="text-slate-400 hover:text-primary transition-colors">
-                                    <SquarePen className="text-[20px]" />
+                                    <SquarePen className="text-h6" />
                                  </button>
                               </td>
                            </tr>

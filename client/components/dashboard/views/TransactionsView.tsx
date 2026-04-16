@@ -45,7 +45,7 @@ export default function TransactionsView() {
               <option value="interest_receive">Lợi nhuận</option>
               <option value="refund">Hoàn tiền</option>
             </select>
-            
+
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
@@ -73,7 +73,7 @@ export default function TransactionsView() {
 
           {error && (
             <div className="p-8 text-center text-red-500">
-               Không thể tải lịch sử giao dịch.
+              Không thể tải lịch sử giao dịch.
             </div>
           )}
 
@@ -100,16 +100,15 @@ export default function TransactionsView() {
                       </p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                        t.status === 'success' ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 
-                        t.status === 'pending' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' : 
-                        'bg-red-500/10 text-red-600 dark:text-red-400'
-                      }`}>
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${t.status === 'success' ? 'bg-green-500/10 text-green-600 dark:text-green-400' :
+                          t.status === 'pending' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
+                            'bg-red-500/10 text-red-600 dark:text-red-400'
+                        }`}>
                         {t.status}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-[12px] font-medium text-slate-700 dark:text-slate-300">
+                      <p className="text-smallest font-medium text-slate-700 dark:text-slate-300">
                         {new Date(t.createdAt).toLocaleDateString('vi-VN')}
                       </p>
                       <p className="text-[10px] text-slate-400 mt-0.5">

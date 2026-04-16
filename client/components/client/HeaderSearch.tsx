@@ -63,7 +63,7 @@ export default function HeaderSearch() {
       className="relative w-full max-w-full md:mx-auto"
     >
       <div className="flex items-stretch rounded-xl h-10 md:h-11 bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 overflow-hidden focus-within:ring-2 focus-within:ring-primary/30">
-        <Search className="text-slate-400 pl-3 flex items-center text-[20px] m-auto" />
+        <Search className="text-slate-400 pl-3 flex items-center text-h6 m-auto" />
         <input
           type="search"
           value={raw}

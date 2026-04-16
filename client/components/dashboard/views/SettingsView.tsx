@@ -51,14 +51,14 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
 
   useEffect(() => {
     if (user) {
-        reset({
-            fullName: user.fullName,
-            bio: user.bio || "",
-            facebook: user.socialLinks?.facebook || "",
-            linkedin: user.socialLinks?.linkedin || "",
-            twitter: user.socialLinks?.twitter || "",
-            github: user.socialLinks?.github || "",
-        });
+      reset({
+        fullName: user.fullName,
+        bio: user.bio || "",
+        facebook: user.socialLinks?.facebook || "",
+        linkedin: user.socialLinks?.linkedin || "",
+        twitter: user.socialLinks?.twitter || "",
+        github: user.socialLinks?.github || "",
+      });
     }
   }, [user, reset]);
 
@@ -74,7 +74,7 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
           github: data.github,
         }
       };
-      
+
       const res = await api.patch("/api/users/profile", payload);
       setUser(prev => prev ? { ...prev, ...res.data } : null);
       toast.success("Cập nhật thông tin thành công!");
@@ -241,11 +241,10 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-smaller font-semibold transition-all ${
-                  activeTab === tab.id
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-smaller font-semibold transition-all ${activeTab === tab.id
                     ? "bg-primary text-white shadow-md shadow-primary/20"
                     : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                }`}
+                  }`}
               >
                 <tab.icon className="text-base" />
                 {tab.label}
@@ -305,7 +304,7 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                 <div className="grid grid-cols-1 gap-6">
                   <div>
                     <label className="block text-smaller font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                       Họ và tên
+                      Họ và tên
                     </label>
                     <div className="relative group">
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
@@ -325,7 +324,7 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                       Email
                     </label>
                     <div className="relative">
-                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                         <Mail size={18} />
                       </div>
                       <input
@@ -351,13 +350,13 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                 </div>
 
                 <div className="pt-4 flex justify-end">
-                   <button
+                  <button
                     onClick={handleSubmit(onUpdateProfile)}
                     disabled={isSubmitting || !isDirty}
                     className="flex items-center gap-2 px-8 py-3 bg-primary text-white text-smaller font-bold rounded-xl hover:shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50 disabled:shadow-none"
-                   >
-                     {isSubmitting ? "Đang lưu..." : <><Save size={18} /> Lưu thay đổi</>}
-                   </button>
+                  >
+                    {isSubmitting ? "Đang lưu..." : <><Save size={18} /> Lưu thay đổi</>}
+                  </button>
                 </div>
 
                 <div>
@@ -410,13 +409,13 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                 </div>
 
                 <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-                   <button
+                  <button
                     type="submit"
                     disabled={isSubmitting || !isDirty}
                     className="flex items-center gap-2 px-8 py-3 bg-primary text-white text-smaller font-bold rounded-xl hover:shadow-lg hover:shadow-primary/20 transition-all disabled:opacity-50 disabled:shadow-none"
-                   >
-                     {isSubmitting ? "Đang lưu..." : <><Save size={18} /> Lưu thay đổi</>}
-                   </button>
+                  >
+                    {isSubmitting ? "Đang lưu..." : <><Save size={18} /> Lưu thay đổi</>}
+                  </button>
                 </div>
               </form>
             </div>
@@ -507,13 +506,12 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                           key={category.id}
                           type="button"
                           onClick={() => togglePreference(category.id, "favorite")}
-                          className={`px-4 py-2 flex items-center gap-2 rounded-xl text-smallest font-bold transition-all border ${
-                            isSelected
+                          className={`px-4 py-2 flex items-center gap-2 rounded-xl text-smallest font-bold transition-all border ${isSelected
                               ? "bg-primary/20 border-primary text-primary"
                               : "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-primary/50"
-                          }`}
+                            }`}
                         >
-                          {isSelected && <Check className="text-[14px]" />}
+                          {isSelected && <Check className="text-smaller" />}
                           {category.name}
                         </button>
                       );
@@ -531,13 +529,12 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                           key={"bl_" + category.id}
                           type="button"
                           onClick={() => togglePreference(category.id, "blacklist")}
-                          className={`px-4 py-2 rounded-xl flex items-center gap-2 text-smallest font-bold transition-all border ${
-                            isSelected
+                          className={`px-4 py-2 rounded-xl flex items-center gap-2 text-smallest font-bold transition-all border ${isSelected
                               ? "bg-red-500/10 border-red-500 text-red-600 dark:text-red-400"
                               : "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-red-500/50"
-                          }`}
+                            }`}
                         >
-                          {isSelected && <X className="text-[14px]" />}
+                          {isSelected && <X className="text-smaller" />}
                           {category.name}
                         </button>
                       );
@@ -554,29 +551,29 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
               <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-6">
                 Tùy chọn thông báo
               </h2>
-              
+
               <div className="space-y-6 max-w-lg">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-smaller font-bold text-slate-900 dark:text-white">Email thông báo</p>
                     <p className="text-[11px] text-slate-500 mt-0.5">Nhận các bản cập nhật qua địa chỉ email của bạn.</p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => handleToggleNotif("email")}
                     className={`size-10 rounded-full flex items-center justify-center transition-all ${notifSettings.email ? 'bg-primary/20 text-primary' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}`}
                   >
                     {notifSettings.email ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
                   </button>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-smaller font-bold text-slate-900 dark:text-white">Thông báo đẩy (Push)</p>
                     <p className="text-[11px] text-slate-500 mt-0.5">Nhận thông báo tức thì trên ứng dụng.</p>
                   </div>
-                  <button 
-                      onClick={() => handleToggleNotif("push")}
-                      className={`size-10 rounded-full flex items-center justify-center transition-all ${notifSettings.push ? 'bg-primary/20 text-primary' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}`}
+                  <button
+                    onClick={() => handleToggleNotif("push")}
+                    className={`size-10 rounded-full flex items-center justify-center transition-all ${notifSettings.push ? 'bg-primary/20 text-primary' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}`}
                   >
                     {notifSettings.push ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
                   </button>
@@ -587,9 +584,9 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                     <p className="text-smaller font-bold text-slate-900 dark:text-white">Cập nhật đầu tư</p>
                     <p className="text-[11px] text-slate-500 mt-0.5">Thông báo về việc thay đổi trạng thái giao dịch.</p>
                   </div>
-                  <button 
-                      onClick={() => handleToggleNotif("investment_update")}
-                      className={`size-10 rounded-full flex items-center justify-center transition-all ${notifSettings.investment_update ? 'bg-primary/20 text-primary' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}`}
+                  <button
+                    onClick={() => handleToggleNotif("investment_update")}
+                    className={`size-10 rounded-full flex items-center justify-center transition-all ${notifSettings.investment_update ? 'bg-primary/20 text-primary' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}`}
                   >
                     {notifSettings.investment_update ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
                   </button>
@@ -600,9 +597,9 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                     <p className="text-smaller font-bold text-slate-900 dark:text-white">Giai đoạn dự án</p>
                     <p className="text-[11px] text-slate-500 mt-0.5">Thông báo khi dự án tiến tới cột mốc mới.</p>
                   </div>
-                  <button 
-                      onClick={() => handleToggleNotif("milestone_reached")}
-                      className={`size-10 rounded-full flex items-center justify-center transition-all ${notifSettings.milestone_reached ? 'bg-primary/20 text-primary' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}`}
+                  <button
+                    onClick={() => handleToggleNotif("milestone_reached")}
+                    className={`size-10 rounded-full flex items-center justify-center transition-all ${notifSettings.milestone_reached ? 'bg-primary/20 text-primary' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'}`}
                   >
                     {notifSettings.milestone_reached ? <ToggleRight className="w-8 h-8" /> : <ToggleLeft className="w-8 h-8" />}
                   </button>
