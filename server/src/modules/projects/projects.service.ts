@@ -1077,59 +1077,34 @@ export class ProjectsService {
       const project = await projectRepo.findOne({ where: { id: projectId } });
       if (!project) throw new NotFoundException('Project not found');
 
-      const projectInvestments = await investmentsRepo.find({
-        where: { projectId: project.id },
-      });
-      const interestSourceInvestments = projectInvestments.filter(
-        (inv) => inv.status !== InvestmentStatus.WITHDRAWN,
-      );
-      const totalInvested = interestSourceInvestments.reduce((sum, inv) => sum + Number(inv.amount), 0);
-      const commissionFraction = this.toCommissionFraction(project.commissionRate);
-      const netReceived = Number((totalInvested * (1 - commissionFraction)).toFixed(2));
-
-      // Calculate milestone amount
-      const milestoneAmount = Number((netReceived * (milestone.percentage / 100)).toFixed(2));
-
-      milestone.status = MilestoneStatus.DISBURSED;
+      milestone.status = MilestoneStatus.VOTING;
+      const votingDays = 3;
+      const endsAt = new Date();
+      endsAt.setDate(endsAt.getDate() + votingDays);
+      milestone.votingEndsAt = endsAt;
+      
       await milestoneRepo.save(milestone);
 
-      // Unlock next milestone if exists
-      const nextMilestone = await milestoneRepo.findOne({ where: { projectId, stage: milestone.stage + 1 } });
-      if (nextMilestone) {
-        nextMilestone.status = MilestoneStatus.UPLOADING_PROOF;
-        await milestoneRepo.save(nextMilestone);
-      }
-
-      const owner = await usersRepo.findOne({ where: { id: project.ownerId }, lock: { mode: 'pessimistic_write'} });
-      if (owner && milestoneAmount > 0) {
-        owner.balance = Number(owner.balance) + milestoneAmount;
-        await usersRepo.save(owner);
-
-        const ownerTx = transactionRepo.create({
-          userId: project.ownerId,
-          amount: milestoneAmount,
-          type: TransactionType.DISBURSEMENT,
-          status: TransactionStatus.SUCCESS,
-          description: `Nhận vốn đợt ${milestone.stage} dự án ${project.title}`,
-          referenceId: project.id,
-        });
-        await transactionRepo.save(ownerTx);
-      }
+      // Trigger voting started event so that VotingService and Investors are aware
+      this.eventEmitter.emit('milestone.voting_started', {
+        projectId: milestone.projectId,
+        milestoneId: milestone.id,
+        title: milestone.title,
+      });
 
       return {
         milestone,
         ownerId: project.ownerId,
         projectTitle: project.title,
-        milestoneAmount,
         stage: milestone.stage
       };
     });
 
-    // Notify outside transaction
+    // Notify Owner that Admin has approved proof
     await this.notificationsService.createSpecialNotification(
       disbursementData.ownerId,
-      `Giai đoạn ${disbursementData.stage} của dự án ${disbursementData.projectTitle} đã được phê duyệt. Số tiền ${disbursementData.milestoneAmount.toLocaleString('vi-VN')} ₫ đã được cộng vào ví của bạn.`,
-      NotificationType.PAYMENT_SUCCESS
+      `Bằng chứng giải ngân Giai đoạn ${disbursementData.stage} của dự án ${disbursementData.projectTitle} đã được Admin phê duyệt hợp lệ. Quá trình Bình chọn (Voting) 72h đã chính thức bắt đầu!`,
+      NotificationType.SYSTEM
     );
 
     await this.syncProjectsDataJsonFile();

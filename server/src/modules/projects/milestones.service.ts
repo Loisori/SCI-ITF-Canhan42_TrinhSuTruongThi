@@ -91,7 +91,12 @@ export class MilestonesService {
     });
     
     if (!milestone) throw new NotFoundException('Milestone not found');
-    if (milestone.status !== MilestoneStatus.UPLOADING_PROOF) {
+    const isPendingButPastInterval = 
+      milestone.status === MilestoneStatus.PENDING && 
+      milestone.nextDisbursementDate && 
+      new Date() >= new Date(milestone.nextDisbursementDate);
+
+    if (milestone.status !== MilestoneStatus.UPLOADING_PROOF && !isPendingButPastInterval) {
       throw new BadRequestException('Không thể cập nhật bằng chứng ở giai đoạn này.');
     }
 
@@ -212,7 +217,9 @@ export class MilestonesService {
         projectId: project.id,
         milestoneId: milestone.id,
         title: milestone.title,
-        ownerId: project.ownerId
+        ownerId: project.ownerId,
+        projectTitle: project.title,
+        stage: milestone.stage
       };
     });
 
@@ -223,7 +230,15 @@ export class MilestonesService {
         amount: eventData.amount,
         title: eventData.title,
         ownerId: eventData.ownerId,
+        projectTitle: eventData.projectTitle,
+        stage: eventData.stage
       });
+
+      await this.notificationsService.createSpecialNotification(
+        eventData.ownerId,
+        `Giải ngân thành công! Giai đoạn ${eventData.stage} của dự án ${eventData.projectTitle} đã hoàn tất. Số tiền ${eventData.amount.toLocaleString('vi-VN')} ₫ đã được cộng vào ví của bạn.`,
+        NotificationType.PAYMENT_SUCCESS
+      );
     }
 
     return eventData;
