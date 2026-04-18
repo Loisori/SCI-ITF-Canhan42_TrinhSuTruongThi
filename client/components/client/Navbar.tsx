@@ -86,7 +86,7 @@ export default function Navbar() {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-primary/10 dark:border-white/10 font-display">
+    <header className="bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-primary/10 dark:border-white/10 font-display">
       <div className="wrapper wrapper--lg">
         <div className="flex flex-wrap items-center gap-y-3 gap-x-3 md:gap-x-4 md:flex-nowrap md:h-16 py-3 md:py-0">
           {/* Logo */}

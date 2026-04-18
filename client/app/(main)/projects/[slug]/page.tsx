@@ -15,10 +15,14 @@ import rehypeSanitize from "rehype-sanitize";
 import { BarChart3, UserCircle, ChevronRight, Activity } from "lucide-react";
 import ProjectLifecycleTimeline from "@/components/client/ProjectLifecycleTimeline";
 
-const MarkdownPreview = dynamic(
-  () => import("@uiw/react-markdown-preview"),
-  { ssr: false, loading: () => <div className="animate-pulse h-64 bg-slate-100 rounded-xl"></div> }
-);
+const MarkdownPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
+  ssr: false,
+  loading: () => (
+    <div className="animate-pulse h-64 bg-slate-100 rounded-xl"></div>
+  ),
+});
+
+type ProjectContentSection = "campaign" | "lifecycle" | "milestones";
 
 function DetailSkeleton() {
   return (
@@ -50,6 +54,8 @@ export default function ProjectDetailPage() {
   const [investing, setInvesting] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [activeSection, setActiveSection] =
+    useState<ProjectContentSection>("campaign");
 
   const fetchProject = async () => {
     if (!params.slug) return;
@@ -87,6 +93,10 @@ export default function ProjectDetailPage() {
   }, [params.slug]);
 
   useEffect(() => {
+    setActiveSection("campaign");
+  }, [params.slug]);
+
+  useEffect(() => {
     if (!toast) {
       return;
     }
@@ -100,23 +110,23 @@ export default function ProjectDetailPage() {
       new CustomEvent("investpro-project-context", {
         detail: project
           ? {
-            id: project.id,
-            title: project.title,
-            shortDescription: project.shortDescription,
-            interestRate: project.interestRate,
-            durationMonths: project.durationMonths,
-            minInvestment: project.minInvestment,
-            targetCapital: project.targetCapital,
-            currentCapital: project.currentCapital,
-            currentAmount: project.currentAmount,
-            fundingProgress: project.fundingProgress,
-            riskLevel: (project as { riskLevel?: string }).riskLevel ?? null,
-            status: project.status,
-            category: project.category ?? null,
-            owner: project.owner ?? null,
-            endDate: project.endDate,
-            content: project.content,
-          }
+              id: project.id,
+              title: project.title,
+              shortDescription: project.shortDescription,
+              interestRate: project.interestRate,
+              durationMonths: project.durationMonths,
+              minInvestment: project.minInvestment,
+              targetCapital: project.targetCapital,
+              currentCapital: project.currentCapital,
+              currentAmount: project.currentAmount,
+              fundingProgress: project.fundingProgress,
+              riskLevel: (project as { riskLevel?: string }).riskLevel ?? null,
+              status: project.status,
+              category: project.category ?? null,
+              owner: project.owner ?? null,
+              endDate: project.endDate,
+              content: project.content,
+            }
           : null,
       }),
     );
@@ -234,17 +244,18 @@ export default function ProjectDetailPage() {
       {toast && (
         <div className="fixed top-20 right-5 z-[60]">
           <div
-            className={`px-4 py-3 rounded-lg shadow-lg text-small font-semibold ${toast.type === "success"
-              ? "bg-green-600 text-white"
-              : "bg-red-600 text-white"
-              }`}
+            className={`px-4 py-3 rounded-lg shadow-lg text-small font-semibold ${
+              toast.type === "success"
+                ? "bg-green-600 text-white"
+                : "bg-red-600 text-white"
+            }`}
           >
             {toast.message}
           </div>
         </div>
       )}
 
-      <main className="wrapper wrapper--lg py-10">
+      <main className="py-10">
         {loading && <DetailSkeleton />}
         {!loading && error && <div className="text-red-500">{error}</div>}
 
@@ -258,10 +269,9 @@ export default function ProjectDetailPage() {
                 {project.shortDescription || "Dự án chưa có mô tả ngắn."}
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="md:col-span-2 space-y-6">
+            <div className="wrapper wrapper--lg grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="md:col-span-2 space-y-6 shadow-lg">
                 {selectedImage && (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={selectedImage}
                     alt={project.title}
@@ -276,12 +286,12 @@ export default function ProjectDetailPage() {
                         type="button"
                         key={image}
                         onClick={() => setSelectedImage(image)}
-                        className={`rounded-lg overflow-hidden border-2 ${selectedImage === image
-                          ? "border-primary"
-                          : "border-slate-200 dark:border-slate-700"
-                          }`}
+                        className={`rounded-lg overflow-hidden border-2 ${
+                          selectedImage === image
+                            ? "border-primary"
+                            : "border-slate-200 dark:border-slate-700"
+                        }`}
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={image}
                           alt="project gallery"
@@ -292,7 +302,6 @@ export default function ProjectDetailPage() {
                   </div>
                 )}
               </div>
-
               <aside className="space-y-5">
                 <div className="rounded-xl p-5">
                   <div className="space-y-3 text-smaller">
@@ -317,13 +326,15 @@ export default function ProjectDetailPage() {
                     </div> */}
                     <div className="flex">
                       <span className="font-bold text-h5">
-                        {Number(project.currentAmount).toLocaleString("vi-VN")} đ
+                        {Number(project.currentAmount).toLocaleString("vi-VN")}{" "}
+                        đ
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Mục tiêu</span>
                       <span className="font-bold">
-                        {Number(project.targetCapital).toLocaleString("vi-VN")} đ
+                        {Number(project.targetCapital).toLocaleString("vi-VN")}{" "}
+                        đ
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -352,7 +363,8 @@ export default function ProjectDetailPage() {
                     <div className="flex justify-between">
                       <span>Tối thiểu</span>
                       <span className="font-bold">
-                        {Number(project.minInvestment).toLocaleString("vi-VN")} đ
+                        {Number(project.minInvestment).toLocaleString("vi-VN")}{" "}
+                        đ
                       </span>
                     </div>
                     <input
@@ -397,102 +409,173 @@ export default function ProjectDetailPage() {
                 )}
 
                 <p className="text-smaller text-slate-600 dark:text-slate-400">
-                  Dự án này chỉ được tài trợ nếu đạt đủ mục tiêu trước ngày {project.endDate}.
+                  Dự án này chỉ được tài trợ nếu đạt đủ mục tiêu trước ngày{" "}
+                  {project.endDate}.
                 </p>
               </aside>
-              <div className="col-span-1 md:col-span-3 flex bg-[#f6f2eb] py-9">
-                <div className="w-1/3 text-body">Kickstarter connects creators with backers to fund projects.</div>
-                <div className="w-1/3 text-body">Rewards aren’t guaranteed, but creators must regularly update backers.</div>
-                <div className="w-1/3 text-body">You’re only charged if the project meets its funding goal by the campaign deadline.</div>
+            </div>
+            <div className="bg-[#f6f2eb] py-9 mt-10">
+              <div className="wrapper wrapper--lg flex">
+                <div className="w-1/3 text-body">
+                  Kickstarter connects creators with backers to fund projects.
+                </div>
+                <div className="w-1/3 text-body">
+                  Rewards aren’t guaranteed, but creators must regularly update
+                  backers.
+                </div>
+                <div className="w-1/3 text-body">
+                  You’re only charged if the project meets its funding goal by
+                  the campaign deadline.
+                </div>
               </div>
-              <div className="col-span-1 md:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 investpro-markdown-preview">
-                {project.content ? (
-                  <MarkdownPreview
-                    source={project.content}
-                    rehypePlugins={[[rehypeSanitize]]}
-                    style={{ background: 'transparent', color: 'inherit' }}
-                  />
-                ) : (
-                  <p className="text-smaller text-slate-500">Chưa có nội dung markdown.</p>
-                )}
-
-                <style jsx global>{`
-                  .investpro-markdown-preview .wmde-markdown {
-                    font-family: inherit;
-                  }
-                  .investpro-markdown-preview .wmde-markdown h1,
-                  .investpro-markdown-preview .wmde-markdown h2,
-                  .investpro-markdown-preview .wmde-markdown h3 {
-                    color: var(--color-primary, #4f46e5); /* Use primary color */
-                    border-bottom: none;
-                  }
-                  .dark .investpro-markdown-preview .wmde-markdown h1,
-                  .dark .investpro-markdown-preview .wmde-markdown h2,
-                  .dark .investpro-markdown-preview .wmde-markdown h3 {
-                    color: var(--color-primary, #818cf8); /* Lighter primary for dark mode */
-                  }
-                  .investpro-markdown-preview .wmde-markdown img {
-                    border-radius: 0.75rem;
-                    margin: 1rem 0;
-                    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-                  }
-                  .investpro-markdown-preview .wmde-markdown a {
-                    color: var(--color-primary, #4f46e5);
-                  }
-                `}</style>
+            </div>
+            <div className="wrapper wrapper--lg sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex flex-wrap gap-5">
+                <button
+                  type="button"
+                  onClick={() => setActiveSection("campaign")}
+                  className={`px-4 py-5 text-sm font-semibold transition-colors  text-smaller ${
+                    activeSection === "campaign"
+                      ? "text-primary border-b border-primary"
+                      : "text-slate-700 dark:text-slate-300"
+                  }`}
+                >
+                  Campaign
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveSection("lifecycle")}
+                  className={`px-4 py-5 text-sm font-semibold transition-colors  text-smaller ${
+                    activeSection === "lifecycle"
+                      ? "text-primary border-b border-primary"
+                      : "text-slate-700 dark:text-slate-300"
+                  }`}
+                >
+                  Lifecycle
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveSection("milestones")}
+                  className={`px-4 py-5 text-sm font-semibold transition-colors  text-smaller ${
+                    activeSection === "milestones"
+                      ? "text-primary border-b border-primary"
+                      : "text-slate-700 dark:text-slate-300"
+                  }`}
+                >
+                  Milestones
+                </button>
               </div>
+            </div>
+            {activeSection === "campaign" && (
+              <div
+                id="campaign"
+                className="wrapper wrapper--lg grid grid-cols-1 md:grid-cols-3 gap-8 mt-10"
+              >
+                <div className="col-span-1 md:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 investpro-markdown-preview">
+                  {project.content ? (
+                    <MarkdownPreview
+                      source={project.content}
+                      rehypePlugins={[[rehypeSanitize]]}
+                      style={{ background: "transparent", color: "inherit" }}
+                    />
+                  ) : (
+                    <p className="text-smaller text-slate-500">
+                      Chưa có nội dung markdown.
+                    </p>
+                  )}
 
-              <div className="col-span-1 md:col-span-1 ">
-                {project.owner ? (
-                  <Link href={`/profile/${project.owner.id}`} className="block space-y-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="w-16 h-16 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 hover:opacity-80 transition-opacity"
-                      >
-                        <img
-                          src={project.owner.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(project.owner.fullName)}&background=random`}
-                          alt={project.owner.fullName}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div
-                          className="text-h6 font-bold text-slate-900 dark:text-white hover:text-primary transition-colors truncate block"
-                        >
-                          {project.owner.fullName}
+                  <style jsx global>{`
+                    .investpro-markdown-preview .wmde-markdown {
+                      font-family: inherit;
+                    }
+                    .investpro-markdown-preview .wmde-markdown h1,
+                    .investpro-markdown-preview .wmde-markdown h2,
+                    .investpro-markdown-preview .wmde-markdown h3 {
+                      color: var(
+                        --color-primary,
+                        #4f46e5
+                      ); /* Use primary color */
+                      border-bottom: none;
+                    }
+                    .dark .investpro-markdown-preview .wmde-markdown h1,
+                    .dark .investpro-markdown-preview .wmde-markdown h2,
+                    .dark .investpro-markdown-preview .wmde-markdown h3 {
+                      color: var(
+                        --color-primary,
+                        #818cf8
+                      ); /* Lighter primary for dark mode */
+                    }
+                    .investpro-markdown-preview .wmde-markdown img {
+                      border-radius: 0.75rem;
+                      margin: 1rem 0;
+                      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+                    }
+                    .investpro-markdown-preview .wmde-markdown a {
+                      color: var(--color-primary, #4f46e5);
+                    }
+                  `}</style>
+                </div>
+                <div className="col-span-1 md:col-span-1 ">
+                  {project.owner ? (
+                    <Link
+                      href={`/profile/${project.owner.id}`}
+                      className="block space-y-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 hover:opacity-80 transition-opacity">
+                          <img
+                            src={
+                              project.owner.avatarUrl ||
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(project.owner.fullName)}&background=random`
+                            }
+                            alt={project.owner.fullName}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-h6 font-bold text-slate-900 dark:text-white hover:text-primary transition-colors truncate block">
+                            {project.owner.fullName}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    {project.owner.bio && (
-                      <p className="text-smaller text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3 italic">
-                        "{project.owner.bio}"
-                      </p>
-                    )}
-                  </Link>
-                ) : (
-                  <p className="text-smaller text-slate-500">Không có thông tin chủ dự án.</p>
-                )}
+                      {project.owner.bio && (
+                        <p className="text-smaller text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3 italic">
+                          "{project.owner.bio}"
+                        </p>
+                      )}
+                    </Link>
+                  ) : (
+                    <p className="text-smaller text-slate-500">
+                      Không có thông tin chủ dự án.
+                    </p>
+                  )}
+                </div>
               </div>
+            )}
 
-              {/* Lifecycle Stage Map */}
-              <div className="col-span-1 md:col-span-3">
-                <ProjectLifecycleTimeline
-                  status={project.status}
-                  currentAmount={Number(project.currentCapital)}
-                  totalDebt={Number(project.totalDebt || 0)}
+            {activeSection === "lifecycle" && (
+              <div id="lifecycle" className="wrapper wrapper--lg">
+                <div className="col-span-1 md:col-span-3">
+                  <ProjectLifecycleTimeline
+                    status={project.status}
+                    currentAmount={Number(project.currentCapital)}
+                    totalDebt={Number(project.totalDebt || 0)}
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeSection === "milestones" && (
+              <div id="milestones" className="wrapper wrapper--lg mt-10">
+                <ProjectMilestones
+                  project={project}
+                  role={role}
+                  currentUserId={userId}
+                  onUpdate={fetchProject}
+                  setToast={setToast}
                 />
               </div>
-
-              {/* Milestones & Disputes Component */}
-              <ProjectMilestones
-                project={project}
-                role={role}
-                currentUserId={userId}
-                onUpdate={fetchProject}
-                setToast={setToast}
-              />
-            </div>
-
+            )}
           </div>
         )}
       </main>
