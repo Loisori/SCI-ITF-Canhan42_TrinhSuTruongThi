@@ -56,6 +56,16 @@ export class WalletsService {
         throw new BadRequestException('Số dư khả dụng không đủ để thực hiện rút tiền.');
       }
 
+      // Check if owner has OVERDUE projects
+      const projectRepo = manager.getRepository(ProjectEntity);
+      const overdueProjects = await projectRepo.count({
+        where: { ownerId: userId, status: ProjectStatus.OVERDUE },
+      });
+
+      if (overdueProjects > 0) {
+        throw new BadRequestException('Tài khoản bị khóa chức năng rút tiền do có khoản nợ quá hạn.');
+      }
+
       // 4. Trừ tiền Owner ngay lập tức (Atomic)
       await manager.createQueryBuilder()
         .update(UserEntity)
@@ -163,7 +173,6 @@ export class WalletsService {
       const investmentRepo = manager.getRepository(InvestmentEntity);
       const transactionRepo = manager.getRepository(TransactionEntity);
 
-      // 1. Kiểm tra dự án và nợ
       const project = await projectRepo.findOne({
         where: { id: projectId },
         lock: { mode: 'pessimistic_write' },
@@ -177,7 +186,6 @@ export class WalletsService {
 
       const repaymentAmount = Math.min(amount, totalDebt);
 
-      // 2. Kiểm tra số dư Owner
       const owner = await userRepo.findOne({
         where: { id: ownerId },
         lock: { mode: 'pessimistic_write' },
@@ -189,22 +197,6 @@ export class WalletsService {
         );
       }
 
-      // 3. Tính toán phí sàn dựa trên Tier
-      const feeRate = await this.getOwnerFeeRate(ownerId);
-      
-      // Tỷ lệ phân phối cho Investors (sau khi trừ phí trên phần lãi)
-      // InvestorNet = P + I * (1 - feeRate)
-      // Debt = P + I
-      // DistributionFactor = InvestorNet / Debt
-      const principal = Number(project.currentAmount);
-      const interest = principal * (Number(project.interestRate) / 100);
-      const totalInvestorNet = principal + interest * (1 - feeRate);
-      const distributionFactor = totalInvestorNet / (principal + interest);
-
-      const amountToInvestors = repaymentAmount * distributionFactor;
-      const feeAmount = repaymentAmount - amountToInvestors;
-
-      // 4. Trừ tiền Owner (Atomic)
       await manager.createQueryBuilder()
         .update(UserEntity)
         .set({ balance: () => "balance - :amount" })
@@ -212,21 +204,19 @@ export class WalletsService {
         .setParameters({ id: ownerId, amount: repaymentAmount })
         .execute();
 
-      // Cập nhật nợ dự án
       project.totalDebt = totalDebt - repaymentAmount;
       await manager.save(project);
 
       const ownerRepaymentTx = transactionRepo.create({
         userId: ownerId,
         amount: repaymentAmount,
-        type: TransactionType.REPAYMENT,
+        type: TransactionType.REPAY_PRINCIPAL,
         status: TransactionStatus.SUCCESS,
-        description: `Thanh toán nợ dự án ${project.title} (Phí sàn: ${(feeRate * 100).toFixed(0)}% trên lãi)`,
+        description: `Thanh toán gốc dự án ${project.title}`,
         referenceId: projectId,
       });
       const savedOwnerTx = await transactionRepo.save(ownerRepaymentTx);
 
-      // 5. Phân phối về ví Investor theo tỷ lệ đóng góp (Atomic SQL)
       const investments = await investmentRepo.find({
         where: { 
           projectId, 
@@ -235,12 +225,15 @@ export class WalletsService {
       });
 
       const totalPrincipal = investments.reduce((sum, inv) => sum + Number(inv.amount), 0);
+      let totalDistributed = 0;
       
       for (const inv of investments) {
         const share = Number(inv.amount) / totalPrincipal;
-        const investorShare = amountToInvestors * share;
+        const investorShare = Math.floor(repaymentAmount * share);
 
         if (investorShare <= 0) continue;
+        
+        totalDistributed += investorShare;
 
         await manager.createQueryBuilder()
           .update(UserEntity)
@@ -252,20 +245,43 @@ export class WalletsService {
         const investorTx = transactionRepo.create({
           userId: inv.userId,
           amount: investorShare,
-          type: TransactionType.INTEREST_RECEIVE,
+          type: TransactionType.REPAY_PRINCIPAL,
           status: TransactionStatus.SUCCESS,
-          description: `Nhận thanh toán từ dự án ${project.title}`,
+          description: `Nhận thanh toán gốc từ dự án ${project.title}`,
           referenceId: projectId,
           parentTransactionId: savedOwnerTx.id,
         });
         await transactionRepo.save(investorTx);
       }
 
+      const ADMIN_PLATFORM_ID = 1;
+      const residual = repaymentAmount - totalDistributed;
+      
+      if (residual > 0) {
+        await manager.createQueryBuilder()
+          .update(UserEntity)
+          .set({ balance: () => "balance + :amount" })
+          .where("id = :id")
+          .setParameters({ id: ADMIN_PLATFORM_ID, amount: residual })
+          .execute();
+
+        const systemFeeTx = transactionRepo.create({
+          userId: ADMIN_PLATFORM_ID,
+          amount: residual,
+          type: TransactionType.SYSTEM_FEE,
+          status: TransactionStatus.SUCCESS,
+          description: `Thu phần dư (residual) trả nợ gốc dự án ${project.title}`,
+          referenceId: projectId,
+          parentTransactionId: savedOwnerTx.id,
+        });
+        await transactionRepo.save(systemFeeTx);
+      }
+
       return {
-        message: 'Thanh toán nợ thành công.',
+        message: 'Thanh toán nợ gốc thành công.',
         paidAmount: repaymentAmount,
         remainingDebt: project.totalDebt,
-        feeAmount,
+        feeAmount: residual, // Log the residual as fee if requested
       };
     });
   }
@@ -279,11 +295,9 @@ export class WalletsService {
     return this.dataSource.transaction(async (manager) => {
       const userRepo = manager.getRepository(UserEntity);
       const scheduleRepo = manager.getRepository(PaymentScheduleEntity);
-      const investmentRepo = manager.getRepository(InvestmentEntity);
       const projectRepo = manager.getRepository(ProjectEntity);
       const transactionRepo = manager.getRepository(TransactionEntity);
 
-      // 1. Tìm schedule đại diện
       const targetSchedule = await scheduleRepo.findOne({
         where: { id: scheduleId },
         relations: ['investment', 'investment.project'],
@@ -297,10 +311,10 @@ export class WalletsService {
         throw new BadRequestException('Kỳ hạn này đã được thanh toán.');
       }
 
-      const projectId = targetSchedule.investment.projectId;
+      const project = targetSchedule.investment.project;
+      const projectId = project.id;
       const dueDate = targetSchedule.dueDate;
 
-      // 2. Tìm tất cả UNPAID schedules của dự án này trong cùng ngày dueDate
       const allSchedulesToPay = await scheduleRepo.find({
         where: {
           dueDate,
@@ -316,7 +330,6 @@ export class WalletsService {
       );
       const totalRepaymentAmount = FinancialCalculator.round(totalCents / 100);
 
-      // 4. Kiểm tra & Trừ tiền Owner (Atomic)
       const owner = await userRepo.findOne({
         where: { id: ownerId },
         lock: { mode: 'pessimistic_write' },
@@ -328,57 +341,92 @@ export class WalletsService {
         );
       }
 
+      const feeRate = await this.getOwnerFeeRate(ownerId);
+      const feeAmount = FinancialCalculator.round(totalRepaymentAmount * feeRate);
+      const netToInvestors = totalRepaymentAmount - feeAmount;
+
       await manager.createQueryBuilder()
         .update(UserEntity)
         .set({ balance: () => "balance - :amount" })
         .where("id = :id", { id: ownerId, amount: totalRepaymentAmount })
         .execute();
 
+      project.totalDebt = Number(project.totalDebt) - totalRepaymentAmount;
+      await manager.save(project);
+
       const ownerRepaymentTx = transactionRepo.create({
         userId: ownerId,
         amount: totalRepaymentAmount,
-        type: TransactionType.REPAYMENT,
+        type: TransactionType.REPAY_INTEREST,
         status: TransactionStatus.SUCCESS,
-        description: `Thanh toán lãi kỳ ${dueDate} dự án ${targetSchedule.investment.project.title}`,
+        description: `Thanh toán lãi kỳ ${dueDate} dự án ${project.title} (Phí sàn: ${(feeRate * 100).toFixed(0)}%)`,
         referenceId: projectId,
       });
       const savedOwnerTx = await transactionRepo.save(ownerRepaymentTx);
 
-      // 5. Cộng tiền cho từng Investor (Atomic SQL - Hiệu năng cao)
+      let totalDistributed = 0;
+
       for (const s of allSchedulesToPay) {
         const investorId = s.investment.userId;
-        const amount = Number(s.amount);
+        const grossAmount = Number(s.amount);
+        const investorShare = grossAmount / totalRepaymentAmount;
+        const netAmount = Math.floor(netToInvestors * investorShare);
 
-        // Update balance bằng SQL trực tiếp - TRIỆT TIÊU N+1 Locks
-        await manager.createQueryBuilder()
-          .update(UserEntity)
-          .set({ balance: () => "balance + :amount" })
-          .where("id = :id", { id: investorId, amount: amount })
-          .execute();
+        if (netAmount > 0) {
+          totalDistributed += netAmount;
 
-        // Tạo transaction log cho investor
-        const investorTx = transactionRepo.create({
-          userId: investorId,
-          amount: amount,
-          type: TransactionType.INTEREST_RECEIVE,
-          status: TransactionStatus.SUCCESS,
-          description: `Nhận lãi kỳ ${dueDate} dự án ${targetSchedule.investment.project.title}`,
-          referenceId: projectId,
-          parentTransactionId: savedOwnerTx.id,
-        });
-        await transactionRepo.save(investorTx);
+          await manager.createQueryBuilder()
+            .update(UserEntity)
+            .set({ balance: () => "balance + :amount" })
+            .where("id = :id", { id: investorId, amount: netAmount })
+            .execute();
 
-        // Cập nhật trạng thái schedule
+          const investorTx = transactionRepo.create({
+            userId: investorId,
+            amount: netAmount,
+            type: TransactionType.INTEREST_RECEIVE,
+            status: TransactionStatus.SUCCESS,
+            description: `Nhận lãi kỳ ${dueDate} dự án ${project.title}`,
+            referenceId: projectId,
+            parentTransactionId: savedOwnerTx.id,
+          });
+          await transactionRepo.save(investorTx);
+        }
+
         await manager.update(PaymentScheduleEntity, s.id, {
           status: PaymentScheduleStatus.PAID,
           paidAt: new Date(),
         });
       }
 
+      const ADMIN_PLATFORM_ID = 1;
+      const residual = netToInvestors - totalDistributed;
+      const totalSystemRevenue = feeAmount + residual;
+
+      if (totalSystemRevenue > 0) {
+        await manager.createQueryBuilder()
+          .update(UserEntity)
+          .set({ balance: () => "balance + :amount" })
+          .where("id = :id", { id: ADMIN_PLATFORM_ID, amount: totalSystemRevenue })
+          .execute();
+
+        const systemFeeTx = transactionRepo.create({
+          userId: ADMIN_PLATFORM_ID,
+          amount: totalSystemRevenue,
+          type: TransactionType.SYSTEM_FEE,
+          status: TransactionStatus.SUCCESS,
+          description: `Phí sàn và phần dư trả lãi kỳ ${dueDate} dự án ${project.title}`,
+          referenceId: projectId,
+          parentTransactionId: savedOwnerTx.id,
+        });
+        await transactionRepo.save(systemFeeTx);
+      }
+
       return {
         message: 'Thanh toán thành công.',
         totalPaid: totalRepaymentAmount,
         investorCount: allSchedulesToPay.length,
+        feeAmount: totalSystemRevenue,
       };
     });
   }

@@ -40,10 +40,14 @@ export default function TransactionsView() {
             >
               <option value="">Tất cả loại giao dịch</option>
               <option value="deposit">Nạp tiền</option>
-              <option value="withdraw">Rút tiền</option>
+              <option value="withdrawal">Rút tiền</option>
               <option value="invest">Đầu tư</option>
-              <option value="interest_receive">Lợi nhuận</option>
+              <option value="interest_receive">Nhận Lợi nhuận</option>
+              <option value="disbursement">Nhận Giải ngân</option>
+              <option value="repay_interest">Trả Lãi</option>
+              <option value="repay_principal">Trả Gốc</option>
               <option value="refund">Hoàn tiền</option>
+              <option value="system_fee">Phí hệ thống</option>
             </select>
 
             <select
@@ -88,15 +92,29 @@ export default function TransactionsView() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {transactions.map((t) => (
+                {transactions.map((t) => {
+                  const isPositive = ['deposit', 'interest_receive', 'refund', 'disbursement', 'system_fee'].includes(t.type);
+
+                  let displayType = t.type;
+                  if (t.type === 'deposit') displayType = "Nạp tiền";
+                  else if (t.type === 'withdrawal') displayType = "Rút tiền";
+                  else if (t.type === 'invest') displayType = "Đầu tư";
+                  else if (t.type === 'interest_receive') displayType = "Nhận Lợi nhuận";
+                  else if (t.type === 'refund') displayType = "Hoàn tiền";
+                  else if (t.type === 'disbursement') displayType = "Nhận Giải Ngân";
+                  else if (t.type === 'repay_interest') displayType = "Trả Lãi";
+                  else if (t.type === 'repay_principal') displayType = "Trả Gốc";
+                  else if (t.type === 'system_fee') displayType = "Phí Hệ Thống";
+
+                  return (
                   <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                     <td className="px-6 py-4">
-                      <p className="text-smaller font-bold text-slate-900 dark:text-white capitalize">{t.type.replace("_", " ")}</p>
+                      <p className="text-smaller font-bold text-slate-900 dark:text-white capitalize">{displayType}</p>
                       <p className="text-[11px] text-slate-500 mt-1 max-w-[250px] truncate" title={t.description || undefined}>{t.description || "-"}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className={`text-smaller font-extrabold ${['deposit', 'interest_receive', 'refund'].includes(t.type) ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                        {['deposit', 'interest_receive', 'refund'].includes(t.type) ? "+" : "-"}{formatVnd(Number(t.amount))}
+                      <p className={`text-smaller font-extrabold ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                        {isPositive ? "+" : "-"}{formatVnd(Number(t.amount))}
                       </p>
                     </td>
                     <td className="px-6 py-4">
@@ -116,7 +134,8 @@ export default function TransactionsView() {
                       </p>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
                 {transactions.length === 0 && (
                   <tr>
                     <td colSpan={4} className="px-6 py-12 text-center">

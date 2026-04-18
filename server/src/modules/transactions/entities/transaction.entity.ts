@@ -17,6 +17,9 @@ export enum TransactionType {
   REFUND = 'refund',
   DISBURSEMENT = 'disbursement',
   REPAYMENT = 'repayment',
+  REPAY_INTEREST = 'repay_interest',
+  REPAY_PRINCIPAL = 'repay_principal',
+  SYSTEM_FEE = 'system_fee',
   SYSTEM_LOG = 'system_log',
 }
 

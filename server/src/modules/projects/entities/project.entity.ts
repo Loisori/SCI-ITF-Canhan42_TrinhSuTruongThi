@@ -28,6 +28,7 @@ export enum ProjectStatus {
   ACTIVE = 'active',
   PENDING_ADMIN_REVIEW = 'pending_admin_review',
   COMPLETED = 'completed',
+  OVERDUE = 'overdue',
   FAILED = 'failed',
 }
 

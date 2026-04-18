@@ -109,8 +109,11 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
                 <option value="deposit">Nạp tiền</option>
                 <option value="withdrawal">Rút tiền</option>
                 <option value="invest">Đầu tư</option>
-                <option value="interest_receive">Lợi nhuận</option>
-                <option value="repayment">Thanh toán nợ</option>
+                <option value="interest_receive">Nhận Lợi nhuận</option>
+                <option value="disbursement">Nhận Giải ngân</option>
+                <option value="repay_interest">Trả Lãi</option>
+                <option value="repay_principal">Trả Gốc</option>
+                <option value="system_fee">Phí Hệ thống</option>
               </select>
             </div>
           </div>
@@ -127,7 +130,20 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {transactions.map((t) => {
-                  const isPositive = ['deposit', 'interest_receive', 'refund'].includes(t.type);
+                  const isPositive = ['deposit', 'interest_receive', 'refund', 'disbursement', 'system_fee'].includes(t.type);
+                  
+                  // Translate types to Vietnamese
+                  let displayType = t.type;
+                  if (t.type === 'deposit') displayType = "Nạp tiền";
+                  else if (t.type === 'withdrawal') displayType = "Rút tiền";
+                  else if (t.type === 'invest') displayType = "Đầu tư";
+                  else if (t.type === 'interest_receive') displayType = "Nhận Lợi nhuận";
+                  else if (t.type === 'refund') displayType = "Hoàn tiền";
+                  else if (t.type === 'disbursement') displayType = "Nhận Giải Ngân";
+                  else if (t.type === 'repay_interest') displayType = "Trả Lãi";
+                  else if (t.type === 'repay_principal') displayType = "Trả Gốc";
+                  else if (t.type === 'system_fee') displayType = "Phí Hệ Thống";
+
                   return (
                     <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-all group">
                       <td className="px-6 py-5">
@@ -139,7 +155,7 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
                           </div>
                           <div>
                             <p className="text-smaller font-bold text-slate-900 dark:text-white capitalize leading-tight">
-                              {t.type.replace("_", " ")}
+                              {displayType}
                             </p>
                             <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1 opacity-70 italic">
                               {t.description}

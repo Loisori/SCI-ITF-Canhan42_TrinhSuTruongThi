@@ -180,7 +180,8 @@ export class MilestonesService {
         project.status = ProjectStatus.COMPLETED;
         project.totalDebt = FinancialCalculator.calculateTotalDebt(
           Number(project.currentAmount),
-          project.interestRate
+          project.interestRate,
+          project.durationMonths
         );
         await projectRepo.save(project);
       }

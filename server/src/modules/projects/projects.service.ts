@@ -696,10 +696,14 @@ export class ProjectsService {
         await investmentsRepo.save(projectInvestments);
       }
 
-      project.status = ProjectStatus.COMPLETED;
+      project.status = ProjectStatus.PENDING_ADMIN_REVIEW;
+      project.totalDebt = FinancialCalculator.calculateTotalDebt(
+        Number(project.currentAmount),
+        project.interestRate,
+        project.durationMonths
+      );
       await projectsRepo.save(project);
 
-      // Giải ngân đợt 1 (Stage 1)
       const milestonesRepo = manager.getRepository(ProjectMilestoneEntity);
       const milestones = await milestonesRepo.find({
         where: { projectId: project.id },
@@ -713,127 +717,20 @@ export class ProjectsService {
       }
 
       const stage1 = milestones.find((m) => m.stage === 1);
-      const stage2 = milestones.find((m) => m.stage === 2);
-
       if (!stage1) {
         throw new BadRequestException('Không tìm thấy thông tin giải ngân đợt 1.');
       }
 
-      // Update Stage 1
-      stage1.status = MilestoneStatus.DISBURSED;
-      stage1.disbursementDate = new Date();
+      // Update Stage 1 to ADMIN_REVIEW
+      stage1.status = MilestoneStatus.ADMIN_REVIEW;
       await milestonesRepo.save(stage1);
-
-      // Unlock stage 2 for owner to upload proof
-      if (stage2) {
-        stage2.status = MilestoneStatus.UPLOADING_PROOF;
-        await milestonesRepo.save(stage2);
-      }
-
-      const firstDisbursement = Number(
-        (netReceived * (stage1.percentage / 100)).toFixed(2),
-      );
-
-
-      // Credit owner first milestone (20%)
-      const owner = await usersRepo.findOne({
-        where: { id: ownerId },
-        lock: { mode: 'pessimistic_write' },
-      });
-      if (owner && firstDisbursement > 0) {
-        owner.balance = Number(owner.balance) + firstDisbursement;
-        await usersRepo.save(owner);
-
-        const ownerTx = transactionsRepo.create({
-          userId: ownerId,
-          amount: firstDisbursement,
-          type: TransactionType.DISBURSEMENT,
-          status: TransactionStatus.SUCCESS,
-          description: `Nhận vốn đợt 1 dự án ${project.title}`,
-          referenceId: project.id,
-        });
-        await transactionsRepo.save(ownerTx);
-      }
-
-      // Trả lãi (ROI) cho từng Investor: tạo transactions + cập nhật payment_schedules.
-      const schedulesRepo = manager.getRepository(PaymentScheduleEntity);
-      const now = new Date();
-      const interestByInvestor = new Map<number, number>();
-      const schedulesToUpdate: PaymentScheduleEntity[] = [];
-
-      for (const inv of interestSourceInvestments) {
-        const unpaid = (inv.paymentSchedules ?? []).filter(
-          (s) => s.status === PaymentScheduleStatus.UNPAID,
-        );
-        const totalInterest = unpaid.reduce(
-          (sum, s) => sum + Number(s.amount),
-          0,
-        );
-
-        if (totalInterest > 0) {
-          interestByInvestor.set(
-            inv.userId,
-            (interestByInvestor.get(inv.userId) ?? 0) + totalInterest,
-          );
-        }
-
-        for (const s of unpaid) {
-          s.status = PaymentScheduleStatus.PAID;
-          s.paidAt = now;
-          schedulesToUpdate.push(s);
-        }
-      }
-
-      if (schedulesToUpdate.length > 0) {
-        await schedulesRepo.save(schedulesToUpdate);
-      }
-
-      for (const [investorId, totalInterest] of interestByInvestor.entries()) {
-        if (totalInterest <= 0) continue;
-
-        const investor = await usersRepo.findOne({
-          where: { id: investorId },
-          lock: { mode: 'pessimistic_write' },
-        });
-        if (!investor) continue;
-
-        investor.balance = Number(investor.balance) + totalInterest;
-        await usersRepo.save(investor);
-
-        const interestTx = transactionsRepo.create({
-          userId: investorId,
-          amount: totalInterest,
-          type: TransactionType.INTEREST_RECEIVE,
-          status: TransactionStatus.SUCCESS,
-          description: `Nhận lãi dự án ${project.title}`,
-          referenceId: project.id,
-        });
-        await transactionsRepo.save(interestTx);
-      }
 
       return {
         message: 'Dự án đã dừng nhận vốn.',
         id: project.id,
         status: project.status,
-        commissionFraction,
-        commissionAmount,
-        netReceived,
-        interestPayouts: Array.from(interestByInvestor.entries()).map(([investorId, amount]) => ({
-          investorId,
-          amount,
-          title: project.title
-        }))
       };
     });
-
-    // Notify investors about interest paid OUTSIDE transaction
-    if (result.interestPayouts) {
-      for (const payout of result.interestPayouts) {
-        if (payout.amount > 0) {
-          this.eventEmitter.emit('project.interestPaid', payout);
-        }
-      }
-    }
 
     await this.syncProjectsDataJsonFile();
     return result;

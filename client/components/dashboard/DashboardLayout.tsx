@@ -8,7 +8,6 @@ import { UserProfile } from "@/types/user";
 import { DashboardProvider, useDashboard } from "@/context/DashboardContext";
 import DashboardSidebar from "./DashboardSidebar";
 import DashboardHeader from "./DashboardHeader";
-import Footer from "@/components/client/Footer";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -57,7 +56,6 @@ function DashboardContent({ children, initialUser }: { children: ReactNode, init
           {children}
         </main>
 
-        <Footer />
       </div>
     </div>
   );

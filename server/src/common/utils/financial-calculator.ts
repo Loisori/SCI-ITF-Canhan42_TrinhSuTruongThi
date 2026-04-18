@@ -31,10 +31,10 @@ export class FinancialCalculator {
   }
 
   /**
-   * Calculates total debt: Principal + (Principal * Interest Rate %).
+   * Calculates total debt: Principal + (Principal * Interest Rate % * (Months / 12)).
    */
-  static calculateTotalDebt(principal: number, interestRatePercent: number): number {
-    const interest = Number(principal) * (Number(interestRatePercent) / 100);
+  static calculateTotalDebt(principal: number, interestRatePercent: number, durationMonths: number): number {
+    const interest = Number(principal) * (Number(interestRatePercent) / 100) * (Number(durationMonths) / 12);
     return this.round(principal + interest);
   }
 

@@ -42,7 +42,7 @@ CREATE TABLE projects (
     commission_rate DECIMAL(5, 2) DEFAULT 5.00,
     duration_months INT NOT NULL,
     risk_level ENUM('low', 'medium', 'high') DEFAULT 'medium',
-    status ENUM('pending', 'funding', 'active', 'completed', 'failed') DEFAULT 'pending',
+    status ENUM('pending', 'funding', 'active', 'pending_admin_review', 'completed', 'overdue', 'failed') DEFAULT 'pending',
     start_date DATE,
     end_date DATE,
     is_frozen TINYINT(1) DEFAULT 0,
@@ -104,12 +104,16 @@ CREATE TABLE transactions (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL,
     amount DECIMAL(15, 2) NOT NULL,
-    type ENUM('deposit', 'withdraw', 'invest', 'interest_receive', 'refund', 'disbursement') NOT NULL,
+    type ENUM('deposit', 'withdrawal', 'invest', 'interest_receive', 'refund', 'disbursement', 'repayment', 'repay_interest', 'repay_principal', 'system_fee', 'system_log') NOT NULL,
     status ENUM('pending', 'success', 'failed') DEFAULT 'success',
     description VARCHAR(255),
-    reference_id INT, -- Note: reference_id is kept as INT for generic IDs
+    reference_id INT,
+    parent_transaction_id BIGINT UNSIGNED DEFAULT NULL,
+    bank_name VARCHAR(100) DEFAULT NULL,
+    account_number VARCHAR(50) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_transaction_id) REFERENCES transactions(id) ON DELETE SET NULL
 );
 
 -- 9. Table: project_disputes
