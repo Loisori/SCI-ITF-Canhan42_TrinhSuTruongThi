@@ -44,7 +44,7 @@ export default function FeaturedProjects() {
       align: "start",
       dragFree: false,
     },
-    [autoplay],
+    // [autoplay],
   );
 
   const { data: projects = [], isLoading } = useQuery({
@@ -111,13 +111,13 @@ export default function FeaturedProjects() {
         </Link>
       </div>
 
-      <div className="wrapper wrapper--lg overflow-hidden" ref={emblaRef}>
+      <div className="wrapper wrapper--lg" ref={emblaRef}>
         <div className="flex -ml-3">
           {projects.map((project) => {
             return (
               <div
                 key={project.id}
-                className="min-w-0 flex-[0_0_100%] pl-3 sm:flex-[0_0_92%] md:flex-[0_0_48%] lg:flex-[0_0_32%]"
+                className="min-w-0 flex-[0_0_100%] pl-6 sm:flex-[0_0_92%] md:flex-[0_0_48%] lg:flex-[0_0_32%]"
               >
                 <ProjectCard project={project} nowTimestamp={nowTimestamp} />
               </div>

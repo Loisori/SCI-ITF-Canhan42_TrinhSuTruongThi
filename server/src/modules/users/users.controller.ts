@@ -31,6 +31,7 @@ export class UsersController {
       id: user.id,
       slug: user.slug,
       fullName: user.fullName,
+      email: user.email,
       avatarUrl: user.avatarUrl,
       coverPhotoUrl: user.coverPhotoUrl,
       bio: user.bio,

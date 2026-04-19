@@ -50,7 +50,10 @@ export function formatTimeRemaining(
   return `Còn ${months} tháng ${remainDays} ngày`;
 }
 
-export default function ProjectCard({ project, nowTimestamp: externalNow }: ProjectCardProps) {
+export default function ProjectCard({
+  project,
+  nowTimestamp: externalNow,
+}: ProjectCardProps) {
   const [internalNow, setInternalNow] = useState(() => Date.now());
   const now = externalNow ?? internalNow;
 
@@ -63,31 +66,40 @@ export default function ProjectCard({ project, nowTimestamp: externalNow }: Proj
   }, [externalNow]);
 
   const serverProgress = Number(project.fundingProgress);
-  const currentCapital = Number(project.currentCapital ?? project.currentAmount ?? 0);
+  const currentCapital = Number(
+    project.currentCapital ?? project.currentAmount ?? 0,
+  );
   const targetCapital = Number(project.targetCapital ?? 0);
 
-  const fallbackProgress = targetCapital > 0
-    ? Number(((currentCapital / targetCapital) * 100).toFixed(2))
-    : 0;
+  const fallbackProgress =
+    targetCapital > 0
+      ? Number(((currentCapital / targetCapital) * 100).toFixed(2))
+      : 0;
 
   const progress = Number.isFinite(serverProgress)
     ? serverProgress
     : fallbackProgress;
-    
-  const bar = Math.max(0, Math.min(Number.isFinite(progress) ? progress : 0, 100));
+
+  const bar = Math.max(
+    0,
+    Math.min(Number.isFinite(progress) ? progress : 0, 100),
+  );
   const timeLeft = formatTimeRemaining(project.endDate, now);
   const ownerName = project.owner?.fullName?.trim() || "Chủ dự án";
   const ownerInitial = ownerName.charAt(0).toUpperCase();
-  const href = `/projects/${project.slug}`;
+  const categoryLabel = project.category?.name || "Chưa phân loại";
+  const href = `/projects/${project.slug || project.id}`;
 
   return (
-    <div
-      className="group relative bg-white dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/10 transition-all hover:shadow-2xl h-full flex flex-col overflow-hidden"
-    >
+    <div className="group relative dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/10 transition-all hover:shadow-2xl h-full flex flex-col">
       {/* Absolute Link for the whole card area (except owner info) */}
-      <Link href={href} className="absolute inset-0 z-0" aria-label={`Xem dự án ${project.title}`} />
-      
-      <div className="relative aspect-[16/10] overflow-hidden bg-slate-200 dark:bg-slate-800 z-10 pointer-events-none">
+      <Link
+        href={href}
+        className="absolute inset-0 z-0"
+        aria-label={`Xem dự án ${project.title}`}
+      />
+
+      <div className="relative aspect-[16/10] overflow-hidden bg-slate-200 dark:bg-slate-800 z-10 pointer-events-none rounded-t-3">
         {project.thumbnailUrl ? (
           <img
             src={project.thumbnailUrl}
@@ -100,10 +112,10 @@ export default function ProjectCard({ project, nowTimestamp: externalNow }: Proj
           </div>
         )}
         <span className="absolute top-4 right-4 bg-green-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase z-10">
-          {project.status === 'funding' ? 'Đang gọi vốn' : project.status}
+          {project.status === "funding" ? "Đang gọi vốn" : project.status}
         </span>
       </div>
-      
+
       <div className="w-full h-2 bg-slate-100 dark:bg-white/10 rounded-b-xl overflow-hidden">
         <div
           className="bg-green-500 h-full rounded-full transition-[width] duration-500"
@@ -113,7 +125,10 @@ export default function ProjectCard({ project, nowTimestamp: externalNow }: Proj
 
       <div className="flex gap-2 p-5 pt-4 flex-1">
         <div className="flex flex-col items-center shrink-0 z-20">
-          <Link href={`/profile/${project.owner?.slug}`} className="hover:opacity-80 transition-opacity">
+          <Link
+            href={`/profile/${project.owner?.slug}`}
+            className="hover:opacity-80 transition-opacity"
+          >
             {project.owner?.avatarUrl ? (
               <img
                 src={project.owner.avatarUrl}
@@ -128,33 +143,40 @@ export default function ProjectCard({ project, nowTimestamp: externalNow }: Proj
           </Link>
           <Timer className="size-4 text-slate-400" />
         </div>
-        
         <div className="flex flex-col flex-1 min-w-0">
           <h4 className="text-h6 font-semibold text-[#282828] dark:text-white line-clamp-2 leading-tight mb-2 group-hover:text-primary transition-colors">
             {project.title}
           </h4>
-          
-          <div className="flex items-center gap-2 mb-3 z-20">
-            <Link 
+          <div className="flex items-center gap-2 z-20">
+            <Link
               href={`/profile/${project.owner?.slug}`}
               className="text-smallest font-bold text-[#656969] dark:text-slate-200 truncate hover:text-primary transition-colors"
             >
               {ownerName}
             </Link>
           </div>
-
-          {project.address && (
-            <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 mb-3">
-              <MapPin size={12} className="shrink-0" />
-              <span className="truncate">{project.address}</span>
-            </div>
-          )}
-
-          <div className="mt-auto">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#4D4D4D] dark:text-slate-200">
-              <span className="whitespace-nowrap">{timeLeft}</span>
-              <span className="text-slate-300">•</span>
-              <span className="text-primary">{progress}% đã đầu tư</span>
+          <div className="flex items-center gap-1.5 text-smaller font-bold text-[#4D4D4D] dark:text-slate-200">
+            <span className="whitespace-nowrap">{timeLeft}</span>
+            <span className="text-slate-300">•</span>
+            <span className="text-primary">{progress}% đã đầu tư</span>
+          </div>
+          <div className="hidden group-hover:block">
+            {project.shortDescription ? (
+              <p className="mb-3 text-small text-slate-500 dark:text-slate-400 line-clamp-2">
+                {project.shortDescription}
+              </p>
+            ) : null}
+            <div className="flex gap-2 text-smaller">
+              {project.category && (
+                <span className="border rounded-full py-[.7rem] px-[1.1rem]">
+                  {categoryLabel}
+                </span>
+              )}
+              {project.address && (
+                <span className="border rounded-full py-[.7rem] px-[1.1rem]">
+                  {project.address}
+                </span>
+              )}
             </div>
           </div>
         </div>
