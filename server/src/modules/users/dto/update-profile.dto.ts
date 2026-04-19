@@ -46,4 +46,8 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsNumber({}, { each: true })
   blacklistCategoryIds?: number[];
+
+  @IsString()
+  @IsOptional()
+  address?: string;
 }

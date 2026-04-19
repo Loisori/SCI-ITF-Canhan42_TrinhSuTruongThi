@@ -24,7 +24,6 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { OptionalAuthGuard } from '../../common/guards/optional-auth.guard';
 import { AccountStatusGuard } from '../../common/guards/account-status.guard';
 
-
 @Controller('projects')
 export class ProjectsController {
   constructor(
@@ -58,11 +57,6 @@ export class ProjectsController {
     return this.projectsService.getFundingProjectSuggestions(q ?? '', 12);
   }
 
-  @Get('slug/:slug')
-  getProjectDetailBySlug(@Param('slug') slug: string) {
-    return this.projectsService.getProjectDetailBySlug(slug);
-  }
-
   @UseGuards(JwtAuthGuard, IsOwnerGuard)
   @Get('owner')
   getOwnerProjects(
@@ -79,50 +73,73 @@ export class ProjectsController {
       Number.isFinite(normalizedPageSize) ? normalizedPageSize : 10,
     );
   }
-  
-  @Get('user/:userId/created')
+
+  @Get('user/:userIdentifier/created')
   getUserCreatedProjects(
-    @Param('userId', ParseIntPipe) userId: number,
+    @Param('userIdentifier') userIdentifier: string,
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,
   ) {
     const normalizedPage = page ? Number(page) : 1;
     const normalizedPageSize = pageSize ? Number(pageSize) : 10;
-    return this.projectsService.getOwnerProjects(userId, normalizedPage, normalizedPageSize);
+    return this.projectsService.getOwnerProjects(
+      userIdentifier,
+      normalizedPage,
+      normalizedPageSize,
+    );
   }
 
-  @Get('user/:userId/invested')
-  getUserInvestedProjects(
-    @Param('userId', ParseIntPipe) userId: number,
+  @Get('user/slug/:slug/created')
+  getUserCreatedProjectsBySlug(
+    @Param('slug') slug: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
   ) {
-    return this.investmentsService.getPublicInvestedProjects(userId);
+    const normalizedPage = page ? Number(page) : 1;
+    const normalizedPageSize = pageSize ? Number(pageSize) : 10;
+    return this.projectsService.getOwnerProjects(
+      slug,
+      normalizedPage,
+      normalizedPageSize,
+    );
   }
 
-  @Get(':id')
-  getProjectDetail(@Param('id', ParseIntPipe) id: number) {
-    return this.projectsService.getProjectDetail(id);
+  @Get('user/:userIdentifier/invested')
+  getUserInvestedProjects(@Param('userIdentifier') userIdentifier: string) {
+    return this.investmentsService.getPublicInvestedProjects(userIdentifier);
   }
+
+  @Get('user/slug/:slug/invested')
+  getUserInvestedProjectsBySlug(@Param('slug') slug: string) {
+    return this.investmentsService.getPublicInvestedProjects(slug);
+  }
+
+  @Get('slug/:slug')
+  getProjectDetailBySlug(@Param('slug') slug: string) {
+    return this.projectsService.getProjectDetailByIdentifier(slug);
+  }
+
+  @Get(':identifier')
+  getProjectDetailByIdentifier(@Param('identifier') identifier: string) {
+    return this.projectsService.getProjectDetailByIdentifier(identifier);
+  }
+
+  // Merged with @Get(':identifier')
 
   @UseGuards(JwtAuthGuard, IsOwnerGuard, AccountStatusGuard)
   @Post()
-
-  createProject(
-    @GetUser('id') ownerId: number,
-    @Body() dto: CreateProjectDto,
-  ) {
+  createProject(@GetUser('id') ownerId: number, @Body() dto: CreateProjectDto) {
     return this.projectsService.createProject(ownerId, dto);
   }
 
   @UseGuards(JwtAuthGuard, IsOwnerGuard, AccountStatusGuard)
   @Delete(':id')
-
   deleteProject(@Param('id', ParseIntPipe) id: number) {
     return this.projectsService.deleteProject(id);
   }
 
   @UseGuards(JwtAuthGuard, IsOwnerGuard, AccountStatusGuard)
   @Put(':id')
-
   updateProject(
     @Param('id', ParseIntPipe) id: number,
     @GetUser('id') ownerId: number,
@@ -133,7 +150,6 @@ export class ProjectsController {
 
   @UseGuards(JwtAuthGuard, IsOwnerGuard, AccountStatusGuard)
   @Put(':id/stop-funding')
-
   stopFunding(
     @Param('id', ParseIntPipe) id: number,
     @GetUser('id') ownerId: number,
@@ -143,7 +159,6 @@ export class ProjectsController {
 
   @UseGuards(JwtAuthGuard, IsInvestorGuard, AccountStatusGuard)
   @Post('invest')
-
   investInProject(
     @GetUser('id') userId: number,
     @Body() dto: InvestProjectDto,
@@ -153,7 +168,6 @@ export class ProjectsController {
 
   @UseGuards(JwtAuthGuard, IsOwnerGuard, AccountStatusGuard)
   @Patch(':id/milestones/:mId/proof')
-
   uploadMilestoneProof(
     @Param('id', ParseIntPipe) id: number,
     @Param('mId', ParseIntPipe) mId: number,
@@ -172,7 +186,6 @@ export class ProjectsController {
 
   @UseGuards(JwtAuthGuard, AccountStatusGuard) // Only owner of the project can start voting
   @Post('milestones/:mId/start-voting')
-
   startMilestoneVoting(
     @Param('mId', ParseIntPipe) mId: number,
     @GetUser('id') userId: number,
@@ -182,7 +195,6 @@ export class ProjectsController {
 
   @UseGuards(JwtAuthGuard, AccountStatusGuard) // Only investors of the project can vote
   @Post('milestones/:mId/vote')
-
   submitVote(
     @Param('mId', ParseIntPipe) mId: number,
     @GetUser('id') userId: number,
@@ -194,7 +206,6 @@ export class ProjectsController {
 
   @UseGuards(JwtAuthGuard, AccountStatusGuard)
   @Post('milestones/:mId/response')
-
   ownerMilestoneResponse(
     @Param('mId', ParseIntPipe) mId: number,
     @GetUser('id') userId: number,
@@ -210,8 +221,6 @@ export class ProjectsController {
 
   @UseGuards(JwtAuthGuard, IsInvestorGuard, AccountStatusGuard)
   @Post(':id/disputes')
-
-
   createDispute(
     @Param('id', ParseIntPipe) id: number,
     @GetUser('id') userId: number,
@@ -222,16 +231,18 @@ export class ProjectsController {
     return this.projectsService.createDispute(id, userId, reason, evidenceUrl);
   }
 
-
   @UseGuards(JwtAuthGuard, IsOwnerGuard, AccountStatusGuard)
   @Put(':id/milestones')
-
   createOrUpdateMilestones(
     @Param('id', ParseIntPipe) id: number,
     @GetUser('id') ownerId: number,
-    @Body() milestonesData: { title: string; percentage: number; stage: number }[],
+    @Body()
+    milestonesData: { title: string; percentage: number; stage: number }[],
   ) {
-    return this.projectsService.createOrUpdateMilestones(id, ownerId, milestonesData);
+    return this.projectsService.createOrUpdateMilestones(
+      id,
+      ownerId,
+      milestonesData,
+    );
   }
 }
-

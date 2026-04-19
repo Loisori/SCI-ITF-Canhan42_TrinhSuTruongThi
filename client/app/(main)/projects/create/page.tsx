@@ -45,6 +45,7 @@ export default function CreateProjectPage() {
   const [shortDescription, setShortDescription] = useState("");
   const [content, setContent] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
+  const [address, setAddress] = useState("");
   const [additionalImages, setAdditionalImages] = useState<string[]>([""]);
   const [milestones, setMilestones] = useState<
     { title: string; content: string; percentage: number; stage: number; intervalDays: number }[]
@@ -132,6 +133,7 @@ export default function CreateProjectPage() {
         allowOverfunding,
         shortDescription,
         content,
+        address,
         thumbnailUrl,
         additional_images: additionalImages
           .map((item) => item.trim())
@@ -378,6 +380,21 @@ export default function CreateProjectPage() {
               readOnly
               className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 text-slate-500"
             />
+          </div>
+
+          <div>
+            <label className="block text-smaller font-semibold mb-2">
+              Địa chỉ dự án
+            </label>
+            <input
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="VD: Số 123, Quận 1, TP. HCM"
+              className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+            />
+            <p className="text-[11px] text-slate-500 mt-1 italic">
+              * Địa chỉ chính xác giúp nhà đầu tư tin tưởng dự án của bạn hơn.
+            </p>
           </div>
 
           <div>

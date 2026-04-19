@@ -5,7 +5,7 @@ import api from "@/lib/axios";
 import { UserProfile } from "@/types/user";
 import { SettingsCategoryRef, SettingsUser } from "@/types/settings";
 import toast from "react-hot-toast";
-import { User, Lock, Star, Bell, Check, X, ToggleRight, ToggleLeft, Link as LinkIcon, Webhook, Save, UserCircle, Mail } from "lucide-react";
+import { User, Lock, Star, Bell, Check, X, ToggleRight, ToggleLeft, Link as LinkIcon, Webhook, Save, UserCircle, Mail, MapPin } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 export default function SettingsView({ profile, onUpdate }: { profile: UserProfile, onUpdate: () => void }) {
@@ -46,6 +46,7 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
       linkedin: profile.socialLinks?.linkedin || "",
       twitter: profile.socialLinks?.twitter || "",
       github: profile.socialLinks?.github || "",
+      address: profile.address || "",
     }
   });
 
@@ -58,6 +59,7 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
         linkedin: user.socialLinks?.linkedin || "",
         twitter: user.socialLinks?.twitter || "",
         github: user.socialLinks?.github || "",
+        address: user.address || "",
       });
     }
   }, [user, reset]);
@@ -72,7 +74,8 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
           linkedin: data.linkedin,
           twitter: data.twitter,
           github: data.github,
-        }
+        },
+        address: data.address,
       };
 
       const res = await api.patch("/api/users/profile", payload);
@@ -346,6 +349,23 @@ export default function SettingsView({ profile, onUpdate }: { profile: UserProfi
                       placeholder="Giới thiệu ngắn gọn về bản thân..."
                       className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-smaller outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all resize-none"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-smaller font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                       Địa chỉ
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+                        <MapPin size={18} />
+                      </div>
+                      <input
+                        {...register("address")}
+                        type="text"
+                        placeholder="Số 123, Quận 1, TP. HCM"
+                        className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-smaller outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all"
+                      />
+                    </div>
                   </div>
                 </div>
 

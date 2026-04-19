@@ -12,7 +12,28 @@ import { ToastState } from "@/types/ui";
 import ProjectMilestones from "@/components/client/ProjectMilestones";
 import dynamic from "next/dynamic";
 import rehypeSanitize from "rehype-sanitize";
-import { BarChart3, UserCircle, ChevronRight, Activity } from "lucide-react";
+import {
+  Activity,
+  ArrowLeft,
+  BarChart3,
+  Calendar,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Compass,
+  FileText,
+  Info,
+  MapPin,
+  MessageSquare,
+  Milestone,
+  ShieldCheck,
+  Star,
+  Tag,
+  TrendingUp,
+  User,
+  ExternalLink,
+} from "lucide-react";
 import ProjectLifecycleTimeline from "@/components/client/ProjectLifecycleTimeline";
 
 const MarkdownPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
@@ -58,12 +79,15 @@ export default function ProjectDetailPage() {
     useState<ProjectContentSection>("campaign");
 
   const fetchProject = async () => {
-    if (!params.slug) return;
+    const slugValue = String(params.slug ?? "").trim();
+    if (!slugValue) return;
+
+    const isNumericId = /^\d+$/.test(slugValue);
+    const endpoint = isNumericId
+      ? `/api/projects/${slugValue}`
+      : `/api/projects/${encodeURIComponent(slugValue)}`;
+
     try {
-      const isNumericId = /^\d+$/.test(params.slug as string);
-      const endpoint = isNumericId
-        ? `/api/projects/${params.slug}`
-        : `/api/projects/slug/${params.slug}`;
       const res = await api.get<ProjectDetail>(endpoint);
 
       setProject(res.data);
@@ -349,6 +373,15 @@ export default function ProjectDetailPage() {
                         {project.durationMonths} tháng
                       </span>
                     </div>
+                    <div className="flex justify-between items-start gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                      <div className="flex items-center gap-1.5 text-slate-500">
+                        <MapPin size={14} />
+                        <span>Địa điểm</span>
+                      </div>
+                      <span className="font-semibold text-right">
+                        {project.address || "Chưa cung cấp"}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -518,7 +551,7 @@ export default function ProjectDetailPage() {
                 <div className="col-span-1 md:col-span-1 ">
                   {project.owner ? (
                     <Link
-                      href={`/profile/${project.owner.id}`}
+                      href={`/profile/${project.owner.slug}`}
                       className="block space-y-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6"
                     >
                       <div className="flex items-center gap-4">

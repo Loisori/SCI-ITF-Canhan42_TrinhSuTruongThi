@@ -115,6 +115,11 @@ export class CreateProjectDto {
   additional_images?: string[];
 
   @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  address?: string;
+
+  @IsOptional()
   @IsBoolean()
   allowOverfunding?: boolean;
 

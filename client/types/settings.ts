@@ -11,6 +11,7 @@ export type SettingsUser = {
   role: string;
   avatarUrl?: string;
   bio?: string | null;
+  address?: string | null;
   socialLinks?: {
     facebook?: string;
     linkedin?: string;

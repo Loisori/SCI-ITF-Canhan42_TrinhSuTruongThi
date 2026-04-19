@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException, BadRequestException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, Not, IsNull } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity, UserRole } from './entities/user.entity';
 import { RegisterDto } from '../auth/dto/register.dto';
@@ -25,6 +25,88 @@ export class UsersService {
     private cloudinaryService: CloudinaryService,
     private dataSource: DataSource,
   ) {}
+
+  async onModuleInit() {
+    await this.backfillSlugs();
+  }
+
+  private async backfillSlugs() {
+    const usersWithoutSlug = await this.usersRepository.find({
+      where: { slug: IsNull() },
+    });
+
+    if (usersWithoutSlug.length > 0) {
+      console.log(`[UsersService] Backfilling slugs for ${usersWithoutSlug.length} users...`);
+      for (const user of usersWithoutSlug) {
+        user.slug = await this.generateUniqueSlug(user.fullName);
+        await this.usersRepository.save(user);
+      }
+      console.log(`[UsersService] Backfill complete.`);
+    }
+  }
+
+  private generateRawSlug(fullName: string): string {
+    return fullName
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9 ]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  }
+
+  async generateUniqueSlug(fullName: string): Promise<string> {
+    const baseSlug = this.generateRawSlug(fullName) || 'user';
+    let slug = baseSlug;
+    let counter = 1;
+
+    // Check for collisions
+    // We use a loop to ensure uniqueness
+    while (await this.usersRepository.findOne({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+    return slug;
+  }
+
+  async findBySlug(slug: string): Promise<UserEntity | null> {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.favoriteCategories', 'favoriteCategories')
+      .leftJoinAndSelect('user.blacklistCategories', 'blacklistCategories')
+      .addSelect([
+        'user.id',
+        'user.email',
+        'user.fullName',
+        'user.role',
+        'user.balance',
+        'user.avatarUrl',
+        'user.isVerified',
+        'user.bio',
+        'user.address',
+        'user.coverPhotoUrl',
+        'user.socialLinks',
+        'user.notificationSettings',
+        'user.createdAt',
+        'user.updatedAt',
+        'user.slug',
+      ])
+      .where('user.slug = :slug', { slug })
+      .getOne();
+  }
+
+  async findByIdentifier(identifier: string): Promise<UserEntity | null> {
+    // Check if it's a numeric ID
+    const numericId = parseInt(identifier, 10);
+    if (!isNaN(numericId) && /^\d+$/.test(identifier)) {
+      return this.findById(numericId);
+    }
+    // Otherwise, treat as slug
+    return this.findBySlug(identifier);
+  }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
     return this.usersRepository
@@ -80,8 +162,9 @@ export class UsersService {
       fullName: registerDto.fullName,
       role: registerDto.role ?? UserRole.INVESTOR,
       balance: 0,
+      slug: await this.generateUniqueSlug(registerDto.fullName),
       favoriteCategories: registerDto.favoriteCategoryIds
-        ? registerDto.favoriteCategoryIds.map((id) => ({ id })) as any
+        ? (registerDto.favoriteCategoryIds.map((id) => ({ id })) as any)
         : undefined,
     });
     return this.usersRepository.save(newUser);
@@ -217,6 +300,14 @@ export class UsersService {
 
     // Update simple fields first
     const { favoriteCategoryIds, blacklistCategoryIds, ...simpleFields } = dto;
+
+    // If fullName is changed AND slug is currently null, generate it.
+    // However, user requested "Immutable after first generated".
+    // So we only set slug if it's null.
+    if (!user.slug) {
+      (simpleFields as any).slug = await this.generateUniqueSlug(dto.fullName || user.fullName);
+    }
+
     if (Object.keys(simpleFields).length > 0) {
       await this.usersRepository.update(id, simpleFields);
     }

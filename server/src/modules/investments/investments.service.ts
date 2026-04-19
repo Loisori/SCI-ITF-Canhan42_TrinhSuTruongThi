@@ -28,12 +28,15 @@ import {
 import { CreateInvestmentDto } from './dto/create-investment.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FinancialCalculator } from '../../common/utils/financial-calculator';
+import { UsersService } from '../users/users.service';
+
 
 @Injectable()
 export class InvestmentsService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly eventEmitter: EventEmitter2,
+    private readonly usersService: UsersService,
   ) {}
 
   private toCommissionFraction(commissionRate?: number | null): number {
@@ -92,9 +95,20 @@ export class InvestmentsService {
     });
   }
 
-  async getPublicInvestedProjects(userId: number) {
+  async getPublicInvestedProjects(userIdentifier: string) {
     const investmentsRepo = this.dataSource.getRepository(InvestmentEntity);
     
+    let userId: number;
+    // Check if it's a numeric ID
+    const numericId = parseInt(userIdentifier, 10);
+    if (!isNaN(numericId) && /^\d+$/.test(userIdentifier)) {
+      userId = numericId;
+    } else {
+      const user = await this.usersService.findBySlug(userIdentifier);
+      if (!user) throw new NotFoundException('User not found');
+      userId = user.id;
+    }
+
     // Find all active/completed investments for this user
     const investments = await investmentsRepo.find({
       where: { 

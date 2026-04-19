@@ -197,7 +197,7 @@ function ProjectListInner() {
                   : 0);
               const baseProgress = Math.min(progress, 100);
               const overProgress = Math.max(progress - 100, 0);
-              const href = `/projects/${project.contentSlug ?? project.id}`;
+              const href = `/projects/${project.slug || project.id}`;
 
               return (
                 <Link

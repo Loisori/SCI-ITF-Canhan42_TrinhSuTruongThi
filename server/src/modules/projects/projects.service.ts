@@ -3,9 +3,10 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository, Not, IsNull } from 'typeorm';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import {
@@ -46,6 +47,8 @@ import { VotingService } from './voting.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../notifications/entities/notification.entity';
+import { UsersService } from '../users/users.service';
+
 
 
 
@@ -59,11 +62,61 @@ export class ProjectsService {
     @InjectRepository(ProjectCategoryEntity)
     private readonly projectCategoriesRepository: Repository<ProjectCategoryEntity>,
     private readonly dataSource: DataSource,
+    private readonly usersService: UsersService,
     private readonly milestonesService: MilestonesService,
     private readonly votingService: VotingService,
     private readonly eventEmitter: EventEmitter2,
     private readonly notificationsService: NotificationsService,
   ) {}
+
+  async onModuleInit() {
+    await this.backfillSlugs();
+  }
+
+  private async backfillSlugs() {
+    const allProjects = await this.projectsRepository.find({
+      select: ['id', 'title', 'slug'],
+    });
+
+    const projectsToUpdate = allProjects.filter(p => 
+      !p.slug || /^\d+$/.test(p.slug)
+    );
+
+    if (projectsToUpdate.length > 0) {
+      console.log(`[ProjectsService] Backfilling slugs for ${projectsToUpdate.length} projects...`);
+      for (const project of projectsToUpdate) {
+        project.slug = await this.generateUniqueSlug(project.title);
+        await this.projectsRepository.save(project);
+      }
+      console.log(`[ProjectsService] Backfill complete.`);
+    }
+  }
+
+  private generateRawSlug(title: string): string {
+    return title
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9 ]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  }
+
+  async generateUniqueSlug(title: string): Promise<string> {
+    const baseSlug = this.generateRawSlug(title) || 'project';
+    let slug = baseSlug;
+    let counter = 1;
+
+    // We use projectsRepository directly to check for collisions
+    while (await this.projectsRepository.findOne({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+    return slug;
+  }
 
 
 
@@ -96,7 +149,7 @@ export class ProjectsService {
 
 
   async getOwnerProjects(
-    ownerId: number,
+    ownerIdentifier: string | number,
     page = 1,
     pageSize = 10,
   ): Promise<{
@@ -112,6 +165,15 @@ export class ProjectsService {
   }> {
     const take = Math.max(1, Math.min(pageSize, 50));
     const skip = Math.max(0, page - 1) * take;
+
+    let ownerId: number;
+    if (typeof ownerIdentifier === 'number') {
+      ownerId = ownerIdentifier;
+    } else {
+      const user = await this.usersService.findByIdentifier(ownerIdentifier);
+      if (!user) throw new NotFoundException('User not found');
+      ownerId = user.id;
+    }
 
     const [projects, total] = await this.projectsRepository.findAndCount({
       where: { ownerId },
@@ -355,27 +417,13 @@ export class ProjectsService {
     return projects.map((project) => this.serializeProject(project));
   }
 
-  async getProjectDetail(projectId: number) {
+  async getProjectDetailByIdentifier(identifier: string) {
+    // Check if it's a numeric ID
+    const numericId = parseInt(identifier, 10);
+    const isNumeric = /^\d+$/.test(identifier);
+
     const project = await this.projectsRepository.findOne({
-      where: { id: projectId },
-      relations: ['media', 'category', 'milestones', 'disputes', 'owner'],
-    });
-
-    if (!project) {
-      throw new NotFoundException('Project not found.');
-    }
-
-    const markdownContent = await this.readProjectMarkdown(project.slug);
-
-    return {
-      ...this.serializeProject(project),
-      content: project.content ?? markdownContent,
-    };
-  }
-
-  async getProjectDetailBySlug(slug: string) {
-    const project = await this.projectsRepository.findOne({
-      where: { slug },
+      where: isNumeric ? { id: numericId } : { slug: identifier },
       relations: ['media', 'category', 'milestones', 'disputes', 'owner'],
     });
 
@@ -423,7 +471,7 @@ export class ProjectsService {
         ownerId,
         categoryId: dto.categoryId,
         title: dto.title,
-        slug: dto.contentSlug,
+        slug: await this.generateUniqueSlug(dto.title),
         shortDescription: dto.shortDescription ?? null,
         content: dto.content ?? null,
         goalAmount: dto.targetCapital,
@@ -436,6 +484,7 @@ export class ProjectsService {
         endDate: dto.endDate ? new Date(dto.endDate) : null,
         allowOverfunding: !!dto.allowOverfunding,
         status: dto.status ?? ProjectStatus.PENDING,
+        address: dto.address ?? null,
       });
 
       const created = await projectRepo.save(project);
@@ -555,6 +604,9 @@ export class ProjectsService {
       if (dto.title !== undefined) {
         project.title = dto.title;
       }
+      // Note: Immutability enforced here. slug is NOT updated if it already exists.
+      // If for some reason it's missing, we could generate it, but entity requires it.
+      
       if (dto.shortDescription !== undefined) {
         project.shortDescription = dto.shortDescription;
       }
@@ -581,9 +633,12 @@ export class ProjectsService {
 
         project.categoryId = Number(dto.categoryId);
       }
-      if (dto.contentSlug !== undefined) {
-        project.slug = dto.contentSlug;
+
+      if (dto.address !== undefined) {
+        project.address = dto.address;
       }
+      
+      // Note: project.slug is never updated here to ensure immutability.
 
       await projectRepo.save(project);
 
@@ -853,7 +908,8 @@ export class ProjectsService {
       title: project.title,
       thumbnailUrl: thumbnail,
       shortDescription: project.shortDescription,
-      contentSlug: project.slug,
+      slug: project.slug,
+      address: project.address,
       targetCapital,
       currentAmount: currentCapital,
       interestRate: Number(project.interestRate) || 0,
@@ -873,15 +929,17 @@ export class ProjectsService {
             iconUrl: project.category.iconUrl,
           }
         : null,
-      owner: project.owner
-        ? {
-            id: project.owner.id,
-            fullName: project.owner.fullName,
-            email: project.owner.email,
-            avatarUrl: project.owner.avatarUrl,
-            bio: project.owner.bio,
-            socialLinks: project.owner.socialLinks,
-          }
+        owner: project.owner
+          ? {
+              id: project.owner.id,
+              slug: project.owner.slug,
+              fullName: project.owner.fullName,
+              email: project.owner.email,
+              avatarUrl: project.owner.avatarUrl,
+              bio: project.owner.bio,
+              socialLinks: project.owner.socialLinks,
+              address: project.owner.address,
+            }
         : null,
       images,
       isFrozen: project.isFrozen,
@@ -975,7 +1033,8 @@ export class ProjectsService {
       return null;
     }
 
-    if (!/^[a-zA-Z0-9-_]+$/.test(slug)) {
+    // Allow alphanumeric, underscores, and hyphens
+    if (!/^[a-zA-Z0-9_\-]+$/.test(slug)) {
       throw new BadRequestException('Invalid slug format.');
     }
 

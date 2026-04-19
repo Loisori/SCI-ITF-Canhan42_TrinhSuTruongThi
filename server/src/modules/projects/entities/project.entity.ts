@@ -72,8 +72,12 @@ export class ProjectEntity {
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
+  @Index()
   @Column({ type: 'varchar', length: 255, unique: true })
   slug: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  address: string | null;
 
   @Column({ name: 'short_description', type: 'text', nullable: true })
   shortDescription: string | null;

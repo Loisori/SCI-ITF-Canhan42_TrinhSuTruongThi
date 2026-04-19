@@ -64,4 +64,9 @@ export class UpdateProjectDto {
   @IsArray()
   @IsString({ each: true })
   additional_images?: string[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  address?: string;
 }

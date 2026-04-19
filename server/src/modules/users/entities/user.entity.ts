@@ -151,5 +151,11 @@ export class UserEntity {
 
   @Column({ name: 'is_frozen', type: 'boolean', default: false })
   isFrozen: boolean;
+
+  @Column({ type: 'varchar', length: 150, unique: true, nullable: true })
+  slug: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  address: string | null;
 }
 

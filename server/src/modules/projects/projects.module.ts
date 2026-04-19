@@ -18,6 +18,7 @@ import { VotingService } from './voting.service';
 
 import { NotificationsModule } from '../notifications/notifications.module';
 import { InvestmentsModule } from '../investments/investments.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { InvestmentsModule } from '../investments/investments.module';
 
 
     AuthModule,
+    UsersModule,
     NotificationsModule,
     InvestmentsModule,
   ],

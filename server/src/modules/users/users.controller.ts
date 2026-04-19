@@ -9,6 +9,7 @@ import {
   UploadedFile,
   ParseIntPipe,
   Query,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -24,6 +25,22 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  private serializePublicProfile(user: UserEntity) {
+    return {
+      id: user.id,
+      slug: user.slug,
+      fullName: user.fullName,
+      avatarUrl: user.avatarUrl,
+      coverPhotoUrl: user.coverPhotoUrl,
+      bio: user.bio,
+      socialLinks: user.socialLinks,
+      address: user.address,
+      role: user.role,
+      createdAt: user.createdAt,
+      isVerified: user.isVerified,
+    };
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
@@ -89,27 +106,28 @@ export class UsersController {
     @GetUser('id') userId: number,
     @Body() settings: Record<string, boolean>,
   ) {
-    const updatedUser = await this.usersService.updateNotificationSettings(userId, settings);
+    const updatedUser = await this.usersService.updateNotificationSettings(
+      userId,
+      settings,
+    );
     const { password: _, ...rest } = updatedUser;
     return rest;
   }
 
-  @Get(':id/public')
-  async getPublicProfile(@Param('id', ParseIntPipe) id: number) {
-    const user = await this.usersService.findById(id);
-    if (!user) return null;
-    
-    return {
-      id: user.id,
-      fullName: user.fullName,
-      avatarUrl: user.avatarUrl,
-      coverPhotoUrl: user.coverPhotoUrl,
-      bio: user.bio,
-      socialLinks: user.socialLinks,
-      role: user.role,
-      createdAt: user.createdAt,
-      isVerified: user.isVerified,
-    };
+  @Get('slug/:slug/public')
+  async getPublicProfileBySlug(@Param('slug') slug: string) {
+    const user = await this.usersService.findBySlug(slug);
+    if (!user) throw new NotFoundException('User not found');
+
+    return this.serializePublicProfile(user);
+  }
+
+  @Get(':identifier/public')
+  async getPublicProfile(@Param('identifier') identifier: string) {
+    const user = await this.usersService.findByIdentifier(identifier);
+    if (!user) throw new NotFoundException('User not found');
+
+    return this.serializePublicProfile(user);
   }
 
   // Admin-only routes

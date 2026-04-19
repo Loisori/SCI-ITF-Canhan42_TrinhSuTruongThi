@@ -192,7 +192,7 @@ export default function Navbar() {
                     href={user.role?.toLowerCase() === "admin" ? "/admin-dashboard" : "/dashboard"}
                     className="flex items-center gap-2 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
                   >
-                    {user.avatarUrl ? (
+            {user.avatarUrl ? (
                       <img
                         src={user.avatarUrl}
                         alt="Avatar"
@@ -207,6 +207,15 @@ export default function Navbar() {
                       {user.fullName}
                     </span>
                   </Link>
+
+                  {user.slug && (
+                    <Link
+                      href={`/profile/${user.slug}`}
+                      className="absolute -bottom-8 left-0 hidden group-hover:block whitespace-nowrap bg-white dark:bg-slate-800 shadow-lg border border-slate-100 dark:border-white/10 p-2 rounded-lg text-smallest font-bold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors z-[100]"
+                    >
+                      Xem trang cá nhân
+                    </Link>
+                  )}
                 </div>
               </div>
             ) : (

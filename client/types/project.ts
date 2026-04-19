@@ -7,6 +7,7 @@ export type ProjectCategory = {
 
 export type ProjectOwner = {
   id: number;
+  slug?: string;
   fullName: string;
   email: string;
   avatarUrl?: string | null;
@@ -17,6 +18,7 @@ export type ProjectOwner = {
     twitter?: string;
     github?: string;
   } | null;
+  address?: string | null;
 };
 
 export type ProjectMilestone = {
@@ -55,7 +57,7 @@ export type Project = {
   title: string;
   shortDescription: string | null;
   thumbnailUrl: string | null;
-  contentSlug?: string;
+  slug?: string;
   targetCapital: number | string;
   currentCapital: number | string;
   currentAmount?: number | string;
@@ -66,6 +68,7 @@ export type Project = {
   endDate?: string | null;
   category?: ProjectCategory | null;
   owner?: ProjectOwner | null;
+  address?: string | null;
 };
 
 export type ProjectDetail = {
@@ -91,6 +94,7 @@ export type ProjectDetail = {
   milestones?: ProjectMilestone[];
   disputes?: ProjectDispute[];
   createdAt: string;
+  address?: string | null;
 };
 
 export type PendingProject = {

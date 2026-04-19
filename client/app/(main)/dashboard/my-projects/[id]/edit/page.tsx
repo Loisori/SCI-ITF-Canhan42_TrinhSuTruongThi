@@ -25,6 +25,7 @@ export default function EditProjectPage() {
   const [title, setTitle] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [content, setContent] = useState("");
+  const [address, setAddress] = useState("");
   const [interestRate, setInterestRate] = useState(0);
   const [thumbnailUrl, setThumbnailUrl] = useState("");
   const [additionalImages, setAdditionalImages] = useState<string[]>([""]);
@@ -61,6 +62,7 @@ export default function EditProjectPage() {
         setContent(project.content ?? "");
         setInterestRate(Number(project.interestRate));
         setProjectStatus(project.status ?? "pending");
+        setAddress(project.address ?? "");
         setThumbnailUrl(project.thumbnailUrl ?? "");
         setAdditionalImages(project.images?.length ? project.images : [""]);
       } catch {
@@ -147,6 +149,7 @@ export default function EditProjectPage() {
         shortDescription,
         content,
         interestRate: Number(interestRate),
+        address,
         thumbnailUrl,
         additional_images: normalizedGallery,
       });
@@ -263,6 +266,21 @@ export default function EditProjectPage() {
               rows={4}
               className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
             />
+          </div>
+
+          <div>
+            <label className="block text-smaller font-semibold mb-2">
+              Địa chỉ dự án
+            </label>
+            <input
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="VD: Số 123, Quận 1, TP. HCM"
+              className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
+            />
+            <p className="text-[11px] text-slate-500 mt-1 italic">
+              * Địa chỉ chính xác giúp nhà đầu tư tin tưởng dự án của bạn hơn.
+            </p>
           </div>
 
           <div className="markdown-field-wrapper">
