@@ -18,7 +18,10 @@ import {
   ProjectEntity,
   ProjectStatus,
 } from '../projects/entities/project.entity';
-import { ProjectMilestoneEntity, MilestoneStatus } from '../projects/entities/milestone.entity';
+import {
+  ProjectMilestoneEntity,
+  MilestoneStatus,
+} from '../projects/entities/milestone.entity';
 import { UserEntity } from '../users/entities/user.entity';
 import {
   TransactionEntity,
@@ -29,7 +32,6 @@ import { CreateInvestmentDto } from './dto/create-investment.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FinancialCalculator } from '../../common/utils/financial-calculator';
 import { UsersService } from '../users/users.service';
-
 
 @Injectable()
 export class InvestmentsService {
@@ -97,7 +99,7 @@ export class InvestmentsService {
 
   async getPublicInvestedProjects(userIdentifier: string) {
     const investmentsRepo = this.dataSource.getRepository(InvestmentEntity);
-    
+
     let userId: number;
     // Check if it's a numeric ID
     const numericId = parseInt(userIdentifier, 10);
@@ -111,20 +113,25 @@ export class InvestmentsService {
 
     // Find all active/completed investments for this user
     const investments = await investmentsRepo.find({
-      where: { 
+      where: {
         userId,
-        status: InvestmentStatus.ACTIVE // Or COMPLETED, etc. basically not withdrawn
+        status: InvestmentStatus.ACTIVE, // Or COMPLETED, etc. basically not withdrawn
       },
-      relations: ['project', 'project.media', 'project.category', 'project.owner'],
+      relations: [
+        'project',
+        'project.media',
+        'project.category',
+        'project.owner',
+      ],
       order: { investedAt: 'DESC' },
     });
 
     // Extract unique projects
     const projectsMap = new Map<number, any>();
-    
+
     for (const inv of investments) {
       if (!inv.project || projectsMap.has(inv.project.id)) continue;
-      
+
       const project = inv.project;
       const thumbnail =
         project.media?.find((media) => media.isThumbnail)?.url ??
@@ -139,16 +146,26 @@ export class InvestmentsService {
         currentCapital: Number(project.currentAmount),
         targetCapital: Number(project.goalAmount),
         status: project.status,
-        category: project.category ? {
-          name: project.category.name,
-          slug: project.category.slug
-        } : null,
-        owner: project.owner ? {
-          fullName: project.owner.fullName
-        } : null,
-        fundingProgress: project.goalAmount > 0 
-          ? Number(((Number(project.currentAmount) / Number(project.goalAmount)) * 100).toFixed(2))
-          : 0
+        category: project.category
+          ? {
+              name: project.category.name,
+              slug: project.category.slug,
+            }
+          : null,
+        owner: project.owner
+          ? {
+              fullName: project.owner.fullName,
+            }
+          : null,
+        fundingProgress:
+          project.goalAmount > 0
+            ? Number(
+                (
+                  (Number(project.currentAmount) / Number(project.goalAmount)) *
+                  100
+                ).toFixed(2),
+              )
+            : 0,
       });
     }
 
@@ -156,131 +173,141 @@ export class InvestmentsService {
   }
 
   async invest(userId: number, dto: CreateInvestmentDto) {
-    return this.dataSource.transaction(async (manager) => {
-      const usersRepo = manager.getRepository(UserEntity);
-      const projectsRepo = manager.getRepository(ProjectEntity);
-      const investmentsRepo = manager.getRepository(InvestmentEntity);
-      const schedulesRepo = manager.getRepository(PaymentScheduleEntity);
-      const transactionsRepo = manager.getRepository(TransactionEntity);
+    return this.dataSource
+      .transaction(async (manager) => {
+        const usersRepo = manager.getRepository(UserEntity);
+        const projectsRepo = manager.getRepository(ProjectEntity);
+        const investmentsRepo = manager.getRepository(InvestmentEntity);
+        const schedulesRepo = manager.getRepository(PaymentScheduleEntity);
+        const transactionsRepo = manager.getRepository(TransactionEntity);
 
-      const user = await usersRepo.findOne({
-        where: { id: userId },
-        lock: { mode: 'pessimistic_write' },
-      });
-
-      if (!user) {
-        throw new NotFoundException('User not found.');
-      }
-
-      const project = await projectsRepo.findOne({
-        where: { id: dto.projectId },
-        lock: { mode: 'pessimistic_write' },
-      });
-
-      if (!project) {
-        throw new NotFoundException('Project not found.');
-      }
-
-      const now = new Date();
-      if (project.endDate && new Date(project.endDate).getTime() < now.getTime()) {
-        await this.handleProjectTimeout(project.id, manager);
-        throw new BadRequestException('Dự án đã hết thời gian huy động vốn.');
-      }
-
-      if (project.status !== ProjectStatus.FUNDING) {
-        throw new BadRequestException('Project is not in funding status.');
-      }
-
-      const amount = Number(dto.amount);
-      if (amount < Number(project.minInvestment)) {
-        throw new BadRequestException(
-          `Minimum investment is ${project.minInvestment}.`,
-        );
-      }
-
-      if (Number(user.balance) < amount) {
-        throw new BadRequestException('Insufficient balance.');
-      }
-
-      user.balance = Number(user.balance) - amount;
-      project.currentAmount = Number(project.currentAmount) + amount;
-
-      await usersRepo.save(user);
-      await projectsRepo.save(project);
-
-      const investment = investmentsRepo.create({
-        userId,
-        projectId: project.id,
-        amount,
-        status: InvestmentStatus.ACTIVE,
-      });
-
-      const savedInvestment = await investmentsRepo.save(investment);
-
-      const monthlyInterest = this.roundCurrency(
-        (amount * Number(project.interestRate)) / 100 / 12,
-      );
-
-      const schedules: PaymentScheduleEntity[] = [];
-      for (let month = 1; month <= project.durationMonths; month += 1) {
-        const dueDate = new Date(now);
-        dueDate.setMonth(dueDate.getMonth() + month);
-
-        schedules.push(
-          schedulesRepo.create({
-            investmentId: savedInvestment.id,
-            dueDate,
-            amount: monthlyInterest,
-            status: PaymentScheduleStatus.UNPAID,
-            paidAt: null,
-          }),
-        );
-      }
-
-      if (schedules.length > 0) {
-        await schedulesRepo.save(schedules);
-      }
-
-      const transaction = transactionsRepo.create({
-        userId,
-        amount,
-        type: TransactionType.INVEST,
-        status: TransactionStatus.SUCCESS,
-        description: `Đầu tư vào dự án ${project.title}`,
-        referenceId: savedInvestment.id,
-      });
-
-      await transactionsRepo.save(transaction);
-
-      return {
-        message: 'Đầu tư thành công.',
-        investmentId: savedInvestment.id,
-        userBalance: user.balance,
-        projectCurrentAmount: project.currentAmount,
-        paymentScheduleCount: schedules.length,
-        projectTitle: project.title,
-        projectOwnerId: project.ownerId,
-        isGoalReached: Number(project.currentAmount) >= Number(project.goalAmount),
-        amount,
-      };
-    }).then((result) => {
-      // Bắn sự kiện ra ngoài Transaction để tránh Lag
-      this.eventEmitter.emit('investment.made', {
-        ownerId: result.projectOwnerId,
-        amount: result.amount,
-        title: result.projectTitle,
-      });
-
-      if (result.isGoalReached) {
-        this.eventEmitter.emit('project.goalReached', {
-          projectId: dto.projectId,
-          title: result.projectTitle,
-          ownerId: result.projectOwnerId,
+        const user = await usersRepo.findOne({
+          where: { id: userId },
+          lock: { mode: 'pessimistic_write' },
         });
-      }
 
-      return result;
-    });
+        if (!user) {
+          throw new NotFoundException('User not found.');
+        }
+
+        const project = await projectsRepo.findOne({
+          where: { id: dto.projectId },
+          lock: { mode: 'pessimistic_write' },
+        });
+
+        if (!project) {
+          throw new NotFoundException('Project not found.');
+        }
+
+        const now = new Date();
+        if (
+          project.endDate &&
+          new Date(project.endDate).getTime() < now.getTime()
+        ) {
+          await this.handleProjectTimeout(project.id, manager);
+          throw new BadRequestException('Dự án đã hết thời gian huy động vốn.');
+        }
+
+        if (project.status !== ProjectStatus.FUNDING) {
+          throw new BadRequestException('Project is not in funding status.');
+        }
+
+        const amount = Number(dto.amount);
+        if (amount < Number(project.minInvestment)) {
+          throw new BadRequestException(
+            `Minimum investment is ${project.minInvestment}.`,
+          );
+        }
+
+        if (Number(user.balance) < amount) {
+          throw new BadRequestException('Insufficient balance.');
+        }
+
+        user.balance = Number(user.balance) - amount;
+        project.currentAmount = Number(project.currentAmount) + amount;
+
+        await usersRepo.save(user);
+        await projectsRepo.save(project);
+
+        const investment = investmentsRepo.create({
+          userId,
+          projectId: project.id,
+          amount,
+          status: InvestmentStatus.ACTIVE,
+        });
+
+        const savedInvestment = await investmentsRepo.save(investment);
+
+        const monthlyInterest = this.roundCurrency(
+          (amount * Number(project.interestRate)) / 100 / 12,
+        );
+
+        const schedules: PaymentScheduleEntity[] = [];
+        for (let month = 1; month <= project.durationMonths; month += 1) {
+          const dueDate = new Date(now);
+          dueDate.setMonth(dueDate.getMonth() + month);
+          const scheduleAmount =
+            month === project.durationMonths
+              ? this.roundCurrency(monthlyInterest + amount)
+              : monthlyInterest;
+
+          schedules.push(
+            schedulesRepo.create({
+              investmentId: savedInvestment.id,
+              dueDate,
+              amount: scheduleAmount,
+              status: PaymentScheduleStatus.UNPAID,
+              paidAt: null,
+            }),
+          );
+        }
+
+        if (schedules.length > 0) {
+          await schedulesRepo.save(schedules);
+        }
+
+        const transaction = transactionsRepo.create({
+          userId,
+          amount,
+          type: TransactionType.INVEST,
+          status: TransactionStatus.SUCCESS,
+          description: `Đầu tư vào dự án ${project.title}`,
+          referenceId: savedInvestment.id,
+        });
+
+        await transactionsRepo.save(transaction);
+
+        return {
+          message: 'Đầu tư thành công.',
+          investmentId: savedInvestment.id,
+          userBalance: user.balance,
+          projectCurrentAmount: project.currentAmount,
+          paymentScheduleCount: schedules.length,
+          projectTitle: project.title,
+          projectOwnerId: project.ownerId,
+          isGoalReached:
+            Number(project.currentAmount) >= Number(project.goalAmount),
+          amount,
+        };
+      })
+      .then((result) => {
+        // Bắn sự kiện ra ngoài Transaction để tránh Lag
+        this.eventEmitter.emit('investment.made', {
+          ownerId: result.projectOwnerId,
+          amount: result.amount,
+          title: result.projectTitle,
+        });
+
+        if (result.isGoalReached) {
+          this.eventEmitter.emit('project.goalReached', {
+            projectId: dto.projectId,
+            title: result.projectTitle,
+            ownerId: result.projectOwnerId,
+          });
+        }
+
+        return result;
+      });
   }
 
   async handleProjectTimeout(projectId?: number, manager?: EntityManager) {
@@ -335,6 +362,21 @@ export class InvestmentsService {
             (totalInvested - commissionAmount).toFixed(2),
           );
 
+          if (this.toCommissionFraction(project.commissionRate) <= 0) {
+            const ownerCompletedCount = await projectsRepo.count({
+              where: { ownerId: project.ownerId, status: ProjectStatus.COMPLETED },
+            });
+            const fallbackFeeRate =
+              ownerCompletedCount >= 3
+                ? 0.05
+                : ownerCompletedCount >= 1
+                  ? 0.08
+                  : 0.1;
+            project.commissionRate = FinancialCalculator.round(
+              fallbackFeeRate * 100,
+            );
+          }
+
           for (const inv of projectInvestments) {
             if (inv.status === InvestmentStatus.ACTIVE) {
               inv.status = InvestmentStatus.COMPLETED;
@@ -347,22 +389,30 @@ export class InvestmentsService {
           project.totalDebt = FinancialCalculator.calculateTotalDebt(
             currentAmount,
             project.interestRate,
-            project.durationMonths
+            project.durationMonths,
+            project.commissionRate,
           );
           project.status = ProjectStatus.PENDING_ADMIN_REVIEW;
           await projectsRepo.save(project);
 
           // Create 5 milestones
-          const milestonesRepo = txManager.getRepository(ProjectMilestoneEntity);
+          const milestonesRepo = txManager.getRepository(
+            ProjectMilestoneEntity,
+          );
           const milestones: ProjectMilestoneEntity[] = [];
           for (let i = 1; i <= 5; i++) {
-            milestones.push(milestonesRepo.create({
-              projectId: project.id,
-              title: `Giai đoạn ${i} (20%)`,
-              percentage: 20,
-              stage: i,
-              status: i === 1 ? MilestoneStatus.ADMIN_REVIEW : MilestoneStatus.PENDING
-            }));
+            milestones.push(
+              milestonesRepo.create({
+                projectId: project.id,
+                title: `Giai đoạn ${i} (20%)`,
+                percentage: 20,
+                stage: i,
+                status:
+                  i === 1
+                    ? MilestoneStatus.ADMIN_REVIEW
+                    : MilestoneStatus.PENDING,
+              }),
+            );
           }
           await milestonesRepo.save(milestones);
 
@@ -519,7 +569,6 @@ export class InvestmentsService {
             status: m.status,
             evidenceUrls: m.evidenceUrls,
             createdAt: m.createdAt,
-
           })),
           disputes: project.disputes?.map((d) => ({
             id: d.id,
@@ -571,7 +620,9 @@ export class InvestmentsService {
       .select('category.name', 'category')
       .addSelect('SUM(investment.amount)', 'value')
       .where('investment.userId = :userId', { userId })
-      .andWhere('investment.status != :status', { status: InvestmentStatus.WITHDRAWN })
+      .andWhere('investment.status != :status', {
+        status: InvestmentStatus.WITHDRAWN,
+      })
       .groupBy('category.id')
       .getRawMany();
 
@@ -583,7 +634,9 @@ export class InvestmentsService {
       .select('schedule.dueDate', 'date')
       .addSelect('SUM(schedule.amount)', 'amount')
       .where('investment.userId = :userId', { userId })
-      .andWhere('schedule.status = :status', { status: PaymentScheduleStatus.UNPAID })
+      .andWhere('schedule.status = :status', {
+        status: PaymentScheduleStatus.UNPAID,
+      })
       .groupBy('schedule.dueDate')
       .orderBy('schedule.dueDate', 'ASC')
       .getRawMany();
@@ -597,13 +650,15 @@ export class InvestmentsService {
       monthlyProjectionMap.set(monthKey, current + Number(row.amount));
     }
 
-    const projection = Array.from(monthlyProjectionMap.entries()).map(([date, amount]) => ({
-      date,
-      amount,
-    }));
+    const projection = Array.from(monthlyProjectionMap.entries()).map(
+      ([date, amount]) => ({
+        date,
+        amount,
+      }),
+    );
 
     return {
-      allocation: allocation.map(row => ({
+      allocation: allocation.map((row) => ({
         category: row.category ?? 'Khác',
         value: Number(row.value),
       })),

@@ -183,10 +183,25 @@ export class MilestonesService {
         await milestoneRepo.save(nextMilestone);
       } else {
         project.status = ProjectStatus.COMPLETED;
+
+        if (FinancialCalculator.toCommissionFraction(project.commissionRate) <= 0) {
+          const ownerCompletedCount = await projectRepo.count({
+            where: { ownerId: project.ownerId, status: ProjectStatus.COMPLETED },
+          });
+          const fallbackFeeRate =
+            ownerCompletedCount >= 3
+              ? 0.05
+              : ownerCompletedCount >= 1
+                ? 0.08
+                : 0.1;
+          project.commissionRate = FinancialCalculator.round(fallbackFeeRate * 100);
+        }
+
         project.totalDebt = FinancialCalculator.calculateTotalDebt(
           Number(project.currentAmount),
           project.interestRate,
-          project.durationMonths
+          project.durationMonths,
+          project.commissionRate,
         );
         await projectRepo.save(project);
       }

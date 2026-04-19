@@ -1,104 +1,45 @@
 [
   {
-    "id": 30001,
-    "title": "testinggggggggg",
-    "thumbnailUrl": null,
-    "shortDescription": "",
-    "contentSlug": "testinggggggggg",
-    "targetCapital": 100000,
-    "currentAmount": 100000,
-    "interestRate": 10,
-    "durationMonths": 6,
+    "id": 1,
+    "title": "testing",
+    "thumbnailUrl": "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1776585972/investpro/users/2/i7amumcwbbsdfb9io4yf.jpg",
+    "shortDescription": "dadsawda",
+    "slug": "testing",
+    "address": "123123123 da nang",
+    "targetCapital": 1000000,
+    "currentAmount": 1000000,
+    "interestRate": 12,
+    "durationMonths": 12,
     "minInvestment": 10000,
     "riskLevel": "medium",
     "fundingProgress": 100,
     "status": "active",
-    "totalDebt": 105000,
-    "startDate": "2026-04-18",
-    "endDate": "2026-04-19",
+    "totalDebt": 1120000,
+    "startDate": "2026-04-19",
+    "endDate": "2026-04-20",
     "category": {
-      "id": 3,
-      "name": "Bất động sản",
-      "slug": "real-estate",
-      "iconUrl": "https://cdn-icons-png.flaticon.com/512/602/602275.png"
+      "id": 1,
+      "name": "Art",
+      "slug": "art",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/1048/1048953.png"
     },
     "owner": {
       "id": 2,
-      "fullName": "Xrejji",
+      "slug": "xrejji-project-owner",
+      "fullName": "Xrejji Project Owner",
       "email": "xrejji04@gmail.com",
-      "avatarUrl": null,
-      "bio": null,
-      "socialLinks": null
+      "avatarUrl": "https://ui-avatars.com/api/?name=Xrejji+Owner&background=random",
+      "bio": "Chuyên gia phát triển dự án bất động sản và nông nghiệp công nghệ cao.",
+      "socialLinks": {
+        "website": "xrejji.com"
+      },
+      "address": "Quận 1, TP. Hồ Chí Minh"
     },
-    "images": [],
-    "isFrozen": false,
-    "createdAt": "2026-04-17T22:27:03.359Z",
-    "milestones": [
-      {
-        "id": 30001,
-        "title": "Đợt 1: Khởi động",
-        "percentage": 20,
-        "stage": 1,
-        "status": "completed",
-        "evidenceUrls": null,
-        "createdAt": "2026-04-17T22:27:03.497Z"
-      },
-      {
-        "id": 30002,
-        "title": "Đợt 2: Triển khai",
-        "percentage": 30,
-        "stage": 2,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-04-17T22:27:03.627Z"
-      },
-      {
-        "id": 30003,
-        "title": "Đợt 3: Hoàn thiện",
-        "percentage": 50,
-        "stage": 3,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-04-17T22:27:03.737Z"
-      }
+    "images": [
+      "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1776585972/investpro/users/2/i7amumcwbbsdfb9io4yf.jpg"
     ],
-    "disputes": [],
-    "content": ""
-  },
-  {
-    "id": 1,
-    "title": "testing",
-    "thumbnailUrl": null,
-    "shortDescription": "testing",
-    "contentSlug": "testing",
-    "targetCapital": 200000,
-    "currentAmount": 210000,
-    "interestRate": 5,
-    "durationMonths": 6,
-    "minInvestment": 10000,
-    "riskLevel": "medium",
-    "fundingProgress": 105,
-    "status": "active",
-    "totalDebt": 215250,
-    "startDate": "2026-04-18",
-    "endDate": "2026-04-19",
-    "category": {
-      "id": 3,
-      "name": "Bất động sản",
-      "slug": "real-estate",
-      "iconUrl": "https://cdn-icons-png.flaticon.com/512/602/602275.png"
-    },
-    "owner": {
-      "id": 2,
-      "fullName": "Xrejji",
-      "email": "xrejji04@gmail.com",
-      "avatarUrl": null,
-      "bio": null,
-      "socialLinks": null
-    },
-    "images": [],
     "isFrozen": false,
-    "createdAt": "2026-04-17T21:30:42.603Z",
+    "createdAt": "2026-04-19T01:06:21.467Z",
     "milestones": [
       {
         "id": 1,
@@ -107,7 +48,7 @@
         "stage": 1,
         "status": "completed",
         "evidenceUrls": null,
-        "createdAt": "2026-04-17T21:30:42.750Z"
+        "createdAt": "2026-04-19T01:06:21.827Z"
       },
       {
         "id": 2,
@@ -115,10 +56,8 @@
         "percentage": 30,
         "stage": 2,
         "status": "pending",
-        "evidenceUrls": [
-          "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1776486551/investpro/users/2/amskwauctwxorquonbzg.jpg"
-        ],
-        "createdAt": "2026-04-17T21:30:42.897Z"
+        "evidenceUrls": null,
+        "createdAt": "2026-04-19T01:06:21.955Z"
       },
       {
         "id": 3,
@@ -127,10 +66,10 @@
         "stage": 3,
         "status": "pending",
         "evidenceUrls": null,
-        "createdAt": "2026-04-17T21:30:43.054Z"
+        "createdAt": "2026-04-19T01:06:22.113Z"
       }
     ],
     "disputes": [],
-    "content": "testingtestingtestingtestingtestingtestingtestingtestingtestingtestingtestingtestingtesting![Image](https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1776486551/investpro/users/2/amskwauctwxorquonbzg.jpg)asdasdasdasdasdasdasds![Image](https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1776486551/investpro/users/2/amskwauctwxorquonbzg.jpg)"
+    "content": "wdawdawdawdawd"
   }
 ]

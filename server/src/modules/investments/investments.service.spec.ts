@@ -1,15 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { InvestmentsService } from './investments.service';
 import { DataSource } from 'typeorm';
-import { NotificationsService } from '../notifications/notifications.service';
 import { BadRequestException } from '@nestjs/common';
 import { ProjectStatus } from '../projects/entities/project.entity';
 import { CreateInvestmentDto } from './dto/create-investment.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UsersService } from '../users/users.service';
 
 describe('InvestmentsService', () => {
   let service: InvestmentsService;
   let dataSource: jest.Mocked<DataSource>;
-  let mockNotificationsService: jest.Mocked<NotificationsService>;
+  let mockEventEmitter: jest.Mocked<EventEmitter2>;
+  let mockUsersService: jest.Mocked<UsersService>;
 
   beforeEach(async () => {
     dataSource = {
@@ -17,15 +19,20 @@ describe('InvestmentsService', () => {
       getRepository: jest.fn(),
     } as any;
 
-    mockNotificationsService = {
-      createSpecialNotification: jest.fn(),
+    mockEventEmitter = {
+      emit: jest.fn(),
+    } as any;
+
+    mockUsersService = {
+      getUserProfile: jest.fn(),
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         InvestmentsService,
         { provide: DataSource, useValue: dataSource },
-        { provide: NotificationsService, useValue: mockNotificationsService },
+        { provide: EventEmitter2, useValue: mockEventEmitter },
+        { provide: UsersService, useValue: mockUsersService },
       ],
     }).compile();
 
@@ -85,7 +92,7 @@ describe('InvestmentsService', () => {
     it('should correctly round currency to 2 decimal places', () => {
       expect((service as any).roundCurrency(123.456)).toBe(123.46);
       expect((service as any).roundCurrency(123.454)).toBe(123.45);
-      expect((service as any).roundCurrency(0.1 + 0.2)).toBe(0.30);
+      expect((service as any).roundCurrency(0.1 + 0.2)).toBe(0.3);
     });
 
     it('should correctly convert commission rate to fraction', () => {
@@ -112,6 +119,7 @@ describe('InvestmentsService', () => {
     const dto: CreateInvestmentDto = { projectId: 1, amount: 12000 };
 
     beforeEach(() => {
+      jest.clearAllMocks();
       mockUsersRepo.findOne.mockResolvedValue(defaultUser);
       mockProjectsRepo.findOne.mockResolvedValue(defaultProject);
       mockInvestmentsRepo.create.mockReturnValue({ id: 100, ...dto });
@@ -120,23 +128,24 @@ describe('InvestmentsService', () => {
     });
 
     it('should throw BadRequest if investment is below minimum', async () => {
-      await expect(service.invest(1, { projectId: 1, amount: 5000 }))
-        .rejects
-        .toThrow(BadRequestException);
+      await expect(
+        service.invest(1, { projectId: 1, amount: 5000 }),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw BadRequest if user has insufficient balance', async () => {
       mockUsersRepo.findOne.mockResolvedValue({ id: 1, balance: 5000 });
-      await expect(service.invest(1, { projectId: 1, amount: 15000 }))
-        .rejects
-        .toThrow(BadRequestException);
+      await expect(
+        service.invest(1, { projectId: 1, amount: 15000 }),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw BadRequest if project is not funding', async () => {
-      mockProjectsRepo.findOne.mockResolvedValue({ ...defaultProject, status: ProjectStatus.PENDING });
-      await expect(service.invest(1, dto))
-        .rejects
-        .toThrow(BadRequestException);
+      mockProjectsRepo.findOne.mockResolvedValue({
+        ...defaultProject,
+        status: ProjectStatus.PENDING,
+      });
+      await expect(service.invest(1, dto)).rejects.toThrow(BadRequestException);
     });
 
     it('should calculate monthly interest correctly', async () => {
@@ -144,7 +153,7 @@ describe('InvestmentsService', () => {
 
       const investmentAmount = 12000;
       const interestRate = 12; // 12% per year -> 1% per month
-      
+
       // Expected: (12000 * 12) / 100 / 12 = 120
       const expectedMonthlyInterest = 120;
 
@@ -153,23 +162,40 @@ describe('InvestmentsService', () => {
         expect.objectContaining({
           amount: expectedMonthlyInterest,
           investmentId: 100,
-        })
+        }),
       );
-      
+
       // Ensure 6 schedules are created (durationMonths = 6)
       expect(mockSchedulesRepo.create).toHaveBeenCalledTimes(6);
+    });
+
+    it('should include principal in the final repayment schedule', async () => {
+      await service.invest(1, dto);
+
+      // monthly interest = 120, final month = principal + monthly interest
+      expect(mockSchedulesRepo.create).toHaveBeenNthCalledWith(
+        6,
+        expect.objectContaining({
+          amount: 12120,
+          investmentId: 100,
+        }),
+      );
     });
 
     it('should correctly handle floating point math with interest', async () => {
       // e.g. amount=10000, interestRate=15.5 -> (10000 * 15.5)/100/12 = 129.16666
       // Rounded becomes 129.17
-      const oddProject = { ...defaultProject, interestRate: 15.5, durationMonths: 3 };
+      const oddProject = {
+        ...defaultProject,
+        interestRate: 15.5,
+        durationMonths: 3,
+      };
       mockProjectsRepo.findOne.mockResolvedValue(oddProject);
 
       await service.invest(1, { projectId: 1, amount: 10000 });
-      
+
       expect(mockSchedulesRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ amount: 129.17 })
+        expect.objectContaining({ amount: 129.17 }),
       );
     });
   });

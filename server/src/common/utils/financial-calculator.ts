@@ -31,11 +31,25 @@ export class FinancialCalculator {
   }
 
   /**
-   * Calculates total debt: Principal + (Principal * Interest Rate % * (Months / 12)).
+   * Calculates total debt:
+   * Principal + Interest + Platform fee on interest.
    */
-  static calculateTotalDebt(principal: number, interestRatePercent: number, durationMonths: number): number {
-    const interest = Number(principal) * (Number(interestRatePercent) / 100) * (Number(durationMonths) / 12);
-    return this.round(principal + interest);
+  static calculateTotalDebt(
+    principal: number,
+    interestRatePercent: number,
+    durationMonths: number,
+    commissionRate?: number | null,
+  ): number {
+    const normalizedPrincipal = Number(principal) || 0;
+    const normalizedInterestRate = Number(interestRatePercent) || 0;
+    const normalizedDuration = Number(durationMonths) || 0;
+    const interest =
+      normalizedPrincipal *
+      (normalizedInterestRate / 100) *
+      (normalizedDuration / 12);
+    const feeOnInterest = interest * this.toCommissionFraction(commissionRate);
+
+    return this.round(normalizedPrincipal + interest + feeOnInterest);
   }
 
   /**

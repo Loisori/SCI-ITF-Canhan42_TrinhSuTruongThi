@@ -77,6 +77,7 @@ export default function ProjectDetailPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [activeSection, setActiveSection] =
     useState<ProjectContentSection>("campaign");
+  const [ownerProjectsCount, setOwnerProjectsCount] = useState(0);
 
   const fetchProject = async () => {
     const slugValue = String(params.slug ?? "").trim();
@@ -119,6 +120,41 @@ export default function ProjectDetailPage() {
   useEffect(() => {
     setActiveSection("campaign");
   }, [params.slug]);
+
+  useEffect(() => {
+    const owner = project?.owner;
+    if (!owner) {
+      setOwnerProjectsCount(0);
+      return;
+    }
+
+    const ownerIdentifier = String(owner.slug || owner.id || "").trim();
+    if (!ownerIdentifier) {
+      setOwnerProjectsCount(0);
+      return;
+    }
+
+    const fetchOwnerProjectsCount = async () => {
+      try {
+        const res = await api.get<{ total?: number; items?: unknown[] }>(
+          `/api/projects/user/${encodeURIComponent(ownerIdentifier)}/created?pageSize=1`,
+        );
+
+        const total = Number(res.data?.total);
+        if (Number.isFinite(total) && total >= 0) {
+          setOwnerProjectsCount(total);
+          return;
+        }
+
+        const items = (res.data as { items?: unknown[] })?.items;
+        setOwnerProjectsCount(Array.isArray(items) ? items.length : 0);
+      } catch {
+        setOwnerProjectsCount(0);
+      }
+    };
+
+    void fetchOwnerProjectsCount();
+  }, [project?.owner?.id, project?.owner?.slug]);
 
   useEffect(() => {
     if (!toast) {
@@ -286,7 +322,7 @@ export default function ProjectDetailPage() {
         {!loading && !error && project && (
           <div>
             <div className="text-center mb-9">
-              <h1 className="text-h4 font-black text-slate-900 dark:text-white">
+              <h1 className="text-h5 font-black text-slate-900 dark:text-white mb-[.6rem]">
                 {project.title}
               </h1>
               <p className="text-body text-slate-600 dark:text-slate-400">
@@ -570,6 +606,9 @@ export default function ProjectDetailPage() {
                             {project.owner.fullName}
                           </div>
                         </div>
+                      </div>
+                      <div>
+                        <p>{ownerProjectsCount} dự án</p>
                       </div>
                       {project.owner.bio && (
                         <p className="text-smaller text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3 italic">

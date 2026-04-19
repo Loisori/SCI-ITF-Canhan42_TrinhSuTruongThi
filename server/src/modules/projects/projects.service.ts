@@ -742,6 +742,19 @@ export class ProjectsService {
       );
       const netReceived = Number((totalInvested - commissionAmount).toFixed(2));
 
+      if (this.toCommissionFraction(project.commissionRate) <= 0) {
+        const ownerCompletedCount = await projectsRepo.count({
+          where: { ownerId: project.ownerId, status: ProjectStatus.COMPLETED },
+        });
+        const fallbackFeeRate =
+          ownerCompletedCount >= 3
+            ? 0.05
+            : ownerCompletedCount >= 1
+              ? 0.08
+              : 0.1;
+        project.commissionRate = FinancialCalculator.round(fallbackFeeRate * 100);
+      }
+
       for (const inv of projectInvestments) {
         if (inv.status === InvestmentStatus.ACTIVE) {
           inv.status = InvestmentStatus.COMPLETED;
@@ -755,7 +768,8 @@ export class ProjectsService {
       project.totalDebt = FinancialCalculator.calculateTotalDebt(
         Number(project.currentAmount),
         project.interestRate,
-        project.durationMonths
+        project.durationMonths,
+        project.commissionRate,
       );
       await projectsRepo.save(project);
 
