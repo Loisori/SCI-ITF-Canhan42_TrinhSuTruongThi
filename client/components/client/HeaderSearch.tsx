@@ -106,7 +106,7 @@ export default function HeaderSearch() {
           {suggestions.map((p) => (
             <Link
               key={p.id}
-              href={`/projects/${p.contentSlug ?? p.id}`}
+              href={`/projects/${p.slug || p.id}`}
               className="flex gap-3 px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-white/5 border-b border-slate-100 dark:border-slate-800 last:border-0"
               onClick={() => setOpen(false)}
             >
