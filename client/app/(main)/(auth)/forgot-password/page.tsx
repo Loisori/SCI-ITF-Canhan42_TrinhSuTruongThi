@@ -5,7 +5,7 @@ import { RotateCcw, Mail, ArrowRight, ArrowLeft } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   return (
-    <div className="min-h-screen flex flex-col font-display antialiased bg-[#f6f7f8] dark:bg-[#0a172e] transition-colors duration-300">
+    <div className="min-h-screen flex flex-col font-display antialiased bg-background-light dark:bg-[#0a172e] transition-colors duration-300">
       {/* Background Texture (Tạo hiệu ứng chấm nhỏ như template) */}
       <div
         className="fixed inset-0 pointer-events-none opacity-50 dark:opacity-20"
@@ -47,8 +47,8 @@ export default function ForgotPasswordPage() {
         </div>
       </header>
 
-      <main className="flex-grow flex items-center justify-center px-4 py-24 relative z-10">
-        <div className="w-full max-w-[440px]">
+      <main className="grow flex items-center justify-center px-4 py-24 relative z-10">
+        <div className="w-full max-w-[44.4rem]">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl dark:shadow-2xl overflow-hidden p-8 md:p-10 border border-slate-100 dark:border-white/5">
             <div className="flex flex-col items-center mb-10 text-center">
               <div className="w-14 h-14 bg-primary/5 dark:bg-white/5 flex items-center justify-center rounded-2xl mb-6 border border-primary/10 dark:border-white/10">

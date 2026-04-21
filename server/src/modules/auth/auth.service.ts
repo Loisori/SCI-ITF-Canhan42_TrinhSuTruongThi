@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
@@ -14,8 +18,12 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<Omit<UserEntity, 'password'>> {
-    const userExists = await this.usersService.findByEmail(registerDto.email.toLowerCase());
+  async register(
+    registerDto: RegisterDto,
+  ): Promise<Omit<UserEntity, 'password'>> {
+    const userExists = await this.usersService.findByEmail(
+      registerDto.email.toLowerCase(),
+    );
     if (userExists) {
       throw new ConflictException('Email is already registered.');
     }
@@ -33,22 +41,30 @@ export class AuthService {
   }
 
   async validateUser(email: string, pass: string): Promise<UserEntity> {
-    try {
-      const user = await this.usersService.findByEmail(email.toLowerCase());
-      if (!user) {
-        throw new UnauthorizedException('Invalid credentials');
-      }
+    const normalizedEmail = email?.trim().toLowerCase();
+    const normalizedPassword = pass ?? '';
 
-      const valid = await bcrypt.compare(pass, user.password);
-      if (!valid) {
-        throw new UnauthorizedException('Invalid credentials');
-      }
-
-      return user;
-    } catch (error: any) {
-      if (error.status) throw error;
-      throw error;
+    if (!normalizedEmail || !normalizedPassword) {
+      throw new UnauthorizedException('Email and password are required');
     }
+
+    const user = await this.usersService.findByEmail(normalizedEmail);
+    if (!user) {
+      throw new UnauthorizedException('User does not exist');
+    }
+
+    if (!user.password) {
+      throw new UnauthorizedException(
+        'Password authentication is not available for this account',
+      );
+    }
+
+    const valid = await bcrypt.compare(normalizedPassword, user.password);
+    if (!valid) {
+      throw new UnauthorizedException('Wrong password');
+    }
+
+    return user;
   }
 
   async login(loginDto: LoginDto): Promise<{ access_token: string }> {
@@ -65,14 +81,18 @@ export class AuthService {
     };
   }
 
-  async validateGoogleUser(googleUser: { email: string; fullName: string; avatarUrl: string }): Promise<{ access_token: string }> {
+  async validateGoogleUser(googleUser: {
+    email: string;
+    fullName: string;
+    avatarUrl: string;
+  }): Promise<{ access_token: string }> {
     let user = await this.usersService.findByEmail(googleUser.email);
 
     if (user) {
       // User exists, update avatar if changed (optional, but requested by logic)
       if (googleUser.avatarUrl && user.avatarUrl !== googleUser.avatarUrl) {
-         // We can update directly via repository or service if needed.
-         // For now, just ensure the token is issued for the existing user.
+        // We can update directly via repository or service if needed.
+        // For now, just ensure the token is issued for the existing user.
       }
     } else {
       // Create new user
@@ -86,7 +106,7 @@ export class AuthService {
         role: UserRole.INVESTOR as any, // Cast because of DTO mismatch
         favoriteCategoryIds: [],
       });
-      
+
       // Mark as verified
       user.avatarUrl = googleUser.avatarUrl;
       user.isVerified = true;

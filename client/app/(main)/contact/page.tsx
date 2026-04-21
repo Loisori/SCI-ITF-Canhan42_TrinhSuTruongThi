@@ -202,7 +202,7 @@ export default function ContactPage() {
           </div>
 
           {/* Map Section Overlay */}
-          <div className="mt-12 p-1 bg-gradient-to-r from-primary/20 to-transparent rounded-2xl">
+          <div className="mt-12 p-1 bg-linear-to-r from-primary/20 to-transparent rounded-2xl">
             <div className="bg-white dark:bg-slate-950 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
                 <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">

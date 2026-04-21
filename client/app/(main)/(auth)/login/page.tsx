@@ -62,7 +62,6 @@ export default function LoginPage() {
         router.refresh(); // Làm mới dữ liệu route
       }
     } catch (err: any) {
-      // Xử lý lỗi từ NestJS trả về
       const message =
         err.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại.";
       setError(Array.isArray(message) ? message[0] : message);
