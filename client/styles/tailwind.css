@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Font sizes */
+  --text-smallest: 1.2rem;
+  --text-smaller: 1.4rem;
+  --text-small: 1.6rem;
+  --text-body: 1.8rem;
+  --text-h6: 2rem;
+  --text-h5: 2.4rem;
+  --text-h4: 3rem;
+  --text-h3: 3.6rem;
+  --text-h3: 4.8rem;
+  --text-h1: 6rem;
+
+  /* Colors */
+  --color-primary: #002B5B;
+  --color-accent: #D4AF37;
+  --color-background-light: #f6f7f8;
+  --color-background-dark: #121720;
+  --color-purple-100: #8f1eae;
+  --color-purple-200: #6a0571;
+  --color-purple-300: #480568;
+  --color-purple-400: #430465;
+  --color-purple-500: #c0b0ee;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-gray-100: #eeeeee;
+  --color-gray-200: #e3e3e3;
+  --color-gray-300: #bcbcbc;
+  --color-transparent: transparent;
+
+  /* Radius */
+  --radius-0: 0;
+  --radius-1: 0.4rem;
+  --radius-2: 0.8rem;
+  --radius-3: 1.2rem;
+  --radius-4: 1.6rem;
+  --radius-5: 2rem;
+  --radius-6: 1.2rem;
+  --radius-5: 1rem;
+  --radius-full: 100rem;
+
+  /* Spacing */
+  --spacing-px: 1px;
+  --spacing-0: 0;
+  --spacing-1: 0.4rem;
+  --spacing-2: 0.8rem;
+  --spacing-3: 1.2rem;
+  --spacing-4: 1.6rem;
+  --spacing-5: 2rem;
+  --spacing-6: 2.4rem;
+  --spacing-7: 2.8rem;
+  --spacing-8: 3.2rem;
+  --spacing-9: 3.6rem;
+  --spacing-10: 4rem;
+  --spacing-11: 4.4rem;
+  --spacing-12: 4.8rem;
+  --spacing-13: 5.2rem;
+  --spacing-14: 5.6rem;
+  --spacing-15: 6rem;
+  --spacing-16: 6.4rem;
+  --spacing-17: 6.8rem;
+  --spacing-18: 7.2rem;
+  --spacing-19: 7.6rem;
+  --spacing-20: 8rem;
+  --spacing-21: 8.4rem;
+  --spacing-22: 8.8rem;
+  --spacing-23: 9.2rem;
+  --spacing-24: 9.6rem;
+  --spacing-25: 10rem;
+  --spacing-rem: 1rem;
+  --spacing-px: 1px;
+  --spacing-unset: unset;
+
+  /* Line-height */
+  --leading-base: 1;
+  --leading-tight: 1.1;
+  --leading-snug: 1.125;
+  --leading-normal: 1.2;
+  --leading-relaxed: 1.25;
+  /* --leading-loose: 2; */
+
+  /* Font-weight */
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /* Breakpoints */
+  /* --breakpoint-sm: 769px;
+  --breakpoint-md: 1024px;
+  --breakpoint-lg: 1440px;   */
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 960px;
+  --breakpoint-xmd: 1280px;
+  --breakpoint-lg: 1440px;
+  /* -480-640:mobile
+  640-960:tablet
+  960-1440:laptop
+  1440+:desktop
+  480-960-1440 */
+}

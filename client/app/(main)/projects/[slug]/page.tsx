@@ -302,7 +302,7 @@ export default function ProjectDetailPage() {
       <Navbar />
 
       {toast && (
-        <div className="fixed top-20 right-5 z-[60]">
+        <div className="fixed top-20 right-5 z-60">
           <div
             className={`px-4 py-3 rounded-lg shadow-lg text-small font-semibold ${
               toast.type === "success"

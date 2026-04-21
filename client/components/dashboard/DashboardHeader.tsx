@@ -46,7 +46,7 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
         <LanguageSwitcher />
         <ThemeToggle />
         
-        <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1"></div>
+        <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
 
         {user && (
           <div className="flex items-center gap-3 pl-2">

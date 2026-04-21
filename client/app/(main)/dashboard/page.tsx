@@ -9,20 +9,26 @@ import { UserProfile } from "@/types/user";
 import { Suspense } from "react";
 
 export default function DashboardPage() {
-  const { data: profile, isLoading, refetch } = useQuery({
+  const {
+    data: profile,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["user-profile"],
     queryFn: async () => (await api.get<UserProfile>("/api/auth/profile")).data,
   });
 
   if (isLoading) {
     return (
-      <Suspense fallback={
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="size-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        </div>
-      }>
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center min-h-160">
+            <div className="size-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        }
+      >
         <DashboardLayout user={null}>
-          <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex items-center justify-center min-h-160">
             <div className="size-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         </DashboardLayout>
@@ -33,11 +39,13 @@ export default function DashboardPage() {
   if (!profile) return null;
 
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="size-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-160">
+          <div className="size-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
       <DashboardLayout user={profile}>
         <DashboardContent profile={profile} onUpdate={refetch} />
       </DashboardLayout>

@@ -222,7 +222,7 @@ export default function AdminDisputesPage() {
                           <History className="w-4 h-4" /> THẢO LUẬN VỚI CHỦ DỰ ÁN
                        </div>
                        
-                       <div className="space-y-4 mb-6 max-h-[400px] overflow-y-auto px-2">
+                       <div className="space-y-4 mb-6 max-h-160 overflow-y-auto px-2">
                           {discussions.map((d, i) => (
                             <div key={i} className={`flex gap-3 ${d.senderId === selectedMilestone.project.ownerId ? '' : 'flex-row-reverse'}`}>
                                <div className={`p-4 rounded-3xl text-smaller max-w-[85%] ${d.senderId === selectedMilestone.project.ownerId ? 'bg-slate-100 text-slate-800 rounded-tl-none' : 'bg-primary text-white rounded-tr-none shadow-md'}`}>

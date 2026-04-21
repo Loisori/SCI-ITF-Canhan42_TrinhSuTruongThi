@@ -13,7 +13,7 @@ import { Search, Filter } from "lucide-react";
 function ProjectCardSkeleton() {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-pulse">
-      <div className="w-full aspect-[16/10] bg-slate-200 dark:bg-slate-800" />
+      <div className="w-full aspect-16/10 bg-slate-200 dark:bg-slate-800" />
       <div className="p-5 space-y-3">
         <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded" />
         <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-4/5" />

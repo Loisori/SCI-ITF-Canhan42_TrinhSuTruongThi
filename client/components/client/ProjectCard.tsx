@@ -99,7 +99,7 @@ export default function ProjectCard({
         aria-label={`Xem dự án ${project.title}`}
       />
 
-      <div className="relative aspect-[16/10] overflow-hidden bg-slate-200 dark:bg-slate-800 z-10 pointer-events-none rounded-t-3">
+      <div className="relative aspect-16/10 overflow-hidden bg-slate-200 dark:bg-slate-800 z-10 pointer-events-none rounded-t-3">
         {project.thumbnailUrl ? (
           <img
             src={project.thumbnailUrl}

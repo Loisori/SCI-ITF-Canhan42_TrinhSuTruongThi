@@ -192,7 +192,7 @@ export default function ProjectMilestones({ project, role, currentUserId, onUpda
 
           return (
             <div key={m.id} className="relative pl-12 group">
-              <div className={`absolute left-[11px] top-1 z-10 p-1 bg-white dark:bg-slate-900 rounded-full transition-transform group-hover:scale-110`}>
+              <div className={`absolute left-rem top-1 z-10 p-1 bg-white dark:bg-slate-900 rounded-full transition-transform group-hover:scale-110`}>
                 <CurrentIcon className={`w-5 h-5 ${currentConfig.color}`} />
               </div>
 
@@ -238,7 +238,7 @@ export default function ProjectMilestones({ project, role, currentUserId, onUpda
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2 justify-center min-w-[200px]">
+                  <div className="flex flex-col gap-2 justify-center min-w-[20rem]">
                     {/* Owner Response Area */}
                     {isOwner && (m.status === 'uploading_proof' || (m.status === 'pending' && !isWaitingInterval && m.stage > 1)) && (
                       <div className="flex flex-col gap-2">

@@ -153,7 +153,7 @@ export default function PublicProfilePage() {
           {/* Header Section */}
           <div className="relative">
             {/* Cover Photo */}
-            <div className="h-48 md:h-80 rounded-[2.5rem] overflow-hidden bg-gradient-to-r from-slate-200 to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm relative">
+            <div className="h-48 md:h-80 rounded-[2.5rem] overflow-hidden bg-linear-to-r from-slate-200 to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm relative">
               {profile.coverPhotoUrl ? (
                 <img
                   src={profile.coverPhotoUrl}
@@ -257,7 +257,7 @@ export default function PublicProfilePage() {
               {/* Left Column: Stats & Social */}
               <div className="space-y-8">
                 {/* Basic Info */}
-                <div className="p-8 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                <div className="p-8 rounded-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
                   <div className="flex items-center gap-4">
                     <div className="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                       <Mail size={20} />
@@ -300,7 +300,7 @@ export default function PublicProfilePage() {
                 </div>
 
                 {/* Social Links Section */}
-                <div className="p-8 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="p-8 rounded-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
                   <h3 className="text-small font-black text-slate-900 dark:text-white mb-6 uppercase tracking-widest flex items-center gap-2">
                     Kết nối
                   </h3>
@@ -336,7 +336,7 @@ export default function PublicProfilePage() {
               {/* Right Column: Bio & Projects */}
               <div className="lg:col-span-2 space-y-12">
                 {/* Bio Section */}
-                <section className="p-10 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm min-h-[20rem]">
+                <section className="p-10 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm min-h-80">
                   <h3 className="text-h4 font-black text-slate-900 dark:text-white mb-8">
                     Giới thiệu
                   </h3>

@@ -142,7 +142,7 @@ export default function MyProjectMilestonesPage() {
          <Navbar />
 
          {toast && (
-            <div className="fixed top-20 right-5 z-[60]">
+            <div className="fixed top-20 right-5 z-60">
                <div className={`px-4 py-3 rounded-lg shadow-lg text-small font-semibold ${toast.type === "success" ? "bg-green-600" : "bg-red-600"} text-white`}>
                   {toast.message}
                </div>

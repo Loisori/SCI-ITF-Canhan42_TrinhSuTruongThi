@@ -62,7 +62,7 @@ export default function ProfileView({ profile }: { profile: UserProfile }) {
       {/* Header Section */}
       <div className="relative group">
         {/* Cover Photo */}
-        <div className="h-48 md:h-64 rounded-3xl overflow-hidden bg-gradient-to-r from-slate-200 to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm relative">
+        <div className="h-48 md:h-64 rounded-3xl overflow-hidden bg-linear-to-r from-slate-200 to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm relative">
           {profile.coverPhotoUrl ? (
             <img 
               src={profile.coverPhotoUrl} 
@@ -74,14 +74,14 @@ export default function ProfileView({ profile }: { profile: UserProfile }) {
                 <Layout className="size-24" />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
         </div>
 
         {/* Profile Info Bar */}
         <div className="px-6 md:px-10 -mt-12 flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
           <div className="flex flex-col md:flex-row items-center md:items-end gap-5">
             {/* Avatar */}
-            <div className="size-28 md:size-32 rounded-full border-4 border-white dark:border-slate-950 shadow-xl overflow-hidden bg-white dark:bg-slate-900 flex-shrink-0">
+            <div className="size-28 md:size-32 rounded-full border-4 border-white dark:border-slate-950 shadow-xl overflow-hidden bg-white dark:bg-slate-900 shrink-0">
               <img 
                 src={profile.avatarUrl || "/images/default-avatar.png"} 
                 alt={profile.fullName} 
@@ -176,7 +176,7 @@ export default function ProfileView({ profile }: { profile: UserProfile }) {
         {/* Right Column: Bio & More */}
         <div className="lg:col-span-2 space-y-8">
           {/* Bio Section */}
-          <section className="p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm min-h-[16rem]">
+          <section className="p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm min-h-64">
             <h3 className="text-h5 font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
               Giới thiệu
             </h3>

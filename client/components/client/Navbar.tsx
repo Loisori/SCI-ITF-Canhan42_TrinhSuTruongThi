@@ -17,7 +17,6 @@ import HeaderSearch from "./HeaderSearch";
 import HeaderCategoryNav from "./HeaderCategoryNav";
 import { useNotifications } from "@/components/providers/NotificationProvider";
 
-
 const AUTH_CHANGED_EVENT = "auth-changed";
 
 export default function Navbar() {
@@ -28,19 +27,31 @@ export default function Navbar() {
 
   // Notification hook, wrapped in a try/catch or checked so it handles missing context gracefully if needed
   // However, layout already wraps with provider properly
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = typeof useNotifications === 'function' ? useNotifications() : { notifications: [], unreadCount: 0, markAsRead: async () => { }, markAllAsRead: async () => { } };
+  const { notifications, unreadCount, markAsRead, markAllAsRead } =
+    typeof useNotifications === "function"
+      ? useNotifications()
+      : {
+          notifications: [],
+          unreadCount: 0,
+          markAsRead: async () => {},
+          markAllAsRead: async () => {},
+        };
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const handleClickOutsideNotif = (event: MouseEvent) => {
-      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target as Node)
+      ) {
         setIsNotifOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutsideNotif);
-    return () => document.removeEventListener("mousedown", handleClickOutsideNotif);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutsideNotif);
   }, []);
 
   const syncUser = useCallback(async () => {
@@ -121,7 +132,6 @@ export default function Navbar() {
             ) : user ? (
               /* --- KHI ĐÃ ĐĂNG NHẬP --- */
               <div className="flex items-center gap-4">
-
                 {/* Notification Dropdown */}
                 <div className="relative" ref={notifRef}>
                   <button
@@ -138,9 +148,11 @@ export default function Navbar() {
                   </button>
 
                   {isNotifOpen && (
-                    <div className="absolute right-0 mt-2 w-[320px] max-h-[400px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-2 z-50 overflow-hidden flex flex-col cursor-auto">
+                    <div className="absolute right-0 mt-2 w-lg max-h-160 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-2 z-50 overflow-hidden flex flex-col cursor-auto">
                       <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 sticky top-0 z-10">
-                        <h3 className="font-bold text-slate-800 dark:text-slate-100">Thông báo</h3>
+                        <h3 className="font-bold text-slate-800 dark:text-slate-100">
+                          Thông báo
+                        </h3>
                         {unreadCount > 0 && (
                           <button
                             onClick={markAllAsRead}
@@ -159,13 +171,15 @@ export default function Navbar() {
                           notifications.map((n: Notification) => (
                             <div
                               key={n.id}
-                              className={`px-4 py-3 border-b border-slate-50 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer ${!n.isRead ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                              className={`px-4 py-3 border-b border-slate-50 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer ${!n.isRead ? "bg-blue-50/50 dark:bg-blue-900/10" : ""}`}
                               onClick={() => {
                                 if (!n.isRead) markAsRead(n.id);
                               }}
                             >
                               <div className="flex justify-between items-start mb-1">
-                                <span className={`text-[13px] leading-snug ${!n.isRead ? 'font-semibold text-slate-800 dark:text-slate-100' : 'text-slate-600 dark:text-slate-300'}`}>
+                                <span
+                                  className={`text-[13px] leading-snug ${!n.isRead ? "font-semibold text-slate-800 dark:text-slate-100" : "text-slate-600 dark:text-slate-300"}`}
+                                >
                                   {n.message}
                                 </span>
                                 {!n.isRead && (
@@ -173,7 +187,12 @@ export default function Navbar() {
                                 )}
                               </div>
                               <span className="text-[11px] text-slate-400">
-                                {new Date(n.createdAt).toLocaleDateString('vi-VN')} {new Date(n.createdAt).toLocaleTimeString('vi-VN')}
+                                {new Date(n.createdAt).toLocaleDateString(
+                                  "vi-VN",
+                                )}{" "}
+                                {new Date(n.createdAt).toLocaleTimeString(
+                                  "vi-VN",
+                                )}
                               </span>
                             </div>
                           ))
@@ -183,16 +202,20 @@ export default function Navbar() {
                   )}
                 </div>
 
-                <div className="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
+                <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
 
                 {/* Profile Dropdown Container */}
                 <div className="relative">
                   {/* Trigger: Profile Info */}
                   <Link
-                    href={user.role?.toLowerCase() === "admin" ? "/admin-dashboard" : "/dashboard"}
+                    href={
+                      user.role?.toLowerCase() === "admin"
+                        ? "/admin-dashboard"
+                        : "/dashboard"
+                    }
                     className="flex items-center gap-2 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
                   >
-            {user.avatarUrl ? (
+                    {user.avatarUrl ? (
                       <img
                         src={user.avatarUrl}
                         alt="Avatar"
@@ -211,7 +234,7 @@ export default function Navbar() {
                   {user.slug && (
                     <Link
                       href={`/profile/${user.slug}`}
-                      className="absolute -bottom-8 left-0 hidden group-hover:block whitespace-nowrap bg-white dark:bg-slate-800 shadow-lg border border-slate-100 dark:border-white/10 p-2 rounded-lg text-smallest font-bold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors z-[100]"
+                      className="absolute -bottom-8 left-0 hidden group-hover:block whitespace-nowrap bg-white dark:bg-slate-800 shadow-lg border border-slate-100 dark:border-white/10 p-2 rounded-lg text-smallest font-bold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors z-100"
                     >
                       Xem trang cá nhân
                     </Link>

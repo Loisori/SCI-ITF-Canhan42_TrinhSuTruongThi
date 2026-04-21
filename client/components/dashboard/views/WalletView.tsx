@@ -75,7 +75,7 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
             <div>
               <p className="text-smaller font-bold opacity-60 uppercase tracking-widest mb-2">Số dư hiện tại</p>
-              <h2 className="text-[48px] md:text-[64px] font-black tracking-tight leading-none">
+              <h2 className="text-h3 md:text-[64px] font-black tracking-tight leading-none">
                 <AnimatedNumber value={Number(profile.balance)} />
               </h2>
             </div>
@@ -91,7 +91,7 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
             </div>
           </div>
           <div className="absolute -right-10 -bottom-10 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
-            <Wallet className="w-[300px] h-[300px]" />
+            <Wallet className="size-120" />
           </div>
         </div>
 

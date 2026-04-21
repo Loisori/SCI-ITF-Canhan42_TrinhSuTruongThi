@@ -196,9 +196,9 @@ export default function AIChatbox() {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-[80]">
+    <div className="fixed bottom-5 right-5 z-80">
       {isOpen ? (
-        <div className="w-[350px] max-w-[92vw] h-[500px] max-h-[72vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+        <div className="w-140 max-w-[92vw] h-200 max-h-[72vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
           <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-800/70">
             <div>
               <p className="text-sm font-bold text-slate-900 dark:text-white">
@@ -217,7 +217,7 @@ export default function AIChatbox() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950">
+          <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-linear-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950">
             {messages.map((item) => (
               <div
                 key={item.id}

@@ -49,7 +49,7 @@ function DashboardContent({ children, initialUser }: { children: ReactNode, init
     <div className="flex min-h-screen bg-background-light dark:bg-background-dark font-display">
       <DashboardSidebar user={profile} />
       
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? "lg:pl-20" : "lg:pl-[25rem]"}`}>
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? "lg:pl-20" : "lg:pl-100"}`}>
         <DashboardHeader user={profile} />
         
         <main className="flex-1 p-4 md:p-8 overflow-x-hidden">

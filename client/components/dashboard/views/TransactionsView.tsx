@@ -110,7 +110,7 @@ export default function TransactionsView() {
                   <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                     <td className="px-6 py-4">
                       <p className="text-smaller font-bold text-slate-900 dark:text-white capitalize">{displayType}</p>
-                      <p className="text-[11px] text-slate-500 mt-1 max-w-[250px] truncate" title={t.description || undefined}>{t.description || "-"}</p>
+                      <p className="text-[11px] text-slate-500 mt-1 max-w-100 truncate" title={t.description || undefined}>{t.description || "-"}</p>
                     </td>
                     <td className="px-6 py-4">
                       <p className={`text-smaller font-extrabold ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
@@ -139,7 +139,7 @@ export default function TransactionsView() {
                 {transactions.length === 0 && (
                   <tr>
                     <td colSpan={4} className="px-6 py-12 text-center">
-                      <ReceiptText className="text-[48px] text-slate-200 dark:text-slate-800 mb-3 mx-auto" />
+                      <ReceiptText className="text-h3 text-slate-200 dark:text-slate-800 mb-3 mx-auto" />
                       <p className="text-slate-500 text-small font-semibold">Chưa có giao dịch nào phù hợp.</p>
                     </td>
                   </tr>

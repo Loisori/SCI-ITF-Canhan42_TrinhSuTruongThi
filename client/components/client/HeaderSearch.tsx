@@ -58,10 +58,7 @@ export default function HeaderSearch() {
     open && debounced.length >= 1 && (suggestions.length > 0 || isFetching);
 
   return (
-    <div
-      ref={wrapRef}
-      className="relative w-full max-w-full md:mx-auto"
-    >
+    <div ref={wrapRef} className="relative w-full max-w-full md:mx-auto">
       <div className="flex items-stretch rounded-xl h-10 md:h-11 bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 overflow-hidden focus-within:ring-2 focus-within:ring-primary/30">
         <Search className="text-slate-400 pl-3 flex items-center text-h6 m-auto" />
         <input
@@ -92,7 +89,7 @@ export default function HeaderSearch() {
         </button>
       </div>
       {showDropdown ? (
-        <div className="absolute left-0 right-0 top-full mt-1 z-[60] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl max-h-80 overflow-y-auto">
+        <div className="absolute left-0 right-0 top-full mt-1 z-60 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl max-h-80 overflow-y-auto">
           {isFetching && suggestions.length === 0 ? (
             <div className="px-4 py-3 text-smaller text-slate-500">
               Đang tìm…
