@@ -181,7 +181,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
 
       {/* Mobile Drawer */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 transform lg:hidden transition-transform duration-300 ${
+        className={`fixed inset-y-0 left-0 z-50 w-[20rem] bg-white dark:bg-slate-900 transform lg:hidden transition-transform duration-300 ${
           isMobileDrawerOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -189,7 +189,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
           <div className="size-8 rounded-xl bg-primary flex items-center justify-center">
             <Rocket className="text-white text-base" />
           </div>
-          <span className="font-bold text-h5 text-slate-900 dark:text-white tracking-tight">
+          <span className="font-bold text-body text-slate-900 dark:text-white tracking-tight">
             InvestPro
           </span>
         </div>

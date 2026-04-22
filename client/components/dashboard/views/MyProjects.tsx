@@ -108,7 +108,7 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
         )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1   md:grid-cols-3 gap-6">
         {projects.map((p) => (
           <div
             key={p.id}
@@ -127,7 +127,7 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
                     <Image className="text-slate-300 w-16 h-16" />
                   </div>
                 )}
-                <div className="min-w-0">
+                <div className="min-w-0 mt-5">
                   <span
                     className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
                       p.status === "funding"
@@ -151,7 +151,7 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                         Tiến độ vốn
                       </p>
-                      <p className="text-smaller font-bold text-primary mt-1">
+                      <p className="text-smaller font-bold text-primary dark:text-white mt-1">
                         {p.fundingProgress}% (
                         {formatVnd(Number(p.currentAmount))})
                       </p>
