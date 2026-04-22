@@ -62,7 +62,7 @@ export default function ProjectApprovals() {
     return (
       <div className="space-y-6 animate-pulse">
         <div className="h-10 bg-slate-100 dark:bg-slate-800 w-1/4 rounded-lg" />
-        <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-2xl" />
+        <div className="h-64 bg-slate-100 dark:bg-slate-800 rounded-5" />
       </div>
     );
 
@@ -77,7 +77,7 @@ export default function ProjectApprovals() {
         </p>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center bg-slate-50/50 dark:bg-white/5">
           <h2 className="text-base font-bold text-slate-900 dark:text-white">
             Dự án mới chờ duyệt
@@ -163,7 +163,7 @@ export default function ProjectApprovals() {
         </div>
       </div>
       {/* Section 2: Funded Projects Awaiting 1st Disbursement */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center bg-indigo-50/30 dark:bg-indigo-900/10">
           <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <span className="size-2 rounded-full bg-indigo-500 animate-pulse"></span>

@@ -10,7 +10,6 @@ import { TransactionEntity } from '../transactions/entities/transaction.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { UsersModule } from '../users/users.module';
 
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([

@@ -24,7 +24,9 @@ export class AdminProjectsController {
 
   @Get('funding-review')
   getFundedReview() {
-    return this.projectsService.getProjectsByStatus(ProjectStatus.PENDING_ADMIN_REVIEW);
+    return this.projectsService.getProjectsByStatus(
+      ProjectStatus.PENDING_ADMIN_REVIEW,
+    );
   }
 
   @Get('pending')
@@ -48,7 +50,6 @@ export class AdminProjectsController {
   }
 
   @Get('disputes')
-
   getFrozenProjects() {
     return this.projectsService.getFrozenProjects();
   }
@@ -116,5 +117,3 @@ export class AdminProjectsController {
     return this.projectsService.adminTerminateProject(id, adminId, reason);
   }
 }
-
-

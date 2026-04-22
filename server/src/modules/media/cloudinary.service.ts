@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
+import {
+  v2 as cloudinary,
+  UploadApiResponse,
+  UploadApiErrorResponse,
+} from 'cloudinary';
 import { Readable } from 'stream';
 
 @Injectable()
@@ -27,7 +31,7 @@ export class CloudinaryService {
           // Tối ưu hóa ảnh ngay khi upload (Resize và Nén)
           transformation: [
             { width: 1200, height: 1200, crop: 'limit' }, // Giới hạn kích thước tối đa
-            { quality: 'auto', fetch_format: 'auto' },     // Tự động nén và chọn định dạng tốt nhất
+            { quality: 'auto', fetch_format: 'auto' }, // Tự động nén và chọn định dạng tốt nhất
           ],
         },
         (error, result) => {

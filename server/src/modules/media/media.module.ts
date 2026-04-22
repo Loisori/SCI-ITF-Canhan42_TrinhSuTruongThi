@@ -25,7 +25,7 @@ import { CloudinaryStorage } from 'multer-storage-cloudinary';
         const storage = new CloudinaryStorage({
           cloudinary: cloudinary,
           params: async (req, file) => {
-            // Xác thực xem req.user có tồn tại không. 
+            // Xác thực xem req.user có tồn tại không.
             // FileInterceptor sẽ chạy sau JwtAuthGuard nếu ta đặt Guard đúng chỗ
             const userId = (req as any).user?.id || 'unknown';
             return {
@@ -44,10 +44,7 @@ import { CloudinaryStorage } from 'multer-storage-cloudinary';
     }),
   ],
   controllers: [MediaController],
-  providers: [
-    MediaService,
-    CloudinaryService,
-  ],
+  providers: [MediaService, CloudinaryService],
   exports: [MediaService, CloudinaryService],
 })
 export class MediaModule {}

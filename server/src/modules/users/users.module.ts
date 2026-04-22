@@ -25,4 +25,3 @@ import { KycController } from './kyc.controller';
   exports: [UsersService, KycService],
 })
 export class UsersModule {}
-

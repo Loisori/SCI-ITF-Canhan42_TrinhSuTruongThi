@@ -3,10 +3,10 @@ import api from "../axios";
 import { UserProfile } from "@/types/user";
 
 export enum KycStatus {
-  NOT_SUBMITTED = 'NOT_SUBMITTED',
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
+  NOT_SUBMITTED = "NOT_SUBMITTED",
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
 }
 
 export function useKycCheck() {
@@ -39,4 +39,3 @@ export function useKycCheck() {
     isLoading,
   };
 }
-

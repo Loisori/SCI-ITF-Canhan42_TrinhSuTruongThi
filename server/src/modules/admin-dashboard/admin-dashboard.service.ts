@@ -10,7 +10,10 @@ import {
   InvestmentEntity,
   InvestmentStatus,
 } from '../investments/entities/investment.entity';
-import { ProjectEntity, ProjectStatus } from '../projects/entities/project.entity';
+import {
+  ProjectEntity,
+  ProjectStatus,
+} from '../projects/entities/project.entity';
 import { UserEntity, UserRole } from '../users/entities/user.entity';
 
 type DashboardProjectParticipation = {
@@ -57,20 +60,25 @@ export class AdminDashboardService {
     systemRevenue: number;
     commissionRate: number;
   }> {
-    const [pendingCount, fundingCount, completedCount, totalProjects, totalUsers] =
-      await Promise.all([
-        this.projectsRepository.count({
-          where: { status: ProjectStatus.PENDING },
-        }),
-        this.projectsRepository.count({
-          where: { status: ProjectStatus.FUNDING },
-        }),
-        this.projectsRepository.count({
-          where: { status: ProjectStatus.COMPLETED },
-        }),
-        this.projectsRepository.count(),
-        this.usersRepository.count(),
-      ]);
+    const [
+      pendingCount,
+      fundingCount,
+      completedCount,
+      totalProjects,
+      totalUsers,
+    ] = await Promise.all([
+      this.projectsRepository.count({
+        where: { status: ProjectStatus.PENDING },
+      }),
+      this.projectsRepository.count({
+        where: { status: ProjectStatus.FUNDING },
+      }),
+      this.projectsRepository.count({
+        where: { status: ProjectStatus.COMPLETED },
+      }),
+      this.projectsRepository.count(),
+      this.usersRepository.count(),
+    ]);
 
     const totalFundingCapitalRaw = await this.projectsRepository
       .createQueryBuilder('project')
@@ -100,10 +108,7 @@ export class AdminDashboardService {
     const systemRevenueRaw = await this.investmentsRepository
       .createQueryBuilder('inv')
       .leftJoin('inv.project', 'project')
-      .select(
-        `COALESCE(SUM(inv.amount * (${feeFractionExpr})), 0)`,
-        'sum',
-      )
+      .select(`COALESCE(SUM(inv.amount * (${feeFractionExpr})), 0)`, 'sum')
       .where('inv.status = :invStatus', {
         invStatus: InvestmentStatus.COMPLETED,
       })
@@ -113,9 +118,10 @@ export class AdminDashboardService {
       .getRawOne<{ sum: string }>();
 
     const systemRevenue = Number(systemRevenueRaw?.sum ?? 0);
-    const commissionRate = successfulCapital > 0
-      ? Number(((systemRevenue / successfulCapital) * 100).toFixed(2))
-      : 0;
+    const commissionRate =
+      successfulCapital > 0
+        ? Number(((systemRevenue / successfulCapital) * 100).toFixed(2))
+        : 0;
 
     return {
       pendingCount,
@@ -185,10 +191,7 @@ export class AdminDashboardService {
         const feeRaw = await this.investmentsRepository
           .createQueryBuilder('inv')
           .leftJoin('inv.project', 'project')
-          .select(
-            `COALESCE(SUM(inv.amount * (${feeFractionExpr})), 0)`,
-            'sum',
-          )
+          .select(`COALESCE(SUM(inv.amount * (${feeFractionExpr})), 0)`, 'sum')
           .where('project.ownerId = :oid', { oid: user.id })
           .andWhere('inv.status = :invStatus', {
             invStatus: InvestmentStatus.COMPLETED,
@@ -254,4 +257,3 @@ export class AdminDashboardService {
     return { items, page, pageSize, total };
   }
 }
-

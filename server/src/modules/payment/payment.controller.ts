@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { GetUser } from '../../common/decorators/get-user.decorator';
@@ -38,8 +47,7 @@ export class PaymentController {
   ) {
     const result = await this.paymentService.handleVnpayReturn(query);
 
-    const clientBaseUrl =
-      this.configService.get<string>('CLIENT_URL') || '';
+    const clientBaseUrl = this.configService.get<string>('CLIENT_URL') || '';
 
     const targetUrl = result.success
       ? `${clientBaseUrl}/dashboard?payment=success&amount=${encodeURIComponent(String(result.amount ?? '0'))}`

@@ -1,4 +1,12 @@
-import { Body, Controller, Post, UseGuards, Get, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UseGuards,
+  Get,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import type { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
@@ -47,9 +55,11 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req: any, @Res() res: Response) {
-    const { access_token } = await this.authService.validateGoogleUser(req.user);
+    const { access_token } = await this.authService.validateGoogleUser(
+      req.user,
+    );
     const clientUrl = this.configService.get<string>('CLIENT_URL') || '';
-    
+
     // Redirect về trang callback của frontend với token
     return res.redirect(`${clientUrl}/callback?token=${access_token}`);
   }

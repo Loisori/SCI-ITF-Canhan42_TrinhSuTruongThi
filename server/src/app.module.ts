@@ -18,7 +18,6 @@ import { AiChatModule } from './modules/ai-chat/ai-chat.module';
 import { WalletsModule } from './modules/wallets/wallets.module';
 import { createTypeOrmConfig } from './config/typeorm.config';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({

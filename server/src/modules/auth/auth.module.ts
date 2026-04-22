@@ -35,7 +35,14 @@ import { IsInvestorGuard } from '../../common/guards/is-investor.guard';
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, GoogleStrategy, RolesGuard, IsOwnerGuard, IsInvestorGuard],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    GoogleStrategy,
+    RolesGuard,
+    IsOwnerGuard,
+    IsInvestorGuard,
+  ],
   exports: [AuthService, RolesGuard, IsOwnerGuard, IsInvestorGuard],
 })
 export class AuthModule {}

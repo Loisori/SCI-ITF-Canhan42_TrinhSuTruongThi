@@ -1,4 +1,11 @@
-import { IsArray, IsNumber, IsOptional, IsString, IsObject, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsObject,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class SocialLinksDto {

@@ -308,7 +308,7 @@ export default function SettingsView({
         <div className="flex-1 min-w-0">
           {/* Account Settings Tab */}
           {activeTab === "account" && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
               <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-8">
                 Thông tin tài khoản
               </h2>
@@ -459,7 +459,7 @@ export default function SettingsView({
 
           {/* Social Links Tab */}
           {activeTab === "links" && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
               <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-2">
                 Liên kết mạng xã hội
               </h2>
@@ -545,7 +545,7 @@ export default function SettingsView({
 
           {/* Password Tab */}
           {activeTab === "password" && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
               <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-6">
                 Đổi mật khẩu
               </h2>
@@ -635,7 +635,7 @@ export default function SettingsView({
 
           {/* Categories Tab */}
           {activeTab === "categories" && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
               <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-2">
                 Sở thích đầu tư
               </h2>
@@ -709,7 +709,7 @@ export default function SettingsView({
 
           {/* Notifications Tab */}
           {activeTab === "notifications" && (
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
               <h2 className="text-h5 font-bold text-slate-900 dark:text-white mb-6">
                 Tùy chọn thông báo
               </h2>

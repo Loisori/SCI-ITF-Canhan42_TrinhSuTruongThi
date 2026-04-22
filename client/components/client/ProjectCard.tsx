@@ -91,7 +91,7 @@ export default function ProjectCard({
   const href = `/projects/${project.slug || project.id}`;
 
   return (
-    <div className="group relative dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/10 transition-all hover:shadow-2xl h-full flex flex-col">
+    <div className="group relative dark:bg-white/5 rounded-5 border border-slate-100 dark:border-white/10 transition-all hover:shadow-2xl h-full flex flex-col">
       {/* Absolute Link for the whole card area (except owner info) */}
       <Link
         href={href}

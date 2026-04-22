@@ -93,7 +93,7 @@ export default function KycAudit() {
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 overflow-hidden shrink-0">
+                <div className="w-14 h-14 rounded-5 bg-slate-100 dark:bg-slate-800 overflow-hidden shrink-0">
                   {kyc.user.avatarUrl ? (
                     <img
                       src={kyc.user.avatarUrl}
@@ -127,7 +127,7 @@ export default function KycAudit() {
                         title: `Mặt trước - ${kyc.user.fullName}`,
                       })
                     }
-                    className="p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all flex items-center gap-2 group"
+                    className="p-3 bg-slate-50 dark:bg-slate-800 rounded-5 hover:bg-primary/10 hover:text-primary transition-all flex items-center gap-2 group"
                   >
                     <Eye className="w-5 h-5" />
                     <span className="text-[10px] font-bold uppercase hidden group-hover:block">
@@ -141,7 +141,7 @@ export default function KycAudit() {
                         title: `Mặt sau - ${kyc.user.fullName}`,
                       })
                     }
-                    className="p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all flex items-center gap-2 group"
+                    className="p-3 bg-slate-50 dark:bg-slate-800 rounded-5 hover:bg-primary/10 hover:text-primary transition-all flex items-center gap-2 group"
                   >
                     <Eye className="w-5 h-5" />
                     <span className="text-[10px] font-bold uppercase hidden group-hover:block">
@@ -158,13 +158,13 @@ export default function KycAudit() {
                       setSelectedKyc(kyc);
                       setShowRejectModal(true);
                     }}
-                    className="p-3 bg-red-50 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all"
+                    className="p-3 bg-red-50 text-red-600 rounded-5 hover:bg-red-600 hover:text-white transition-all"
                   >
                     <X className="w-5 h-5" />
                   </button>
                   <button
                     onClick={() => handleApprove(kyc.id)}
-                    className="p-3 bg-green-50 text-green-600 rounded-2xl hover:bg-green-600 hover:text-white transition-all"
+                    className="p-3 bg-green-50 text-green-600 rounded-5 hover:bg-green-600 hover:text-white transition-all"
                   >
                     <Check className="w-5 h-5" />
                   </button>
@@ -205,7 +205,7 @@ export default function KycAudit() {
               </div>
               <img
                 src={lightbox.url}
-                className="max-w-full max-h-[80vh] rounded-2xl shadow-2xl border-4 border-white/10"
+                className="max-w-full max-h-[80vh] rounded-5 shadow-2xl border-4 border-white/10"
               />
             </motion.div>
           </div>
@@ -220,7 +220,7 @@ export default function KycAudit() {
               exit={{ opacity: 0, y: 20 }}
               className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl p-8"
             >
-              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mb-6">
+              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-5 flex items-center justify-center mb-6">
                 <AlertOctagon className="w-8 h-8" />
               </div>
               <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2">
@@ -236,7 +236,7 @@ export default function KycAudit() {
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 placeholder="VD: Ảnh mờ, thông tin không khớp..."
-                className="w-full h-32 px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border-none focus:ring-2 ring-primary outline-none resize-none mb-6 font-medium"
+                className="w-full h-32 px-5 py-4 rounded-5 bg-slate-50 dark:bg-slate-800 border-none focus:ring-2 ring-primary outline-none resize-none mb-6 font-medium"
               />
 
               <div className="flex gap-4">
@@ -246,13 +246,13 @@ export default function KycAudit() {
                     setSelectedKyc(null);
                     setRejectReason("");
                   }}
-                  className="flex-1 py-4 font-bold text-slate-500 hover:bg-slate-50 rounded-2xl transition-all"
+                  className="flex-1 py-4 font-bold text-slate-500 hover:bg-slate-50 rounded-5 transition-all"
                 >
                   Hủy
                 </button>
                 <button
                   onClick={handleReject}
-                  className="flex-1 py-4 bg-red-600 text-white font-black rounded-2xl shadow-xl shadow-red-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  className="flex-1 py-4 bg-red-600 text-white font-black rounded-5 shadow-xl shadow-red-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   Xác nhận từ chối
                 </button>

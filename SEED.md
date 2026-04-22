@@ -1,4 +1,5 @@
 ## 🌟 Delete Tables
+
 -- 1. Vô hiệu hóa kiểm tra khóa ngoại
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -28,86 +29,88 @@ SET FOREIGN_KEY_CHECKS = 1;
 SELECT 'Database is now clean!' AS Status;
 
 ## 🌟 Insert Users
+
 INSERT INTO users (
-    email, 
-    password, 
-    full_name, 
-    role, 
-    balance, 
-    avatar_url, 
-    is_verified, 
-    bio, 
-    cover_photo_url, 
-    social_links, 
-    notification_settings, 
-    is_frozen, 
-    slug, 
-    address, 
-    created_at, 
-    updated_at
-) VALUES 
+email,
+password,
+full_name,
+role,
+balance,
+avatar_url,
+is_verified,
+bio,
+cover_photo_url,
+social_links,
+notification_settings,
+is_frozen,
+slug,
+address,
+created_at,
+updated_at
+) VALUES
 -- 1. Investor (Nhà đầu tư)
 (
-    'loisori1001@gmail.com', 
-    '123456', 
-    'Lợi Sori Investor', 
-    'investor', 
-    1000000000.00, 
-    'https://ui-avatars.com/api/?name=Loi+Sori&background=random', 
-    1, 
-    'Tôi là một nhà đầu tư yêu thích các dự án năng lượng xanh và công nghệ.', 
-    'https://images.unsplash.com/photo-1557683316-973673baf926', 
-    '{"facebook": "fb.com/loi", "linkedin": "in/loi"}', 
-    '{"email": true, "push": true}', 
-    0, 
-    'loi-sori-investor', 
-    'Quận Hải Châu, TP. Đà Nẵng', 
-    NOW(), 
-    NOW()
+'loisori1001@gmail.com',
+'123456',
+'Lợi Sori Investor',
+'investor',
+1000000000.00,
+'https://ui-avatars.com/api/?name=Loi+Sori&background=random',
+1,
+'Tôi là một nhà đầu tư yêu thích các dự án năng lượng xanh và công nghệ.',
+'https://images.unsplash.com/photo-1557683316-973673baf926',
+'{"facebook": "fb.com/loi", "linkedin": "in/loi"}',
+'{"email": true, "push": true}',
+0,
+'loi-sori-investor',
+'Quận Hải Châu, TP. Đà Nẵng',
+NOW(),
+NOW()
 ),
 
 -- 2. Owner (Chủ dự án)
 (
-    'xrejji04@gmail.com', 
-    '123456', 
-    'Xrejji Project Owner', 
-    'owner', 
-    1000000000.00, 
-    'https://ui-avatars.com/api/?name=Xrejji+Owner&background=random', 
-    1, 
-    'Chuyên gia phát triển dự án bất động sản và nông nghiệp công nghệ cao.', 
-    'https://images.unsplash.com/photo-1557682250-33bd709cbe85', 
-    '{"website": "xrejji.com"}', 
-    '{"email": true, "push": false}', 
-    0, 
-    'xrejji-project-owner', 
-    'Quận 1, TP. Hồ Chí Minh', 
-    NOW(), 
-    NOW()
+'xrejji04@gmail.com',
+'123456',
+'Xrejji Project Owner',
+'owner',
+1000000000.00,
+'https://ui-avatars.com/api/?name=Xrejji+Owner&background=random',
+1,
+'Chuyên gia phát triển dự án bất động sản và nông nghiệp công nghệ cao.',
+'https://images.unsplash.com/photo-1557682250-33bd709cbe85',
+'{"website": "xrejji.com"}',
+'{"email": true, "push": false}',
+0,
+'xrejji-project-owner',
+'Quận 1, TP. Hồ Chí Minh',
+NOW(),
+NOW()
 ),
 
 -- 3. Admin (Quản trị viên)
 (
-    'admin@gmail.com', 
-    '123456', 
-    'System Admin', 
-    'admin', 
-    1000000000.00, 
-    'https://ui-avatars.com/api/?name=System+Admin&background=0D8ABC&color=fff', 
-    1, 
-    'Quản trị viên cấp cao của nền tảng InvestPro.', 
-    'https://images.unsplash.com/photo-1557683311-eac922347aa1', 
-    '{}', 
-    '{"all": true}', 
-    0, 
-    'system-admin', 
-    'Phố Duy Tân, Cầu Giấy, Hà Nội', 
-    NOW(), 
-    NOW()
+'admin@gmail.com',
+'123456',
+'System Admin',
+'admin',
+1000000000.00,
+'https://ui-avatars.com/api/?name=System+Admin&background=0D8ABC&color=fff',
+1,
+'Quản trị viên cấp cao của nền tảng InvestPro.',
+'https://images.unsplash.com/photo-1557683311-eac922347aa1',
+'{}',
+'{"all": true}',
+0,
+'system-admin',
+'Phố Duy Tân, Cầu Giấy, Hà Nội',
+NOW(),
+NOW()
 );
 
 ## 🌟 Insert Categories
-INSERT INTO project_categories (name, slug, description, icon_url, created_at) VALUES 
+
+INSERT INTO project_categories (name, slug, description, icon_url, created_at) VALUES
 ('Art', 'art', 'Các dự án về hội họa, điêu khắc và nghệ thuật thị giác.', 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png', NOW()),
 ('Comics', 'comics', 'Truyện tranh, tiểu thuyết đồ họa và nghệ thuật minh họa.', 'https://cdn-icons-png.flaticon.com/512/3011/3011306.png', NOW()),
 ('Crafts', 'crafts', 'Sản phẩm thủ công mỹ nghệ, đồ handmade và trang sức.', 'https://cdn-icons-png.flaticon.com/512/3040/3040181.png', NOW()),
@@ -125,12 +128,13 @@ INSERT INTO project_categories (name, slug, description, icon_url, created_at) V
 ('Theater', 'theater', 'Kịch nghệ, biểu diễn sân khấu và nghệ thuật trình diễn.', 'https://cdn-icons-png.flaticon.com/512/3133/3133139.png', NOW());
 
 ## 🌟 Insert Projects
+
 INSERT INTO projects (
-    owner_id, category_id, title, slug, short_description, content, 
-    goal_amount, current_amount, min_investment, interest_rate, 
-    commission_rate, duration_months, risk_level, status, 
-    start_date, end_date, is_frozen, address, created_at
-) VALUES 
+owner_id, category_id, title, slug, short_description, content,
+goal_amount, current_amount, min_investment, interest_rate,
+commission_rate, duration_months, risk_level, status,
+start_date, end_date, is_frozen, address, created_at
+) VALUES
 -- 1. ART
 ((SELECT id FROM users WHERE email = 'xrejji04@gmail.com'), 1, 'Triển lãm Nghệ thuật Đương đại 2026', 'art-exhibition-2026', 'Trưng bày các tác phẩm điêu khắc hiện đại.', 'Nội dung...', 500000000, 0, 1000000, 12.0, 5, 12, 'low', 'funding', '2026-05-01', '2026-08-01', 0, 'Quận 1, TP. HCM', NOW()),
 ((SELECT id FROM users WHERE email = 'xrejji04@gmail.com'), 1, 'Xưởng vẽ tranh Sơn dầu Kỹ thuật số', 'digital-oil-painting-studio', 'Kết hợp nghệ thuật truyền thống và AI.', 'Nội dung...', 300000000, 0, 500000, 15.0, 5, 10, 'medium', 'funding', '2026-05-10', '2026-09-10', 0, 'Quận 3, TP. HCM', NOW()),

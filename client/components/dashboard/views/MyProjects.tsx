@@ -112,7 +112,7 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
         {projects.map((p) => (
           <div
             key={p.id}
-            className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+            className="bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
           >
             <div className="flex flex-col justify-between gap-6">
               <div className="min-w-0">
@@ -120,10 +120,10 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
                   <img
                     src={p.thumbnailUrl}
                     alt=""
-                    className="w-full h-80 rounded-2xl object-cover shrink-0"
+                    className="w-full h-80 rounded-5 object-cover shrink-0"
                   />
                 ) : (
-                  <div className="w-full h-80 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                  <div className="w-full h-80 rounded-5 bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                     <Image className="text-slate-300 w-16 h-16" />
                   </div>
                 )}
@@ -194,7 +194,7 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
         ))}
 
         {projects.length === 0 && (
-          <div className="py-20 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 border-dashed">
+          <div className="py-20 text-center bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 border-dashed">
             <Rocket className="text-[60px] text-slate-200 mb-4 mx-auto" />
             <p className="text-smaller text-slate-500">
               Bạn chưa có dự án nào.

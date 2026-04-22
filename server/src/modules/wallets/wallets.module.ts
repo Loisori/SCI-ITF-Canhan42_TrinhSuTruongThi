@@ -23,4 +23,3 @@ import { ProjectEntity } from '../projects/entities/project.entity';
   exports: [WalletsService],
 })
 export class WalletsModule {}
-

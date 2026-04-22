@@ -3,7 +3,6 @@ export type Profile = {
   role: string;
 };
 
-
 export type Me = Profile;
 
 export type UserProfile = {

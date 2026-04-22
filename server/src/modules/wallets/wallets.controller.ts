@@ -30,7 +30,6 @@ export class WalletsController {
 
   @UseGuards(AccountStatusGuard)
   @Post('deposit')
-
   async requestDeposit(
     @GetUser('id') userId: number,
     @Body() dto: DepositRequestDto,
@@ -40,14 +39,17 @@ export class WalletsController {
 
   @UseGuards(AccountStatusGuard)
   @Post('withdraw')
-
   async requestWithdraw(
     @GetUser('id') userId: number,
     @Body() dto: WithdrawRequestDto,
   ) {
-    return this.walletsService.requestWithdrawal(userId, dto.amount, dto.bankName, dto.accountNumber);
+    return this.walletsService.requestWithdrawal(
+      userId,
+      dto.amount,
+      dto.bankName,
+      dto.accountNumber,
+    );
   }
-
 
   @Get('history')
   async getHistory(@GetUser('id') userId: number) {
@@ -64,11 +66,12 @@ export class WalletsController {
   @Post('repay')
   @Roles(UserRole.OWNER)
   @UseGuards(RolesGuard, AccountStatusGuard)
-  async repayDebt(
-    @GetUser('id') ownerId: number,
-    @Body() dto: RepayDebtDto,
-  ) {
-    return this.walletsService.repayProjectDebt(ownerId, dto.projectId, dto.amount);
+  async repayDebt(@GetUser('id') ownerId: number, @Body() dto: RepayDebtDto) {
+    return this.walletsService.repayProjectDebt(
+      ownerId,
+      dto.projectId,
+      dto.amount,
+    );
   }
 
   @Post('repay-milestone-interest')
@@ -106,4 +109,3 @@ export class WalletsController {
     return this.walletsService.adminRejectTransaction(id, reason);
   }
 }
-

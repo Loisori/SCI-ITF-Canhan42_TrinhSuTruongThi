@@ -47,7 +47,6 @@ export class KycService {
     });
   }
 
-
   async getAllPendingKyc() {
     return this.kycRepository.find({
       where: { status: KycStatus.PENDING },
@@ -63,10 +62,9 @@ export class KycService {
   }
 
   async approveKyc(kycId: number) {
-
     const kyc = await this.kycRepository.findOne({ where: { id: kycId } });
     if (!kyc) throw new NotFoundException('Yêu cầu KYC không tồn tại.');
-    
+
     kyc.status = KycStatus.APPROVED;
     kyc.rejectionReason = null;
     return this.kycRepository.save(kyc);

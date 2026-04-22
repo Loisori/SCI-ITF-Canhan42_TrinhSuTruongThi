@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, UnauthorizedException, BadRequestException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+  BadRequestException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, Not, IsNull } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -8,15 +14,14 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CloudinaryService } from '../media/cloudinary.service';
 import { ProjectCategoryEntity } from '../projects/entities/category.entity';
-import { 
-  TransactionEntity, 
-  TransactionType, 
-  TransactionStatus 
+import {
+  TransactionEntity,
+  TransactionType,
+  TransactionStatus,
 } from '../transactions/entities/transaction.entity';
 
 @Injectable()
 export class UsersService {
-
   constructor(
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
@@ -36,7 +41,9 @@ export class UsersService {
     });
 
     if (usersWithoutSlug.length > 0) {
-      console.log(`[UsersService] Backfilling slugs for ${usersWithoutSlug.length} users...`);
+      console.log(
+        `[UsersService] Backfilling slugs for ${usersWithoutSlug.length} users...`,
+      );
       for (const user of usersWithoutSlug) {
         user.slug = await this.generateUniqueSlug(user.fullName);
         await this.usersRepository.save(user);
@@ -209,7 +216,9 @@ export class UsersService {
     } catch (error: any) {
       console.error(`[UsersService] updateAvatar error:`, error.message);
       if (error.status) throw error;
-      throw new BadRequestException(`Không thể cập nhật ảnh đại diện: ${error.message}`);
+      throw new BadRequestException(
+        `Không thể cập nhật ảnh đại diện: ${error.message}`,
+      );
     }
   }
 
@@ -247,10 +256,18 @@ export class UsersService {
     });
     if (!category) throw new NotFoundException('Category not found');
 
-    const listName = type === 'favorite' ? 'favoriteCategories' : 'blacklistCategories';
-    const otherListName = type === 'favorite' ? 'blacklistCategories' : 'favoriteCategories';
-    const joinTable = type === 'favorite' ? 'user_favorite_categories' : 'user_blacklist_categories';
-    const otherJoinTable = type === 'favorite' ? 'user_blacklist_categories' : 'user_favorite_categories';
+    const listName =
+      type === 'favorite' ? 'favoriteCategories' : 'blacklistCategories';
+    const otherListName =
+      type === 'favorite' ? 'blacklistCategories' : 'favoriteCategories';
+    const joinTable =
+      type === 'favorite'
+        ? 'user_favorite_categories'
+        : 'user_blacklist_categories';
+    const otherJoinTable =
+      type === 'favorite'
+        ? 'user_blacklist_categories'
+        : 'user_favorite_categories';
 
     // Manual check for existence to avoid ER_DUP_ENTRY
     const exists = await this.dataSource.query(
@@ -290,7 +307,10 @@ export class UsersService {
     return this.findById(userId);
   }
 
-  async updateProfile(id: number, dto: UpdateProfileDto): Promise<UserEntity | null> {
+  async updateProfile(
+    id: number,
+    dto: UpdateProfileDto,
+  ): Promise<UserEntity | null> {
     const user = await this.usersRepository.findOne({
       where: { id },
       relations: ['favoriteCategories', 'blacklistCategories'],
@@ -305,7 +325,9 @@ export class UsersService {
     // However, user requested "Immutable after first generated".
     // So we only set slug if it's null.
     if (!user.slug) {
-      (simpleFields as any).slug = await this.generateUniqueSlug(dto.fullName || user.fullName);
+      (simpleFields as any).slug = await this.generateUniqueSlug(
+        dto.fullName || user.fullName,
+      );
     }
 
     if (Object.keys(simpleFields).length > 0) {
@@ -353,7 +375,10 @@ export class UsersService {
     return this.findById(id);
   }
 
-  async updateNotificationSettings(id: number, settings: Record<string, boolean>): Promise<UserEntity> {
+  async updateNotificationSettings(
+    id: number,
+    settings: Record<string, boolean>,
+  ): Promise<UserEntity> {
     try {
       const user = await this.usersRepository.findOne({ where: { id } });
       if (!user) throw new NotFoundException('User not found');
@@ -365,8 +390,13 @@ export class UsersService {
 
       return await this.usersRepository.save(user);
     } catch (error: any) {
-      console.error(`[UsersService] updateNotificationSettings error:`, error.message);
-      throw new BadRequestException(`Tính năng cấu hình thông báo chưa sẵn sàng. Vui lòng thử lại sau.`);
+      console.error(
+        `[UsersService] updateNotificationSettings error:`,
+        error.message,
+      );
+      throw new BadRequestException(
+        `Tính năng cấu hình thông báo chưa sẵn sàng. Vui lòng thử lại sau.`,
+      );
     }
   }
 
@@ -390,10 +420,9 @@ export class UsersService {
       await transactionRepo.save(log);
 
       const updatedUser = await userRepo.findOne({ where: { id: userId } });
-      if (!updatedUser) throw new NotFoundException('User không tồn tại sau khi cập nhật.');
+      if (!updatedUser)
+        throw new NotFoundException('User không tồn tại sau khi cập nhật.');
       return updatedUser;
     });
   }
-
 }
-

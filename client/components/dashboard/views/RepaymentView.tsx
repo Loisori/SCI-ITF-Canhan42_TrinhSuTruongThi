@@ -120,7 +120,7 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
               <div className="flex items-center gap-6">
-                <div className="size-16 bg-red-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-red-500/20">
+                <div className="size-16 bg-red-500 text-white rounded-5 flex items-center justify-center shadow-lg shadow-red-500/20">
                   <CircleDollarSign className="size-8" />
                 </div>
                 <div>
@@ -146,7 +146,7 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
                     setRepaymentTarget(dp);
                     setDebtAmount(Number(dp.totalDebt));
                   }}
-                  className="mt-4 px-10 py-4 bg-red-600 text-white font-black rounded-2xl hover:bg-red-700 hover:shadow-xl hover:shadow-red-600/20 transition-all flex items-center gap-2"
+                  className="mt-4 px-10 py-4 bg-red-600 text-white font-black rounded-5 hover:bg-red-700 hover:shadow-xl hover:shadow-red-600/20 transition-all flex items-center gap-2"
                 >
                   Thanh toán nợ
                 </button>
@@ -180,8 +180,8 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
               <div className="flex items-center gap-6">
-                <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center shrink-0">
-                  <Calendar className="w-8 h-8" />
+                <div className="size-16 bg-primary/10 text-primary rounded-5 flex items-center justify-center shrink-0">
+                  <Calendar className="size-8" />
                 </div>
                 <div>
                   <h3 className="text-xl font-black text-slate-900 dark:text-white">
@@ -215,7 +215,7 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
                 </div>
                 <button
                   onClick={() => setSelectedSchedule(s)}
-                  className="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  className="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black rounded-5 transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Thanh toán ngay
                 </button>
@@ -226,7 +226,7 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
 
         {schedules.length === 0 && (
           <div className="py-20 text-center bg-slate-50 dark:bg-slate-950 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
-            <CircleDollarSign className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+            <CircleDollarSign className="size-16 text-slate-200 mx-auto mb-4" />
             <p className="text-slate-500 font-bold">Không có kỳ hạn lãi cũ.</p>
           </div>
         )}
@@ -244,8 +244,8 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
             >
               <div className="p-8 space-y-8">
                 <div className="flex justify-between items-start">
-                  <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center">
-                    <ShieldCheck className="w-8 h-8" />
+                  <div className="size-16 bg-primary/10 text-primary rounded-5 flex items-center justify-center">
+                    <ShieldCheck className="size-8" />
                   </div>
                   <button
                     onClick={() => setSelectedSchedule(null)}
@@ -301,14 +301,14 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
                 <div className="flex gap-4">
                   <button
                     onClick={() => setSelectedSchedule(null)}
-                    className="flex-1 py-4 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-black rounded-2xl hover:bg-slate-50 transition-all"
+                    className="flex-1 py-4 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-black rounded-5 hover:bg-slate-50 transition-all"
                   >
                     Hủy bỏ
                   </button>
                   <button
                     disabled={isRepaying}
                     onClick={handleRepay}
-                    className="flex-1 py-4 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:shadow-2xl transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-4 bg-primary text-white font-black rounded-5 shadow-xl shadow-primary/20 hover:shadow-2xl transition-all flex items-center justify-center gap-2"
                   >
                     <Landmark className="w-5 h-5" />
                     {isRepaying ? "Đang xử lý..." : "Xác nhận trả nợ"}
@@ -332,7 +332,7 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
             >
               <div className="p-8 space-y-8">
                 <div className="flex justify-between items-start">
-                  <div className="size-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center">
+                  <div className="size-16 bg-red-100 text-red-600 rounded-5 flex items-center justify-center">
                     <Landmark className="size-8" />
                   </div>
                   <button
@@ -359,7 +359,7 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
                     </p>
                     <input
                       type="number"
-                      className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl text-2xl font-black text-slate-900 dark:text-white outline-none focus:border-red-500 transition-all"
+                      className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-5 text-2xl font-black text-slate-900 dark:text-white outline-none focus:border-red-500 transition-all"
                       value={debtAmount}
                       onChange={(e) => setDebtAmount(Number(e.target.value))}
                       max={repaymentTarget?.totalDebt}
@@ -373,7 +373,7 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-2xl">
+                <div className="flex items-center gap-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-5">
                   <Info className="w-5 h-5 text-indigo-600 shrink-0" />
                   <p className="text-[11px] text-indigo-800 dark:text-indigo-400 font-bold leading-relaxed">
                     Hệ thống sẽ tự động phân phối tiền về ví Investors theo tỷ
@@ -384,14 +384,14 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
                 <div className="flex gap-4">
                   <button
                     onClick={() => setRepaymentTarget(null)}
-                    className="flex-1 py-4 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-black rounded-2xl hover:bg-slate-50 transition-all"
+                    className="flex-1 py-4 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-black rounded-5 hover:bg-slate-50 transition-all"
                   >
                     Hủy bỏ
                   </button>
                   <button
                     disabled={isRepaying || debtAmount <= 0}
                     onClick={handleRepayDebt}
-                    className="flex-1 py-4 bg-red-600 text-white font-black rounded-2xl shadow-xl shadow-red-500/20 hover:shadow-2xl transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-4 bg-red-600 text-white font-black rounded-5 shadow-xl shadow-red-500/20 hover:shadow-2xl transition-all flex items-center justify-center gap-2"
                   >
                     <Landmark className="w-5 h-5" />
                     {isRepaying ? "Đang xử lý..." : "Xác nhận trả"}

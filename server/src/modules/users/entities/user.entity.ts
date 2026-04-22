@@ -18,12 +18,11 @@ import { TransactionEntity } from '../../transactions/entities/transaction.entit
 import { UserMediaEntity } from './user-media.entity';
 import { KycEntity } from './kyc.entity';
 
-
 // Cập nhật Enum để hỗ trợ 3 nhóm người dùng chính
 export enum UserRole {
   INVESTOR = 'investor', // Người bỏ vốn
-  OWNER = 'owner',       // Người huy động vốn (Chủ dự án)
-  ADMIN = 'admin',       // Quản trị viên hệ thống
+  OWNER = 'owner', // Người huy động vốn (Chủ dự án)
+  ADMIN = 'admin', // Quản trị viên hệ thống
 }
 
 @Entity({ name: 'users' })
@@ -77,7 +76,12 @@ export class UserEntity {
   @Column({ type: 'text', nullable: true })
   bio: string | null;
 
-  @Column({ name: 'cover_photo_url', type: 'varchar', length: 255, nullable: true })
+  @Column({
+    name: 'cover_photo_url',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   coverPhotoUrl: string | null;
 
   @Column({
@@ -135,7 +139,6 @@ export class UserEntity {
   @OneToOne(() => KycEntity, (kyc) => kyc.user)
   kyc: KycEntity;
 
-
   @Column({
     name: 'notification_settings',
     type: 'json',
@@ -158,4 +161,3 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   address: string | null;
 }
-

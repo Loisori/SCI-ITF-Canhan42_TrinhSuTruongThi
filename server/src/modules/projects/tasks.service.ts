@@ -3,10 +3,20 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, LessThanOrEqual, Repository } from 'typeorm';
 import { ProjectEntity, ProjectStatus } from './entities/project.entity';
-import { InvestmentEntity, InvestmentStatus } from '../investments/entities/investment.entity';
+import {
+  InvestmentEntity,
+  InvestmentStatus,
+} from '../investments/entities/investment.entity';
 import { UserEntity } from '../users/entities/user.entity';
-import { TransactionEntity, TransactionStatus, TransactionType } from '../transactions/entities/transaction.entity';
-import { PaymentScheduleEntity, PaymentScheduleStatus } from '../investments/entities/schedule.entity';
+import {
+  TransactionEntity,
+  TransactionStatus,
+  TransactionType,
+} from '../transactions/entities/transaction.entity';
+import {
+  PaymentScheduleEntity,
+  PaymentScheduleStatus,
+} from '../investments/entities/schedule.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
@@ -41,7 +51,7 @@ export class TasksService {
       });
 
       const projectIdsToMark = new Set<number>();
-      
+
       for (const schedule of overdueSchedules) {
         const project = schedule.investment.project;
         if (project && project.status !== ProjectStatus.OVERDUE) {
@@ -60,7 +70,7 @@ export class TasksService {
           project.status = ProjectStatus.OVERDUE;
           await projectRepo.save(project);
           this.logger.warn(`Project ${project.id} marked as OVERDUE.`);
-          
+
           this.eventEmitter.emit('project.overdue', {
             projectId: project.id,
             ownerId: project.ownerId,
@@ -95,14 +105,20 @@ export class TasksService {
       return;
     }
 
-    this.logger.log(`Found ${trulyFailed.length} failed projects. Starting refunds...`);
+    this.logger.log(
+      `Found ${trulyFailed.length} failed projects. Starting refunds...`,
+    );
 
     for (const project of trulyFailed) {
       try {
         await this.refundProject(project.id);
-        this.logger.log(`Successfully refunded project: ${project.title} (ID: ${project.id})`);
+        this.logger.log(
+          `Successfully refunded project: ${project.title} (ID: ${project.id})`,
+        );
       } catch (error) {
-        this.logger.error(`Failed to refund project ${project.id}: ${error.message}`);
+        this.logger.error(
+          `Failed to refund project ${project.id}: ${error.message}`,
+        );
       }
     }
   }
@@ -121,9 +137,9 @@ export class TasksService {
       if (!project || project.status !== ProjectStatus.FUNDING) return;
 
       const investments = await investmentsRepo.find({
-        where: { 
-          projectId, 
-          status: InvestmentStatus.ACTIVE 
+        where: {
+          projectId,
+          status: InvestmentStatus.ACTIVE,
         },
       });
 
@@ -136,10 +152,11 @@ export class TasksService {
           if (refundAmount <= 0) continue;
 
           // Atomic SQL update for investor balance
-          await manager.createQueryBuilder()
+          await manager
+            .createQueryBuilder()
             .update(UserEntity)
             .set({ balance: () => `balance + :amount` })
-            .where("id = :id")
+            .where('id = :id')
             .setParameters({ id: inv.userId, amount: refundAmount })
             .execute();
 

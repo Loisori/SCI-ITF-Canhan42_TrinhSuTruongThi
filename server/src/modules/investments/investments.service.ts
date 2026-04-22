@@ -364,7 +364,10 @@ export class InvestmentsService {
 
           if (this.toCommissionFraction(project.commissionRate) <= 0) {
             const ownerCompletedCount = await projectsRepo.count({
-              where: { ownerId: project.ownerId, status: ProjectStatus.COMPLETED },
+              where: {
+                ownerId: project.ownerId,
+                status: ProjectStatus.COMPLETED,
+              },
             });
             const fallbackFeeRate =
               ownerCompletedCount >= 3

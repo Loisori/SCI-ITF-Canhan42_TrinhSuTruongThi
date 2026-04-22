@@ -43,7 +43,8 @@ function CallbackContent() {
         Đang xác thực tài khoản Google...
       </h2>
       <p className="text-slate-500 text-center max-w-sm">
-        Vui lòng đợi trong giây lát, chúng tôi đang thiết lập không gian làm việc của bạn.
+        Vui lòng đợi trong giây lát, chúng tôi đang thiết lập không gian làm
+        việc của bạn.
       </p>
     </div>
   );
@@ -51,11 +52,13 @@ function CallbackContent() {
 
 export default function GoogleCallbackPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col items-center justify-center p-6">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-8"></div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col items-center justify-center p-6">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-8"></div>
+        </div>
+      }
+    >
       <CallbackContent />
     </Suspense>
   );

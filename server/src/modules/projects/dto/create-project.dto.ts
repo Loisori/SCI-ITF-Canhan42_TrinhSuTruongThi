@@ -44,7 +44,6 @@ export class CreateMilestoneDto {
   intervalDays?: number;
 }
 
-
 export class CreateProjectDto {
   @IsString()
   @MaxLength(255)
@@ -129,4 +128,3 @@ export class CreateProjectDto {
   @Type(() => CreateMilestoneDto)
   milestones?: CreateMilestoneDto[];
 }
-

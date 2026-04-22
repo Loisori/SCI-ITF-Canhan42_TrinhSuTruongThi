@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserMediaEntity } from '../users/entities/user-media.entity';
@@ -22,7 +26,7 @@ export class MediaService {
     // Mặc định Multer-storage-cloudinary đã upload rồi, chúng ta chỉ lưu URL đã được format đẹp
     let optimizedUrl = path;
     if (optimizedUrl && optimizedUrl.includes('/upload/')) {
-        optimizedUrl = optimizedUrl.replace('/upload/', '/upload/f_auto,q_auto/');
+      optimizedUrl = optimizedUrl.replace('/upload/', '/upload/f_auto,q_auto/');
     }
 
     const media = this.userMediaRepo.create({
@@ -50,7 +54,9 @@ export class MediaService {
     });
 
     if (!media) {
-      throw new NotFoundException('Media not found or you do not have permission');
+      throw new NotFoundException(
+        'Media not found or you do not have permission',
+      );
     }
 
     try {
@@ -58,7 +64,10 @@ export class MediaService {
         await this.cloudinaryService.deleteImage(media.publicId);
       }
     } catch (err) {
-      console.warn(`Failed to delete media ${media.publicId} from Cloudinary:`, err);
+      console.warn(
+        `Failed to delete media ${media.publicId} from Cloudinary:`,
+        err,
+      );
     }
 
     await this.userMediaRepo.remove(media);

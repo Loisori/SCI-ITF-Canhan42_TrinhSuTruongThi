@@ -47,10 +47,12 @@ export default function LoginPage() {
 
         // Giải mã token để lấy role và chuyển hướng phù hợp
         try {
-          const payload = decodeJwt(response.data.access_token) as { role?: string };
+          const payload = decodeJwt(response.data.access_token) as {
+            role?: string;
+          };
           const role = payload.role?.toLowerCase();
-          
-          if (role === 'admin') {
+
+          if (role === "admin") {
             router.push("/admin-dashboard");
           } else {
             router.push("/dashboard");
@@ -58,7 +60,7 @@ export default function LoginPage() {
         } catch (e) {
           router.push("/dashboard");
         }
-        
+
         router.refresh(); // Làm mới dữ liệu route
       }
     } catch (err: any) {

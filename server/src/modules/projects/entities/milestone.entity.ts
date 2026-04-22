@@ -21,7 +21,7 @@ export enum MilestoneStatus {
 
 @Entity({ name: 'project_milestones' })
 export class ProjectMilestoneEntity {
-  @PrimaryGeneratedColumn('increment', { type: 'int', unsigned: true })  
+  @PrimaryGeneratedColumn('increment', { type: 'int', unsigned: true })
   id: number;
 
   @Column({ name: 'project_id', type: 'bigint', unsigned: true })
@@ -69,7 +69,6 @@ export class ProjectMilestoneEntity {
 
   @Column({ name: 'next_disbursement_date', type: 'timestamp', nullable: true })
   nextDisbursementDate: Date | null;
-
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;

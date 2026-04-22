@@ -259,7 +259,7 @@ export default function PublicProfilePage() {
                 {/* Basic Info */}
                 <div className="p-8 rounded-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
                   <div className="flex items-center gap-4">
-                    <div className="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                    <div className="size-12 rounded-5 bg-primary/10 flex items-center justify-center text-primary">
                       <Mail size={20} />
                     </div>
                     <div>
@@ -272,7 +272,7 @@ export default function PublicProfilePage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="size-12 rounded-2xl bg-rose-100 dark:bg-rose-500/10 flex items-center justify-center text-rose-600">
+                    <div className="size-12 rounded-5 bg-rose-100 dark:bg-rose-500/10 flex items-center justify-center text-rose-600">
                       <MapPin size={20} />
                     </div>
                     <div>
@@ -285,7 +285,7 @@ export default function PublicProfilePage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="size-12 rounded-2xl bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                    <div className="size-12 rounded-5 bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600">
                       <Activity size={20} />
                     </div>
                     <div>
@@ -317,7 +317,7 @@ export default function PublicProfilePage() {
                         }
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`flex items-center justify-between px-5 py-4 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-primary/30 transition-all font-bold group ${!link.url && "pointer-events-none opacity-40"}`}
+                        className={`flex items-center justify-between px-5 py-4 rounded-5 border border-slate-100 dark:border-slate-800 hover:border-primary/30 transition-all font-bold group ${!link.url && "pointer-events-none opacity-40"}`}
                       >
                         <div className="flex items-center gap-3">
                           <link.icon

@@ -13,8 +13,6 @@ import ProjectCard from "./ProjectCard";
 //types
 import type { Project } from "@/types/project";
 
-
-
 export default function FeaturedProjects() {
   const [nowTimestamp, setNowTimestamp] = useState(() => Date.now());
 
@@ -62,7 +60,7 @@ export default function FeaturedProjects() {
         <div className="wrapper wrapper--lg flex items-end justify-between mb-10">
           <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
         </div>
-        <div className="h-96 rounded-2xl bg-slate-100 dark:bg-slate-800/50 animate-pulse" />
+        <div className="h-96 rounded-5 bg-slate-100 dark:bg-slate-800/50 animate-pulse" />
       </section>
     );
   }

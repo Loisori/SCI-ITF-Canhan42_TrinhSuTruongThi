@@ -13,12 +13,17 @@ export default function ProjectLegal() {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {legalDocs.map((doc, i) => (
-          <div key={i} className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:shadow-md cursor-pointer group">
+          <div
+            key={i}
+            className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:shadow-md cursor-pointer group"
+          >
             <div className="flex items-center gap-3">
               <FileText className="text-red-500 text-h4" />
               <div>
                 <p className="font-bold text-smaller">{doc.name}</p>
-                <p className="text-smallest text-slate-500">{doc.size} • {doc.type}</p>
+                <p className="text-smallest text-slate-500">
+                  {doc.size} • {doc.type}
+                </p>
               </div>
             </div>
             <Download className="text-slate-400 group-hover:text-primary transition-colors" />

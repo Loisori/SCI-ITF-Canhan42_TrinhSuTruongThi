@@ -53,7 +53,7 @@ export default function MyPortfolio({ profile }: { profile: UserProfile }) {
         {investments.map((inv) => (
           <div
             key={inv.id}
-            className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm group transition-all hover:border-primary/30"
+            className="bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 p-6 shadow-sm group transition-all hover:border-primary/30"
           >
             <div className="flex flex-col justify-between gap-6">
               <div className="">
@@ -150,7 +150,7 @@ export default function MyPortfolio({ profile }: { profile: UserProfile }) {
         ))}
 
         {investments.length === 0 && (
-          <div className="py-20 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 border-dashed">
+          <div className="py-20 text-center bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 border-dashed">
             <FolderClosed className="text-[60px] text-slate-200 mb-4 mx-auto" />
             <p className="text-smaller text-slate-500">
               Bạn chưa có khoản đầu tư nào.

@@ -20,4 +20,3 @@ import { TransactionEntity } from '../transactions/entities/transaction.entity';
   providers: [AdminDashboardService],
 })
 export class AdminDashboardModule {}
-

@@ -42,7 +42,7 @@ export default function AIChatbox() {
     };
 
     window.addEventListener(PROJECT_CONTEXT_EVENT, onProjectContext);
-    
+
     const onChatTrigger = (event: Event) => {
       const custom = event as CustomEvent<{ message: string }>;
       if (custom.detail?.message) {
@@ -177,7 +177,7 @@ export default function AIChatbox() {
 
     try {
       // Small pause for "realism" as requested by user
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
       const response = await api.post<{ reply: string }>(
         "/api/ai-chat/message",
@@ -198,7 +198,7 @@ export default function AIChatbox() {
   return (
     <div className="fixed bottom-5 right-5 z-80">
       {isOpen ? (
-        <div className="w-140 max-w-[92vw] h-200 max-h-[72vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+        <div className="w-140 max-w-[92vw] h-200 max-h-[72vh] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-5 shadow-2xl flex flex-col overflow-hidden">
           <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between bg-slate-50 dark:bg-slate-800/70">
             <div>
               <p className="text-sm font-bold text-slate-900 dark:text-white">

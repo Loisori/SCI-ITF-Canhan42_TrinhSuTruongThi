@@ -1,5 +1,9 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { ValidationPipe, Logger, ClassSerializerInterceptor } from '@nestjs/common';
+import {
+  ValidationPipe,
+  Logger,
+  ClassSerializerInterceptor,
+} from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -19,8 +23,11 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const corsOrigin = process.env.CORS_ORIGIN || '';
-  const originList = corsOrigin.split(',').filter(Boolean).map(item => item.trim());
-  
+  const originList = corsOrigin
+    .split(',')
+    .filter(Boolean)
+    .map((item) => item.trim());
+
   // Always allow localhost for development convenience
   if (!originList.includes('http://localhost:3000')) {
     originList.push('http://localhost:3000');

@@ -17,9 +17,9 @@ export enum NotificationType {
 
 @Entity('notifications')
 export class NotificationEntity {
-@PrimaryGeneratedColumn('increment', { type: 'int', unsigned: true })  
+  @PrimaryGeneratedColumn('increment', { type: 'int', unsigned: true })
   id: number;
- 
+
   @Column({ name: 'user_id', type: 'bigint', unsigned: true })
   userId: number;
 

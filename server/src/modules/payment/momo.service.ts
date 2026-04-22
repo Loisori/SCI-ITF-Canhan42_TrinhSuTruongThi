@@ -21,17 +21,20 @@ export class MomoService {
   ) {}
 
   async createMomoUrl(userId: number, amount: number) {
-    const partnerCode = this.configService.get<string>('MOMO_PARTNER_CODE') || 'MOMO'; // Default to MoMo Sandbox
+    const partnerCode =
+      this.configService.get<string>('MOMO_PARTNER_CODE') || 'MOMO'; // Default to MoMo Sandbox
     const accessKey = this.configService.get<string>('MOMO_ACCESS_KEY') || '';
     const secretKey = this.configService.get<string>('MOMO_SECRET_KEY') || '';
-    
+
     const endpoint = 'https://test-payment.momo.vn/v2/gateway/api/create';
-    
+
     const clientBaseUrl = this.configService.get<string>('CLIENT_URL') || '';
     const apiUrl = this.configService.get<string>('API_URL') || '';
 
     // MoMo V2 API strictly requires redirectUrl (not returnUrl)
-    const redirectUrl = this.configService.get<string>('MOMO_RETURN_URL') || `${clientBaseUrl}/dashboard?tab=wallet`;
+    const redirectUrl =
+      this.configService.get<string>('MOMO_RETURN_URL') ||
+      `${clientBaseUrl}/dashboard?tab=wallet`;
     const ipnUrl = `${apiUrl}/api/payment/momo-ipn`;
 
     const orderInfo = 'Nạp tiền vào ví InvestPro';
@@ -86,7 +89,9 @@ export class MomoService {
       console.log('[MoMo] POST /create response:', data);
 
       if (data.resultCode !== 0) {
-        throw new InternalServerErrorException(data.message || 'Lỗi từ gateway MoMo.');
+        throw new InternalServerErrorException(
+          data.message || 'Lỗi từ gateway MoMo.',
+        );
       }
 
       await this.createPendingDepositTransaction(userId, amount, orderId);
@@ -97,19 +102,24 @@ export class MomoService {
       };
     } catch (err: any) {
       console.error('[MoMo] create URL error:', err);
-      throw new InternalServerErrorException(err.message || 'Không thể tạo link thanh toán MoMo.');
+      throw new InternalServerErrorException(
+        err.message || 'Không thể tạo link thanh toán MoMo.',
+      );
     }
   }
 
   async handleMomoIpn(body: Record<string, any>) {
-    const accessKey = this.configService.get<string>('MOMO_ACCESS_KEY') || 'M8brj9K6E22vXoDB';
-    const secretKey = this.configService.get<string>('MOMO_SECRET_KEY') || 'nqQiVSgDMy809JoPF6OzP5OdPXBUpR25';
+    const accessKey =
+      this.configService.get<string>('MOMO_ACCESS_KEY') || 'M8brj9K6E22vXoDB';
+    const secretKey =
+      this.configService.get<string>('MOMO_SECRET_KEY') ||
+      'nqQiVSgDMy809JoPF6OzP5OdPXBUpR25';
 
     console.log('[MoMo] IPN received:', body);
 
     const {
       amount,
-      extraData = "",
+      extraData = '',
       message,
       orderId,
       orderInfo,
@@ -138,20 +148,28 @@ export class MomoService {
     if (resultCode === 0) {
       const userId = Number(orderId.split('_')[0]);
       if (userId && !isNaN(userId)) {
-         await this.confirmDepositSuccess(userId, orderId, Number(amount));
-         return { resultCode: 0, message: 'Success.' };
+        await this.confirmDepositSuccess(userId, orderId, Number(amount));
+        return { resultCode: 0, message: 'Success.' };
       }
     } else {
-        await this.markTransactionFailed(orderId);
+      await this.markTransactionFailed(orderId);
     }
-    
+
     return { resultCode: 0, message: 'Processed.' };
   }
 
-  private async createPendingDepositTransaction(userId: number, amount: number, txnRef: string) {
+  private async createPendingDepositTransaction(
+    userId: number,
+    amount: number,
+    txnRef: string,
+  ) {
     const transactionsRepo = this.dataSource.getRepository(TransactionEntity);
     const existed = await transactionsRepo.findOne({
-      where: { userId, type: TransactionType.DEPOSIT, description: `MoMo deposit ${txnRef}` },
+      where: {
+        userId,
+        type: TransactionType.DEPOSIT,
+        description: `MoMo deposit ${txnRef}`,
+      },
     });
     if (existed) return;
 
@@ -166,7 +184,11 @@ export class MomoService {
     await transactionsRepo.save(transaction);
   }
 
-  private async confirmDepositSuccess(userId: number, txnRef: string, amount: number) {
+  private async confirmDepositSuccess(
+    userId: number,
+    txnRef: string,
+    amount: number,
+  ) {
     await this.dataSource.transaction(async (manager) => {
       const usersRepo = manager.getRepository(UserEntity);
       const transactionsRepo = manager.getRepository(TransactionEntity);
@@ -178,13 +200,18 @@ export class MomoService {
       if (!user) throw new BadRequestException('User not found.');
 
       const transaction = await transactionsRepo.findOne({
-        where: { userId, type: TransactionType.DEPOSIT, description: `MoMo deposit ${txnRef}` },
+        where: {
+          userId,
+          type: TransactionType.DEPOSIT,
+          description: `MoMo deposit ${txnRef}`,
+        },
         lock: { mode: 'pessimistic_write' },
       });
-      
+
       if (!transaction) throw new BadRequestException('Transaction not found.');
       if (transaction.status === TransactionStatus.SUCCESS) return;
-      if (Number(transaction.amount) !== Number(amount)) throw new BadRequestException('Amount mismatch.');
+      if (Number(transaction.amount) !== Number(amount))
+        throw new BadRequestException('Amount mismatch.');
 
       user.balance = Number(user.balance) + amount;
       transaction.status = TransactionStatus.SUCCESS;
@@ -197,10 +224,13 @@ export class MomoService {
   private async markTransactionFailed(txnRef: string) {
     const transactionsRepo = this.dataSource.getRepository(TransactionEntity);
     const tx = await transactionsRepo.findOne({
-      where: { type: TransactionType.DEPOSIT, description: `MoMo deposit ${txnRef}` },
+      where: {
+        type: TransactionType.DEPOSIT,
+        description: `MoMo deposit ${txnRef}`,
+      },
     });
     if (!tx || tx.status === TransactionStatus.SUCCESS) return;
-    
+
     tx.status = TransactionStatus.FAILED;
     await transactionsRepo.save(tx);
   }

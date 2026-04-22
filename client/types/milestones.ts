@@ -8,4 +8,3 @@ export type ProjectMilestonesProps = {
   onUpdate: () => void;
   setToast: (toast: ToastState) => void;
 };
-

@@ -1,6 +1,7 @@
 # InvestPro - Project File Structure
 
 ## 📂 Root Level
+
 ```
 SCI-ITF-Canhan42_TrinhSuTruongThi/
 ├── client/                 # Next.js Frontend (App Router)
@@ -18,6 +19,7 @@ SCI-ITF-Canhan42_TrinhSuTruongThi/
 ---
 
 ## 💻 Client Directory (`/client`)
+
 The frontend is built with **Next.js 14+** using the **App Router** and **Tailwind CSS**.
 
 ```
@@ -46,6 +48,7 @@ client/
 ---
 
 ## ⚙️ Server Directory (`/server`)
+
 The backend is built with **NestJS**, following a modular architecture.
 
 ```
@@ -82,24 +85,29 @@ server/
 ## 🔑 Key Files Reference
 
 ### Configuration
+
 - `client/tailwind.config.ts`: Visual theme, colors, and design tokens.
 - `server/src/config/`: Centralized backend configuration.
 
 ### Entities & Data
+
 - `server/src/modules/*/entities/`: Database schema definitions (TypeORM).
 - `server/src/modules/*/dto/`: Request validation schemas.
 
 ### Business Logic
+
 - `server/src/modules/*/*.controller.ts`: API Endpoints.
 - `server/src/modules/*/*.service.ts`: Core business logic & database queries.
 
 ### Frontend Logic
+
 - `client/lib/api.ts`: Central Axios instance with interceptors.
 - `client/context/AuthContext.tsx`: Global user session management.
 
 ---
 
 ## 💡 Navigation Tips
+
 - **Adding a new API**: Start by creating a module in `server/src/modules/`.
 - **Modifying UI theme**: Edit `client/tailwind.config.ts` or `client/app/globals.css`.
 - **Database updates**: Sync the corresponding `*.entity.ts` file in the module and check `DATABASE.md`.

@@ -48,9 +48,13 @@ export class PaymentScheduleEntity {
   @Column({ name: 'paid_at', type: 'timestamp', nullable: true })
   paidAt: Date | null;
 
-  @ManyToOne(() => InvestmentEntity, (investment) => investment.paymentSchedules, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(
+    () => InvestmentEntity,
+    (investment) => investment.paymentSchedules,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
   @JoinColumn({ name: 'investment_id' })
   investment: InvestmentEntity;
 }

@@ -1,6 +1,4 @@
-import {
-  Injectable,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -8,7 +6,10 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { ChatHistoryEntity, ChatRole } from './entities/chat-history.entity';
 import { UserEntity } from '../users/entities/user.entity';
-import { InvestmentEntity, InvestmentStatus } from '../investments/entities/investment.entity';
+import {
+  InvestmentEntity,
+  InvestmentStatus,
+} from '../investments/entities/investment.entity';
 
 interface GeminiMessage {
   role: 'user' | 'model';
@@ -97,8 +98,7 @@ export class AiChatService {
         content: row.message,
       }));
 
-    const userFinancialContext =
-      await this.buildUserFinancialContext(userId);
+    const userFinancialContext = await this.buildUserFinancialContext(userId);
 
     const reply = await this.generateGeminiReply(
       normalizedMessage,
@@ -182,7 +182,9 @@ export class AiChatService {
         const isQuotaError =
           response.status === 429 ||
           parsed?.errorCode === 'GEMINI_QUOTA_EXCEEDED' ||
-          quotaSignals.some((signal) => lowerRaw.includes(signal.toLowerCase()));
+          quotaSignals.some((signal) =>
+            lowerRaw.includes(signal.toLowerCase()),
+          );
 
         if (isQuotaError) {
           return AiChatService.QUOTA_MESSAGE;
@@ -219,9 +221,7 @@ export class AiChatService {
   private async readProjectsJsonText(): Promise<string> {
     const configuredPath = this.configService.get<string>('PROJECTS_DATA_PATH');
     const candidatePaths = [
-      configuredPath
-        ? path.resolve(process.cwd(), configuredPath)
-        : null,
+      configuredPath ? path.resolve(process.cwd(), configuredPath) : null,
       path.join(process.cwd(), 'src', 'data', 'projects-data.json'),
       path.join(process.cwd(), 'server', 'src', 'data', 'projects-data.json'),
     ].filter((p): p is string => Boolean(p));
@@ -336,7 +336,8 @@ export class AiChatService {
       balance: Number(user?.balance ?? 0),
       investments: investments.map((investment) => ({
         project_id: investment.projectId,
-        project_title: investment.project?.title ?? `Project #${investment.projectId}`,
+        project_title:
+          investment.project?.title ?? `Project #${investment.projectId}`,
         amount_invested: Number(investment.amount),
         interest_rate: Number(investment.project?.interestRate ?? 0),
         status: investment.status,

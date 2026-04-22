@@ -25,10 +25,10 @@ export class PaymentService {
   async createVnpayUrl(userId: number, amount: number, ipAddress: string) {
     const vnpUrl = this.configService.get<string>('VNP_URL')?.trim();
     const tmnCode = this.configService.get<string>('VNP_TMN_CODE')?.trim();
-    const hashSecret = this.configService.get<string>('VNP_HASH_SECRET')?.trim();
-    const returnUrl = this.configService
-      .get<string>('VNP_RETURN_URL')
+    const hashSecret = this.configService
+      .get<string>('VNP_HASH_SECRET')
       ?.trim();
+    const returnUrl = this.configService.get<string>('VNP_RETURN_URL')?.trim();
 
     if (!vnpUrl || !tmnCode || !hashSecret || !returnUrl) {
       throw new InternalServerErrorException('VNPay configuration is missing.');
@@ -81,7 +81,11 @@ export class PaymentService {
 
     console.log('[VNPay] create-url finalUrl:', paymentUrl);
 
-    await this.createPendingDepositTransaction(userId, normalizedAmount, txnRef);
+    await this.createPendingDepositTransaction(
+      userId,
+      normalizedAmount,
+      txnRef,
+    );
 
     return {
       vnpayUrl: paymentUrl,
@@ -89,7 +93,9 @@ export class PaymentService {
     };
   }
 
-  async handleVnpayReturn(query: Record<string, string | string[] | undefined>) {
+  async handleVnpayReturn(
+    query: Record<string, string | string[] | undefined>,
+  ) {
     const { params } = this.verifyVnpSignature(query);
     const responseCode = params.vnp_ResponseCode;
     const txnRef = params.vnp_TxnRef;
@@ -139,13 +145,15 @@ export class PaymentService {
         return { RspCode: '01', Message: 'Order not found' };
       }
 
-      const txn = await this.dataSource.getRepository(TransactionEntity).findOne({
-        where: {
-          userId,
-          type: TransactionType.DEPOSIT,
-          description: `VNPay deposit ${txnRef}`,
-        },
-      });
+      const txn = await this.dataSource
+        .getRepository(TransactionEntity)
+        .findOne({
+          where: {
+            userId,
+            type: TransactionType.DEPOSIT,
+            description: `VNPay deposit ${txnRef}`,
+          },
+        });
 
       if (!txn) {
         return { RspCode: '01', Message: 'Order not found' };
@@ -187,7 +195,9 @@ export class PaymentService {
   private verifyVnpSignature(
     query: Record<string, string | string[] | undefined>,
   ): { params: VnpParams } {
-    const hashSecret = this.configService.get<string>('VNP_HASH_SECRET')?.trim();
+    const hashSecret = this.configService
+      .get<string>('VNP_HASH_SECRET')
+      ?.trim();
     if (!hashSecret) {
       throw new InternalServerErrorException('VNPay configuration is missing.');
     }

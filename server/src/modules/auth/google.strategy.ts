@@ -8,7 +8,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(private configService: ConfigService) {
     const apiUrl = configService.get<string>('API_URL');
     if (!apiUrl) {
-      console.error('❌ [Auth] API_URL is not defined in environment variables. Google OAuth will fail.');
+      console.error(
+        '❌ [Auth] API_URL is not defined in environment variables. Google OAuth will fail.',
+      );
     }
 
     super({

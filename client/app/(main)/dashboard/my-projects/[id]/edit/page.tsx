@@ -284,10 +284,10 @@ export default function EditProjectPage() {
           </div>
 
           <div className="markdown-field-wrapper">
-            <MarkdownField 
-              value={content} 
-              onChange={setContent} 
-              label="Nội dung chi tiết (Markdown)" 
+            <MarkdownField
+              value={content}
+              onChange={setContent}
+              label="Nội dung chi tiết (Markdown)"
             />
           </div>
 

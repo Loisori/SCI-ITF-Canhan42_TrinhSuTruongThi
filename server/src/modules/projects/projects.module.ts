@@ -32,7 +32,6 @@ import { UsersModule } from '../users/users.module';
       MilestoneDiscussionEntity,
     ]),
 
-
     AuthModule,
     UsersModule,
     NotificationsModule,

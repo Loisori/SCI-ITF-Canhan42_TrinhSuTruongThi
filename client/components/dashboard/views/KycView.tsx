@@ -187,7 +187,7 @@ export default function KycView({ profile }: { profile: any }) {
                 value={idCardNumber}
                 onChange={(e) => setIdCardNumber(e.target.value)}
                 placeholder="Nhập 12 số trên thẻ"
-                className="w-full px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 focus:border-primary outline-none transition-all text-lg font-bold"
+                className="w-full px-6 py-4 rounded-5 border border-slate-200 dark:border-slate-800 focus:border-primary outline-none transition-all text-lg font-bold"
               />
             </div>
 

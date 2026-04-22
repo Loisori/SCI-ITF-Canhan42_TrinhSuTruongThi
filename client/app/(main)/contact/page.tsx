@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Navbar from "@/components/client/Navbar"; 
+import Navbar from "@/components/client/Navbar";
 import { MessageSquare, Mail, Phone, ArrowRight, MapPin } from "lucide-react";
 
 export default function ContactPage() {
@@ -44,7 +44,7 @@ export default function ContactPage() {
           {/* Main Grid: Form and Support Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Contact Form Column */}
-            <div className="lg:col-span-7 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+            <div className="lg:col-span-7 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-5 shadow-sm border border-slate-200 dark:border-slate-800">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-8">
                 Gửi yêu cầu hỗ trợ
               </h2>
@@ -126,7 +126,7 @@ export default function ContactPage() {
             {/* Support Cards Column */}
             <div className="lg:col-span-5 space-y-6">
               {/* Live Chat Card */}
-              <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-start gap-5 hover:border-primary/50 transition-colors">
+              <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-5 border border-slate-200 dark:border-slate-800 flex items-start gap-5 hover:border-primary/50 transition-colors">
                 <div className="bg-primary text-white p-3 rounded-xl shadow-md shadow-primary/20">
                   <MessageSquare className="text-white" />
                 </div>
@@ -151,7 +151,7 @@ export default function ContactPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                      <Mail className="text-xl" />
+                    <Mail className="text-xl" />
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-slate-400 uppercase">
@@ -165,7 +165,7 @@ export default function ContactPage() {
 
                 <div className="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                      <Phone className="text-xl" />
+                    <Phone className="text-xl" />
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-slate-400 uppercase">
@@ -179,7 +179,7 @@ export default function ContactPage() {
               </div>
 
               {/* Address Card */}
-              <div className="bg-slate-900 text-white p-8 rounded-2xl relative overflow-hidden group">
+              <div className="bg-slate-900 text-white p-8 rounded-5 relative overflow-hidden group">
                 <div className="relative z-10">
                   <h3 className="font-bold text-body mb-2">Trụ sở chính</h3>
                   <p className="text-small text-slate-400 leading-relaxed mb-6">
@@ -190,20 +190,19 @@ export default function ContactPage() {
                     Việt Nam
                   </p>
                   <button className="flex items-center gap-2 text-small font-bold text-primary group-hover:gap-3 transition-all">
-                    Xem trên bản đồ{" "}
-                      <ArrowRight className="text-small" />
+                    Xem trên bản đồ <ArrowRight className="text-small" />
                   </button>
                 </div>
                 <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform">
-                    <MapPin className="text-[120px]" />
+                  <MapPin className="text-[120px]" />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Map Section Overlay */}
-          <div className="mt-12 p-1 bg-linear-to-r from-primary/20 to-transparent rounded-2xl">
-            <div className="bg-white dark:bg-slate-950 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="mt-12 p-1 bg-linear-to-r from-primary/20 to-transparent rounded-5">
+            <div className="bg-white dark:bg-slate-950 p-8 rounded-5 border border-slate-200 dark:border-slate-800 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
                 <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
                   Ghé thăm văn phòng
@@ -225,7 +224,7 @@ export default function ContactPage() {
                 {/* Bạn có thể nhúng Iframe Google Map vào đây */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl ring-8 ring-primary/20 animate-bounce">
-                      <MapPin />
+                    <MapPin />
                   </div>
                 </div>
               </div>

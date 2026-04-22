@@ -15,7 +15,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 
-
 import * as https from 'https';
 import { GetUser } from '../../common/decorators/get-user.decorator';
 
@@ -28,7 +27,6 @@ import { UserEntity, UserRole } from './entities/user.entity';
 import { KycService } from './kyc.service';
 import { CloudinaryService } from '../media/cloudinary.service';
 
-
 @Controller('users/kyc')
 @UseGuards(JwtAuthGuard)
 export class KycController {
@@ -40,7 +38,10 @@ export class KycController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadKycImage(@UploadedFile() file: Express.Multer.File) {
-    const result = await this.cloudinaryService.uploadImage(file, 'investpro/kyc');
+    const result = await this.cloudinaryService.uploadImage(
+      file,
+      'investpro/kyc',
+    );
     return { url: result.secure_url };
   }
 
@@ -48,7 +49,6 @@ export class KycController {
   async submitKyc(@GetUser('id') userId: number, @Body() dto: SubmitKycDto) {
     return this.kycService.submitKyc(userId, dto);
   }
-
 
   @Get('status')
   async getMyKycStatus(@GetUser('id') userId: number) {
@@ -95,13 +95,14 @@ export class KycController {
 
     const imageUrl = type === 'front' ? kyc.frontImageUrl : kyc.backImageUrl;
 
-    https.get(imageUrl, (stream) => {
-      const contentType = stream.headers['content-type'] || 'image/jpeg';
-      res.setHeader('Content-Type', contentType);
-      stream.pipe(res);
-    }).on('error', (e) => {
-      res.status(500).json({ message: 'Error streaming image' });
-    });
+    https
+      .get(imageUrl, (stream) => {
+        const contentType = stream.headers['content-type'] || 'image/jpeg';
+        res.setHeader('Content-Type', contentType);
+        stream.pipe(res);
+      })
+      .on('error', (e) => {
+        res.status(500).json({ message: 'Error streaming image' });
+      });
   }
 }
-

@@ -247,7 +247,10 @@ export class WalletsService {
                   investmentIds,
                 })
                 .groupBy('schedule.investmentId')
-                .getRawMany<{ investmentId: string; maxDueDate: string | Date }>()
+                .getRawMany<{
+                  investmentId: string;
+                  maxDueDate: string | Date;
+                }>()
             : [];
 
         const maxDueDateByInvestment = new Map<number, string>();
@@ -816,7 +819,9 @@ export class WalletsService {
           s.investment.project.commissionRate,
         );
         feeRate =
-          configuredRate > 0 ? configuredRate : await this.getOwnerFeeRate(ownerId);
+          configuredRate > 0
+            ? configuredRate
+            : await this.getOwnerFeeRate(ownerId);
         feeRateByProject.set(projectId, feeRate);
       }
 

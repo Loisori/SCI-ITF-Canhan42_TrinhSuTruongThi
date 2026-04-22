@@ -144,7 +144,8 @@ export class ProjectEntity {
     nullable: true,
     transformer: {
       to: (value: number) => value,
-      from: (value: string | null) => (value === null ? null : parseFloat(value)),
+      from: (value: string | null) =>
+        value === null ? null : parseFloat(value),
     },
   })
   commissionRate: number | null;

@@ -11,7 +11,8 @@ interface DashboardHeaderProps {
 }
 
 export default function DashboardHeader({ user }: DashboardHeaderProps) {
-  const { setSidebarCollapsed, isSidebarCollapsed, setMobileDrawerOpen } = useDashboard();
+  const { setSidebarCollapsed, isSidebarCollapsed, setMobileDrawerOpen } =
+    useDashboard();
 
   return (
     <header className="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 px-4 flex items-center justify-between">
@@ -21,11 +22,7 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
           onClick={() => setSidebarCollapsed(!isSidebarCollapsed)}
           className="hidden lg:flex p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg text-slate-500 transition-colors"
         >
-          {isSidebarCollapsed ? (
-            <PanelLeftOpen />
-          ) : (
-            <Menu />
-          )}
+          {isSidebarCollapsed ? <PanelLeftOpen /> : <Menu />}
         </button>
 
         {/* Mobile Sidebar Toggle */}
@@ -38,14 +35,14 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
 
         {/* Dynamic Title / Breadcrumb (Simple for now) */}
         <h2 className="text-small font-bold text-slate-900 dark:text-white hidden sm:block uppercase tracking-wider">
-           Dashboard
+          Dashboard
         </h2>
       </div>
 
       <div className="flex items-center gap-3">
         <LanguageSwitcher />
         <ThemeToggle />
-        
+
         <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
 
         {user && (
@@ -55,15 +52,19 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
                 {user.role}
               </span>
               <span className="text-small font-bold text-slate-900 dark:text-white">
-                 {user.fullName}
+                {user.fullName}
               </span>
             </div>
             <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white text-smallest font-bold overflow-hidden border-2 border-primary/20">
-               {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
-               ) : (
-                  user.fullName?.charAt(0).toUpperCase()
-               )}
+              {user.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                user.fullName?.charAt(0).toUpperCase()
+              )}
             </div>
           </div>
         )}

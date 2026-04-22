@@ -1,7 +1,10 @@
 import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { NotificationEntity, NotificationType } from './entities/notification.entity';
+import {
+  NotificationEntity,
+  NotificationType,
+} from './entities/notification.entity';
 import { NotificationsGateway } from './notifications.gateway';
 
 @Injectable()
@@ -13,7 +16,11 @@ export class NotificationsService {
     private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
-  async createSpecialNotification(userId: number, message: string, type: NotificationType) {
+  async createSpecialNotification(
+    userId: number,
+    message: string,
+    type: NotificationType,
+  ) {
     const notification = this.notificationsRepository.create({
       userId,
       message,
@@ -28,22 +35,27 @@ export class NotificationsService {
   }
 
   // notifications.service.ts
-// Thêm hàm này vào class của Lợi
-async createBatchNotifications(configs: { userId: number, message: string, type: NotificationType }[]) {
-  if (!configs || configs.length === 0) return;
+  // Thêm hàm này vào class của Lợi
+  async createBatchNotifications(
+    configs: { userId: number; message: string; type: NotificationType }[],
+  ) {
+    if (!configs || configs.length === 0) return;
 
-  // 1. Ghi hàng loạt (1 lệnh SQL duy nhất - Không gây Lock Timeout)
-  await this.notificationsRepository.insert(configs);
+    // 1. Ghi hàng loạt (1 lệnh SQL duy nhất - Không gây Lock Timeout)
+    await this.notificationsRepository.insert(configs);
 
-  // 2. Bắn Socket ngầm (Async)
-  configs.forEach(config => {
-    this.notificationsGateway.sendNotificationToUser(config.userId.toString(), {
-      ...config,
-      isRead: false,
-      createdAt: new Date(),
+    // 2. Bắn Socket ngầm (Async)
+    configs.forEach((config) => {
+      this.notificationsGateway.sendNotificationToUser(
+        config.userId.toString(),
+        {
+          ...config,
+          isRead: false,
+          createdAt: new Date(),
+        },
+      );
     });
-  });
-}
+  }
 
   async getUserNotifications(userId: number) {
     return this.notificationsRepository.find({

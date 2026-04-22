@@ -20,10 +20,7 @@ export class AiChatController {
   }
 
   @Post('message')
-  chat(
-    @GetUser('id') userId: number,
-    @Body() dto: CreateAiChatDto,
-  ) {
+  chat(@GetUser('id') userId: number, @Body() dto: CreateAiChatDto) {
     return this.aiChatService.chat(userId, dto.message, dto.projectContext);
   }
 }

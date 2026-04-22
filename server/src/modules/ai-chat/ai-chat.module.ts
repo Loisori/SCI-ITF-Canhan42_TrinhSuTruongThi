@@ -7,7 +7,9 @@ import { UserEntity } from '../users/entities/user.entity';
 import { InvestmentEntity } from '../investments/entities/investment.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ChatHistoryEntity, UserEntity, InvestmentEntity])],
+  imports: [
+    TypeOrmModule.forFeature([ChatHistoryEntity, UserEntity, InvestmentEntity]),
+  ],
   controllers: [AiChatController],
   providers: [AiChatService],
 })

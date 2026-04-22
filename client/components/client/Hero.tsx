@@ -1,4 +1,3 @@
-
 //services
 import Link from "next/link";
 import { PlayCircle, TrendingUp } from "lucide-react";
@@ -31,7 +30,7 @@ export default function Hero() {
           <div className="relative">
             <div className="aspect-square rounded-3xl bg-gradient-to-br from-primary/20 to-sky-500/20 dark:from-slate-800 dark:to-primary/20 border border-primary/10 shadow-2xl relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(255,255,255,0.2),transparent_45%)]" />
-              <div className="absolute bottom-6 left-6 right-6 bg-white/90 dark:bg-primary/90 backdrop-blur p-6 rounded-2xl shadow-xl flex items-center justify-between">
+              <div className="absolute bottom-6 left-6 right-6 bg-white/90 dark:bg-primary/90 backdrop-blur p-6 rounded-5 shadow-xl flex items-center justify-between">
                 <div>
                   <p className="text-smallest font-bold uppercase text-slate-500">
                     Tăng trưởng năm nay

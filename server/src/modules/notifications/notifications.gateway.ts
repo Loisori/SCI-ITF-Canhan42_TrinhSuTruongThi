@@ -16,7 +16,9 @@ import { NotificationsService } from './notifications.service';
   transports: ['websocket', 'polling'],
 })
 @Injectable()
-export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class NotificationsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -34,7 +36,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
     try {
       const authHeader = client.handshake.headers.authorization;
       const token = authHeader?.split(' ')[1] || client.handshake.auth?.token;
-      
+
       if (!token) {
         console.log(`[Socket] No token provided, disconnecting: ${client.id}`);
         client.disconnect();

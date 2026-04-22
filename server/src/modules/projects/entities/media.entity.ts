@@ -14,7 +14,7 @@ export enum MediaType {
 
 @Entity({ name: 'project_media' })
 export class ProjectMediaEntity {
-@PrimaryGeneratedColumn('increment', { type: 'int', unsigned: true })  
+  @PrimaryGeneratedColumn('increment', { type: 'int', unsigned: true })
   id: number;
 
   @Column({ name: 'project_id', type: 'bigint', unsigned: true })

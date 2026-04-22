@@ -13,8 +13,6 @@ import ProfileView from "./views/ProfileView";
 import KycView from "./views/KycView";
 import RepaymentView from "./views/RepaymentView";
 
-
-
 // Admin Views
 import SystemOverview from "./views/admin/SystemOverview";
 import ProjectApprovals from "./views/admin/ProjectApprovals";
@@ -23,8 +21,13 @@ import Disbursements from "./views/admin/Disbursements";
 import KycAudit from "./views/admin/KycAudit";
 import WithdrawalAudit from "./views/admin/WithdrawalAudit";
 
-export default function DashboardContent({ profile, onUpdate }: { profile: UserProfile, onUpdate: () => void }) {
-
+export default function DashboardContent({
+  profile,
+  onUpdate,
+}: {
+  profile: UserProfile;
+  onUpdate: () => void;
+}) {
   const { activeView } = useDashboard();
 
   const renderView = () => {
@@ -49,8 +52,6 @@ export default function DashboardContent({ profile, onUpdate }: { profile: UserP
       case "repayments":
         return <RepaymentView profile={profile} />;
       case "settings":
-
-
         return <SettingsView profile={profile} onUpdate={onUpdate} />;
 
       // Admin specific views
@@ -68,14 +69,9 @@ export default function DashboardContent({ profile, onUpdate }: { profile: UserP
         return <WithdrawalAudit />;
 
       default:
-
         return <Overview profile={profile} />;
     }
   };
 
-  return (
-    <div className="w-full">
-      {renderView()}
-    </div>
-  );
+  return <div className="w-full">{renderView()}</div>;
 }

@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 interface DashboardContextType {
@@ -12,19 +18,25 @@ interface DashboardContextType {
   setActiveView: (view: string) => void;
 }
 
-const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
+const DashboardContext = createContext<DashboardContextType | undefined>(
+  undefined,
+);
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-  
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  
+
   // Default view: if admin-dashboard route, it's different
-  const defaultView = pathname.includes("admin-dashboard") ? "system-overview" : "overview";
-  const [activeView, setActiveViewState] = useState(searchParams.get("tab") || defaultView);
+  const defaultView = pathname.includes("admin-dashboard")
+    ? "system-overview"
+    : "overview";
+  const [activeView, setActiveViewState] = useState(
+    searchParams.get("tab") || defaultView,
+  );
 
   const setActiveView = (view: string) => {
     setActiveViewState(view);

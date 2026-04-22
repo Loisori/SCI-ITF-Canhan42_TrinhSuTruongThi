@@ -25,7 +25,10 @@ export class FinancialCalculator {
   /**
    * Calculates platform commission amount from a gross total.
    */
-  static calculateCommission(amount: number, rate: number | null | undefined): number {
+  static calculateCommission(
+    amount: number,
+    rate: number | null | undefined,
+  ): number {
     const fraction = this.toCommissionFraction(rate);
     return this.round(amount * fraction);
   }
@@ -55,7 +58,10 @@ export class FinancialCalculator {
   /**
    * Calculates the net amount after platform fee.
    */
-  static calculateNetAfterFee(gross: number, rate: number | null | undefined): number {
+  static calculateNetAfterFee(
+    gross: number,
+    rate: number | null | undefined,
+  ): number {
     const fee = this.calculateCommission(gross, rate);
     return this.round(gross - fee);
   }

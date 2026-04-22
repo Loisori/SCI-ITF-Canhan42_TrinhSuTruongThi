@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { MediaItem, MediaLibraryModalProps } from "@/types/media";
 
-export default function MediaLibraryModal({ isOpen, onClose, onSelect }: MediaLibraryModalProps) {
+export default function MediaLibraryModal({
+  isOpen,
+  onClose,
+  onSelect,
+}: MediaLibraryModalProps) {
   const [mediaList, setMediaList] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -66,51 +70,72 @@ export default function MediaLibraryModal({ isOpen, onClose, onSelect }: MediaLi
 
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl">
-        
+      <div className="bg-white dark:bg-slate-900 rounded-5 w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
           <h2 className="text-h5 font-bold">Thư viện của tôi</h2>
-          <button onClick={onClose} className="p-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition">
+          <button
+            onClick={onClose}
+            className="p-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition"
+          >
             ✕
           </button>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-5 relative">
-          
           {/* Upload Button */}
           <div className="mb-6 flex gap-4 items-center">
             <label className="bg-primary text-white font-bold py-2 px-6 rounded-xl cursor-pointer hover:bg-primary-dark transition shadow-lg shadow-primary/30">
-              {uploading ? "Đang tải ảnh lên..." : "+ Tải ảnh mới lên Cloudinary"}
-              <input type="file" className="hidden" accept="image/*,video/*" onChange={handleUpload} disabled={uploading} />
+              {uploading
+                ? "Đang tải ảnh lên..."
+                : "+ Tải ảnh mới lên Cloudinary"}
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*,video/*"
+                onChange={handleUpload}
+                disabled={uploading}
+              />
             </label>
-            {error && <span className="text-red-500 font-medium text-small">{error}</span>}
+            {error && (
+              <span className="text-red-500 font-medium text-small">
+                {error}
+              </span>
+            )}
           </div>
 
           {loading ? (
-            <div className="flex justify-center items-center py-20 text-slate-500">Đang tải cấu hình thư viện...</div>
+            <div className="flex justify-center items-center py-20 text-slate-500">
+              Đang tải cấu hình thư viện...
+            </div>
           ) : mediaList.length === 0 ? (
-            <div className="text-center py-20 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl text-slate-500">
+            <div className="text-center py-20 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-5 text-slate-500">
               Bạn chưa có tấm ảnh nào trong Thư viện. Hãy tải lên ngay!
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {mediaList.map((media) => (
-                <div 
-                  key={media.id} 
+                <div
+                  key={media.id}
                   className="group relative aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-primary transition"
                   onClick={() => onSelect(media.url)}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={media.url} alt={media.fileName} className="w-full h-full object-cover" />
-                  
+                  <img
+                    src={media.url}
+                    alt={media.fileName}
+                    className="w-full h-full object-cover"
+                  />
+
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center pointer-events-none">
-                    <span className="text-white font-bold text-small bg-primary/90 px-3 py-1.5 rounded-lg">Chọn ảnh này</span>
+                    <span className="text-white font-bold text-small bg-primary/90 px-3 py-1.5 rounded-lg">
+                      Chọn ảnh này
+                    </span>
                   </div>
 
-                  <button 
+                  <button
                     onClick={(e) => handleDelete(media.id, e)}
                     title="Xóa ảnh"
                     className="absolute top-2 right-2 bg-red-600/90 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition hover:bg-red-500 z-10"

@@ -23,7 +23,6 @@ export enum TransactionType {
   SYSTEM_LOG = 'system_log',
 }
 
-
 export enum TransactionStatus {
   PENDING = 'pending',
   SUCCESS = 'success',
@@ -84,17 +83,30 @@ export class TransactionEntity {
   @Column({ name: 'reference_id', type: 'int', nullable: true })
   referenceId: number | null;
 
-  @Column({ name: 'parent_transaction_id', type: 'bigint', unsigned: true, nullable: true, transformer: { to: (value: number) => value, from: (value: string | number) => (value === null ? null : Number(value)), }, })
+  @Column({
+    name: 'parent_transaction_id',
+    type: 'bigint',
+    unsigned: true,
+    nullable: true,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string | number) => (value === null ? null : Number(value)),
+    },
+  })
   parentTransactionId: number | null;
 
   @Column({ name: 'bank_name', type: 'varchar', length: 100, nullable: true })
   bankName: string | null;
 
-  @Column({ name: 'account_number', type: 'varchar', length: 50, nullable: true })
+  @Column({
+    name: 'account_number',
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+  })
   accountNumber: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
-
   createdAt: Date;
 
   @ManyToOne(() => UserEntity, (user) => user.transactions)
@@ -105,4 +117,3 @@ export class TransactionEntity {
   @JoinColumn({ name: 'parent_transaction_id' })
   parentTransaction: TransactionEntity | null;
 }
-

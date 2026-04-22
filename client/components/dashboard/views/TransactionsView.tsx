@@ -11,13 +11,19 @@ export default function TransactionsView() {
   const [filterType, setFilterType] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("");
 
-  const { data: transactions = [], isLoading, error } = useQuery({
+  const {
+    data: transactions = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["transactions-history", filterType, filterStatus],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (filterType) params.append("type", filterType);
       if (filterStatus) params.append("status", filterStatus);
-      return (await api.get<Transaction[]>(`/api/transactions?${params.toString()}`)).data;
+      return (
+        await api.get<Transaction[]>(`/api/transactions?${params.toString()}`)
+      ).data;
     },
   });
 
@@ -25,12 +31,16 @@ export default function TransactionsView() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-h3 font-bold text-slate-900 dark:text-white">Nhật ký giao dịch</h1>
-          <p className="text-slate-600 dark:text-slate-400 text-body mt-1">Xem lại toàn bộ lịch sử nạp, rút và đầu tư của bạn.</p>
+          <h1 className="text-h3 font-bold text-slate-900 dark:text-white">
+            Nhật ký giao dịch
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 text-body mt-1">
+            Xem lại toàn bộ lịch sử nạp, rút và đầu tư của bạn.
+          </p>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm flex flex-col">
+      <div className="bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm flex flex-col">
         <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <select
@@ -93,54 +103,84 @@ export default function TransactionsView() {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {transactions.map((t) => {
-                  const isPositive = ['deposit', 'interest_receive', 'refund', 'disbursement', 'system_fee'].includes(t.type);
+                  const isPositive = [
+                    "deposit",
+                    "interest_receive",
+                    "refund",
+                    "disbursement",
+                    "system_fee",
+                  ].includes(t.type);
 
                   let displayType = t.type;
-                  if (t.type === 'deposit') displayType = "Nạp tiền";
-                  else if (t.type === 'withdrawal') displayType = "Rút tiền";
-                  else if (t.type === 'invest') displayType = "Đầu tư";
-                  else if (t.type === 'interest_receive') displayType = "Nhận Lợi nhuận";
-                  else if (t.type === 'refund') displayType = "Hoàn tiền";
-                  else if (t.type === 'disbursement') displayType = "Nhận Giải Ngân";
-                  else if (t.type === 'repay_interest') displayType = "Trả Lãi";
-                  else if (t.type === 'repay_principal') displayType = "Trả Gốc";
-                  else if (t.type === 'system_fee') displayType = "Phí Hệ Thống";
+                  if (t.type === "deposit") displayType = "Nạp tiền";
+                  else if (t.type === "withdrawal") displayType = "Rút tiền";
+                  else if (t.type === "invest") displayType = "Đầu tư";
+                  else if (t.type === "interest_receive")
+                    displayType = "Nhận Lợi nhuận";
+                  else if (t.type === "refund") displayType = "Hoàn tiền";
+                  else if (t.type === "disbursement")
+                    displayType = "Nhận Giải Ngân";
+                  else if (t.type === "repay_interest") displayType = "Trả Lãi";
+                  else if (t.type === "repay_principal")
+                    displayType = "Trả Gốc";
+                  else if (t.type === "system_fee")
+                    displayType = "Phí Hệ Thống";
 
                   return (
-                  <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-4">
-                      <p className="text-smaller font-bold text-slate-900 dark:text-white capitalize">{displayType}</p>
-                      <p className="text-[11px] text-slate-500 mt-1 max-w-100 truncate" title={t.description || undefined}>{t.description || "-"}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className={`text-smaller font-extrabold ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                        {isPositive ? "+" : "-"}{formatVnd(Number(t.amount))}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${t.status === 'success' ? 'bg-green-500/10 text-green-600 dark:text-green-400' :
-                          t.status === 'pending' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
-                            'bg-red-500/10 text-red-600 dark:text-red-400'
-                        }`}>
-                        {t.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-smallest font-medium text-slate-700 dark:text-slate-300">
-                        {new Date(t.createdAt).toLocaleDateString('vi-VN')}
-                      </p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">
-                        {new Date(t.createdAt).toLocaleTimeString('vi-VN')}
-                      </p>
-                    </td>
-                  </tr>
+                    <tr
+                      key={t.id}
+                      className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                    >
+                      <td className="px-6 py-4">
+                        <p className="text-smaller font-bold text-slate-900 dark:text-white capitalize">
+                          {displayType}
+                        </p>
+                        <p
+                          className="text-[11px] text-slate-500 mt-1 max-w-100 truncate"
+                          title={t.description || undefined}
+                        >
+                          {t.description || "-"}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p
+                          className={`text-smaller font-extrabold ${isPositive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                        >
+                          {isPositive ? "+" : "-"}
+                          {formatVnd(Number(t.amount))}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+                            t.status === "success"
+                              ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                              : t.status === "pending"
+                                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                : "bg-red-500/10 text-red-600 dark:text-red-400"
+                          }`}
+                        >
+                          {t.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-smallest font-medium text-slate-700 dark:text-slate-300">
+                          {new Date(t.createdAt).toLocaleDateString("vi-VN")}
+                        </p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          {new Date(t.createdAt).toLocaleTimeString("vi-VN")}
+                        </p>
+                      </td>
+                    </tr>
                   );
                 })}
                 {transactions.length === 0 && (
                   <tr>
                     <td colSpan={4} className="px-6 py-12 text-center">
                       <ReceiptText className="text-h3 text-slate-200 dark:text-slate-800 mb-3 mx-auto" />
-                      <p className="text-slate-500 text-small font-semibold">Chưa có giao dịch nào phù hợp.</p>
+                      <p className="text-slate-500 text-small font-semibold">
+                        Chưa có giao dịch nào phù hợp.
+                      </p>
                     </td>
                   </tr>
                 )}

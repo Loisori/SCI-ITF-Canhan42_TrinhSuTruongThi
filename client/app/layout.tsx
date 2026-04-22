@@ -8,9 +8,9 @@ import { QueryProvider } from "@/components/providers/QueryProvider";
 import { NotificationProvider } from "@/components/providers/NotificationProvider";
 import { SWRegistration } from "@/components/providers/SWRegistration";
 import AIChatbox from "@/components/client/AIChatbox";
-import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
-import { Toaster } from 'sonner';
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 

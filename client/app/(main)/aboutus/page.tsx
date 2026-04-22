@@ -43,7 +43,7 @@ export default function AboutPage() {
               </h2>
             </div>
             <div className="grid md:grid-cols-2 gap-8">
-              <div className="p-10 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-white/5">
+              <div className="p-10 bg-slate-50 dark:bg-slate-900 rounded-5 border border-slate-100 dark:border-white/5">
                 <Globe className="text-h4 text-primary dark:text-slate-400 mb-4" />
                 <h3 className="text-h5 font-bold mb-4">Tầm nhìn chiến lược</h3>
                 <p className="text-body text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -53,7 +53,7 @@ export default function AboutPage() {
                   tương lai.
                 </p>
               </div>
-              <div className="p-10 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-white/5">
+              <div className="p-10 bg-slate-50 dark:bg-slate-900 rounded-5 border border-slate-100 dark:border-white/5">
                 <ShieldCheck className="text-h4 text-primary dark:text-slate-400 mb-4" />
                 <h3 className="text-h5 font-bold mb-4">Sứ mệnh hành động</h3>
                 <p className="text-body text-slate-600 dark:text-slate-400 leading-relaxed">

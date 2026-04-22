@@ -1,7 +1,14 @@
-
 //services
 import Link from "next/link";
-import { Rocket, Share2, Globe, AtSign, MapPin, Phone, Mail } from "lucide-react";
+import {
+  Rocket,
+  Share2,
+  Globe,
+  AtSign,
+  MapPin,
+  Phone,
+  Mail,
+} from "lucide-react";
 
 export default function Footer() {
   return (
@@ -69,27 +76,42 @@ export default function Footer() {
             </h5>
             <ul className="space-y-4 text-smaller text-slate-500 dark:text-slate-400">
               <li>
-                <Link href="/aboutus" className="hover:text-primary transition-colors">
+                <Link
+                  href="/aboutus"
+                  className="hover:text-primary transition-colors"
+                >
                   Về chúng tôi
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-primary transition-colors" href="/help">
+                <Link
+                  className="hover:text-primary transition-colors"
+                  href="/help"
+                >
                   Trung tâm trợ giúp
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-primary transition-colors" href="/privacy">
+                <Link
+                  className="hover:text-primary transition-colors"
+                  href="/privacy"
+                >
                   Chính sách bảo mật
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-primary transition-colors" href="/terms">
+                <Link
+                  className="hover:text-primary transition-colors"
+                  href="/terms"
+                >
                   Điều khoản dịch vụ
                 </Link>
               </li>
               <li>
-                <Link className="hover:text-primary transition-colors" href="/rules">
+                <Link
+                  className="hover:text-primary transition-colors"
+                  href="/rules"
+                >
                   Quy định đầu tư
                 </Link>
               </li>

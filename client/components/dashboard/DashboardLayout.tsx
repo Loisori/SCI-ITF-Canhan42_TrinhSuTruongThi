@@ -14,9 +14,20 @@ interface DashboardLayoutProps {
   user?: UserProfile | null;
 }
 
-function DashboardContent({ children, initialUser }: { children: ReactNode, initialUser?: UserProfile | null }) {
+function DashboardContent({
+  children,
+  initialUser,
+}: {
+  children: ReactNode;
+  initialUser?: UserProfile | null;
+}) {
   const { isSidebarCollapsed } = useDashboard();
-  const { data: profile, isLoading, error, status } = useQuery({
+  const {
+    data: profile,
+    isLoading,
+    error,
+    status,
+  } = useQuery({
     queryKey: ["auth-profile"],
     queryFn: async () => {
       const res = await api.get<UserProfile>("/api/auth/profile");
@@ -39,7 +50,9 @@ function DashboardContent({ children, initialUser }: { children: ReactNode, init
       <div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">
         <div className="animate-pulse flex flex-col items-center gap-4">
           <div className="h-12 w-12 bg-primary/20 rounded-full animate-spin border-t-2 border-primary"></div>
-          <p className="text-smaller font-bold text-slate-500">Đang tải dashboard...</p>
+          <p className="text-smaller font-bold text-slate-500">
+            Đang tải dashboard...
+          </p>
         </div>
       </div>
     );
@@ -48,20 +61,22 @@ function DashboardContent({ children, initialUser }: { children: ReactNode, init
   return (
     <div className="flex min-h-screen bg-background-light dark:bg-background-dark font-display">
       <DashboardSidebar user={profile} />
-      
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? "lg:pl-20" : "lg:pl-100"}`}>
-        <DashboardHeader user={profile} />
-        
-        <main className="flex-1 p-4 md:p-8 overflow-x-hidden">
-          {children}
-        </main>
 
+      <div
+        className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarCollapsed ? "lg:pl-20" : "lg:pl-100"}`}
+      >
+        <DashboardHeader user={profile} />
+
+        <main className="flex-1 p-4 md:p-8 overflow-x-hidden">{children}</main>
       </div>
     </div>
   );
 }
 
-export default function DashboardLayout({ children, user }: DashboardLayoutProps) {
+export default function DashboardLayout({
+  children,
+  user,
+}: DashboardLayoutProps) {
   return (
     <DashboardProvider>
       <DashboardContent initialUser={user}>{children}</DashboardContent>

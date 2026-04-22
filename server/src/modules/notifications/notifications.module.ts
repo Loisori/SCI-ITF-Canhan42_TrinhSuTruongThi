@@ -16,12 +16,18 @@ import { NotificationsListener } from './notifications.listener';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') ?? 'replace_me_with_strong_secret',
+        secret:
+          configService.get<string>('JWT_SECRET') ??
+          'replace_me_with_strong_secret',
       }),
     }),
   ],
   controllers: [NotificationsController],
-  providers: [NotificationsService, NotificationsGateway, NotificationsListener],
+  providers: [
+    NotificationsService,
+    NotificationsGateway,
+    NotificationsListener,
+  ],
   exports: [NotificationsService],
 })
 export class NotificationsModule {}

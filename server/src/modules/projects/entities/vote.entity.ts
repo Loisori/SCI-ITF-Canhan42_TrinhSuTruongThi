@@ -51,7 +51,6 @@ export class MilestoneVoteEntity {
   })
   investorCapital: number;
 
-
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 

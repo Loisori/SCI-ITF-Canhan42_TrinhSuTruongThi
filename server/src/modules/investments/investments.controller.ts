@@ -32,10 +32,7 @@ export class InvestmentsController {
 
   @UseGuards(JwtAuthGuard, IsInvestorGuard)
   @Post()
-  invest(
-    @GetUser('id') userId: number,
-    @Body() dto: CreateInvestmentDto,
-  ) {
+  invest(@GetUser('id') userId: number, @Body() dto: CreateInvestmentDto) {
     return this.investmentsService.invest(userId, dto);
   }
 

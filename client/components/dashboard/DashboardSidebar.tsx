@@ -19,7 +19,7 @@ import {
   Rocket,
   Settings,
   LogOut,
-  UserCircle
+  UserCircle,
 } from "lucide-react";
 
 interface DashboardSidebarProps {
@@ -32,7 +32,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
     isMobileDrawerOpen,
     setMobileDrawerOpen,
     activeView,
-    setActiveView
+    setActiveView,
   } = useDashboard();
   const pathname = usePathname();
   const router = useRouter();
@@ -64,13 +64,14 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
     { name: "Nhật ký giao dịch", view: "transactions", icon: ReceiptText },
     { name: "Đầu tư của tôi", view: "portfolio", icon: TrendingUp },
     { name: "Thống kê", view: "analytics", icon: BarChart3 },
-    ...(role === "owner" ? [
-      { name: "Dự án của tôi", view: "my-projects", icon: Rocket },
-      { name: "Thanh toán lãi", view: "repayments", icon: Banknote },
-    ] : []),
+    ...(role === "owner"
+      ? [
+          { name: "Dự án của tôi", view: "my-projects", icon: Rocket },
+          { name: "Thanh toán lãi", view: "repayments", icon: Banknote },
+        ]
+      : []),
     { name: "Cài đặt", view: "settings", icon: Settings },
   ];
-
 
   const links = isAdminPath ? adminLinks : userLinks;
 
@@ -91,15 +92,18 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
 
       {/* Sidebar container */}
       <aside
-        className={`${isSidebarCollapsed ? "w-20" : "w-100"
-          } fixed left-0 top-0 h-screen z-50 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 hidden lg:flex flex-col shadow-sm`}
+        className={`${
+          isSidebarCollapsed ? "w-20" : "w-100"
+        } fixed left-0 top-0 h-screen z-50 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 hidden lg:flex flex-col shadow-sm`}
       >
         <Link href="/" className="p-6 flex items-center gap-3 h-20">
           <div className="size-8 rounded-xl bg-primary flex items-center justify-center shrink-0">
             <Rocket className="text-white text-base" />
           </div>
           {!isSidebarCollapsed && (
-            <span className="font-bold text-h5 text-slate-900 dark:text-white tracking-tight">InvestPro</span>
+            <span className="font-bold text-h5 text-slate-900 dark:text-white tracking-tight">
+              InvestPro
+            </span>
           )}
         </Link>
 
@@ -116,15 +120,23 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
                 <button
                   key={link.view}
                   onClick={() => handleLinkClick(link.view)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${isActive
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${
+                    isActive
                       ? "bg-primary text-white shadow-lg shadow-primary/20"
                       : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/5"
-                    }`}
+                  }`}
                 >
-                  <link.icon className={`${isActive ? "text-white" : "text-slate-400 group-hover:text-primary"
-                    }`} />
+                  <link.icon
+                    className={`${
+                      isActive
+                        ? "text-white"
+                        : "text-slate-400 group-hover:text-primary"
+                    }`}
+                  />
                   {!isSidebarCollapsed && (
-                    <span className="text-smaller font-bold truncate">{link.name}</span>
+                    <span className="text-smaller font-bold truncate">
+                      {link.name}
+                    </span>
                   )}
                 </button>
               );
@@ -138,14 +150,22 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
             <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-white/5">
               <div className="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-smaller overflow-hidden shrink-0">
                 {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                  <img
+                    src={user.avatarUrl}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   user.fullName?.charAt(0).toUpperCase()
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-smallest font-bold text-slate-900 dark:text-white truncate">{user.fullName}</p>
-                <p className="text-[10px] text-slate-500 uppercase tracking-tighter truncate">{role}</p>
+                <p className="text-smallest font-bold text-slate-900 dark:text-white truncate">
+                  {user.fullName}
+                </p>
+                <p className="text-[10px] text-slate-500 uppercase tracking-tighter truncate">
+                  {role}
+                </p>
               </div>
               <button
                 onClick={handleLogout}
@@ -161,14 +181,17 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
 
       {/* Mobile Drawer */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 transform lg:hidden transition-transform duration-300 ${isMobileDrawerOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 transform lg:hidden transition-transform duration-300 ${
+          isMobileDrawerOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         <div className="p-6 h-20 flex items-center gap-3 border-b border-slate-100 dark:border-slate-800">
           <div className="size-8 rounded-xl bg-primary flex items-center justify-center">
             <Rocket className="text-white text-base" />
           </div>
-          <span className="font-bold text-h5 text-slate-900 dark:text-white tracking-tight">InvestPro</span>
+          <span className="font-bold text-h5 text-slate-900 dark:text-white tracking-tight">
+            InvestPro
+          </span>
         </div>
 
         <nav className="px-4 py-6 overflow-y-auto h-[calc(100vh-80px)] flex flex-col">
@@ -179,10 +202,11 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
                 <button
                   key={link.view}
                   onClick={() => handleLinkClick(link.view)}
-                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${isActive
+                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${
+                    isActive
                       ? "bg-primary text-white shadow-lg shadow-primary/20"
                       : "text-slate-500 dark:text-slate-400"
-                    }`}
+                  }`}
                 >
                   <link.icon />
                   <span className="text-smaller font-bold">{link.name}</span>
