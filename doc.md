@@ -962,3 +962,361 @@ Các yêu cầu cụ thể:
 Điều kiện sau:
 
 - Nợ dự án giảm theo khoản thanh toán đã thực hiện.
+
+## Sequence Diagrams (As Code)
+
+### Diagram UI-001: Đăng ký tài khoản
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>Server: Nhập thông tin đăng ký
+    Server->>Database: Kiểm tra trùng lặp & Hash mật khẩu
+    Server->>Database: Lưu thông tin U mới
+    Database-->>Server: Thành công
+    Server-->>U: Thông báo đăng ký thành công
+```
+
+### Diagram UI-002: Đăng nhập hệ thống
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>Server: Nhập Email & Mật khẩu
+    Server->>Database: Truy vấn hồ sơ U
+    Server->>Server: So khớp mật khẩu
+    Server-->>U: Trả về JWT Token & Profile
+```
+
+### Diagram UI-003: Xem hồ sơ cá nhân
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>Server: Gửi Token truy cập Profile
+    Server->>Database: Lấy chi tiết hồ sơ & Số dư ví
+    Database-->>Server: Dữ liệu hồ sơ
+    Server-->>U: Hiển thị Profile trên giao diện
+```
+
+### Diagram UI-004: Cập nhật hồ sơ
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>Server: Gửi thông tin cập nhật (Tên/Avatar)
+    Server->>Database: Cập nhật bản ghi U
+    Database-->>Server: Thành công
+    Server-->>U: Thông báo hoàn tất
+```
+
+### Diagram UI-005: Đổi mật khẩu
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>Server: Nhập mật khẩu cũ & mới
+    Server->>Database: Kiểm tra mật khẩu cũ
+    Server->>Database: Cập nhật mật khẩu mới Hashed
+    Server-->>U: Kết quả cập nhật
+```
+
+### Diagram UI-006: Cài đặt thông báo
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>Server: Thay đổi các tùy chọn sở thích
+    Server->>Database: Lưu cấu hình cá nhân
+    Server-->>U: Cập nhật thành công
+```
+
+### Diagram UI-007: Nộp KYC
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>Server: Tải ảnh minh chứng & Thông tin định danh
+    Server->>Database: Lưu hồ sơ KYC (Trạng thái Pending)
+    Database-->>Server: Thành công
+    Server-->>U: Thông báo đang chờ duyệt
+```
+
+### Diagram UI-008: Nạp tiền (VNPAY)
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant V as VNPAY
+    participant D as Database (TiDB)
+
+    U->>Server: Yêu cầu nạp X tiền
+    Server->>Server: Tạo mã giao dịch nội bộ
+    Server->>V: Khởi tạo thanh toán & Nhận URL
+    Server-->>U: Chuyển hướng sang V
+    V-->>Server: Callback/IPN thông báo kết quả
+    Server->>Database: Cộng số dư ví & Lưu Transaction
+    Server-->>U: Thông báo nạp tiền thành công
+```
+
+### Diagram UI-009: Rút tiền
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>Server: Nhập số tiền & Tài khoản ngân hàng
+    Server->>Database: Kiểm tra số dư & Khóa tạm thời
+    Server->>Database: Lưu yêu cầu rút (Pending Admin)
+    Server-->>U: Yêu cầu đã được gửi
+```
+
+### Diagram UI-010: Xem lịch sử giao dịch
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>Server: Truy cập mục Tài chính
+    Server->>Database: Lấy danh sách Transactions
+    Database-->>Server: Danh sách dữ liệu
+    Server-->>U: Hiển thị bảng giao dịch
+```
+
+### Diagram UI-011: Quản lý thông báo
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>Server: Đánh dấu "Đã đọc"
+    Server->>Database: Cập nhật Notification Status
+    Server-->>U: Cập nhật Badge giao diện
+```
+
+### Diagram UI-012: AI Chatbox
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant AI as AI Provider
+    participant D as Database (TiDB)
+
+    U->>Server: Gửi câu hỏi về dự án
+    Server->>Database: Lấy context dự án liên quan
+    Server->>AI: Gửi context & Câu hỏi
+    AI-->>Server: Phản hồi AI
+    Server->>Database: Lưu lịch sử chat
+    Server-->>U: Trả lời kết quả
+```
+
+### Diagram UI-013: Thư viện Media
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant St as Storage (S3)
+    participant D as Database (TiDB)
+
+    U->>Server: Upload File mới
+    Server->>St: Lưu trữ vật lý
+    Server->>Database: Lưu thông tin URL & Metadata
+    Server-->>U: Cập nhật thư viện trên UI
+```
+
+### Diagram UI-014: Tìm kiếm dự án
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>Server: Nhập từ khóa/Lọc danh mục
+    Server->>Database: Query LIKE %keyword%
+    Database-->>Server: Danh sách kết quả
+    Server-->>U: Hiển thị Projects Card
+```
+
+### Diagram UI-015: Xem chi tiết dự án
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>Server: Click vào một dự án
+    Server->>Database: Lấy Project + Milestones + Owner Profile
+    Database-->>Server: Cấu trúc JSON dự án
+    Server-->>U: Render Project Detail Page
+```
+
+### Diagram UI-016: Đầu tư dự án (Sequence)
+```mermaid
+sequenceDiagram
+    autonumber
+    participant I as Investor
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    I->>Server: Gửi yêu cầu đầu tư (1.000.000đ)
+    Server->>Database: Khởi tạo Transaction & Pessimistic Lock
+    Database-->>Server: Khóa bản ghi Project thành công
+    Server->>Database: Trừ tiền ví I & Cộng tiền Escrow
+    Server->>Database: Tạo Lịch trả nợ (Total Debt: 1.132.000đ)
+    Database-->>Server: Lưu dữ liệu thành công
+    Server-->>I: Thông báo đầu tư hoàn tất!
+```
+
+### Diagram UI-017: Theo dõi Portfolio
+```mermaid
+sequenceDiagram
+    autonumber
+    participant I as Investor
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    I->>Server: Xem My Investments
+    Server->>Database: Tổng hợp lãi dự kiến & Vốn đang đầu tư
+    Database-->>Server: Dữ liệu Analytics
+    Server-->>I: Hiển thị Dashboard tài chính
+```
+
+### Diagram UI-018: Tạo khiếu nại
+```mermaid
+sequenceDiagram
+    autonumber
+    participant I as Investor
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    I->>Server: Gửi lý do tranh chấp
+    Server->>Database: Tạo bản ghi Dispute & Link Project
+    Server-->>I: Hệ thống đã ghi nhận
+```
+
+### Diagram UI-019: Voting Milestone
+```mermaid
+sequenceDiagram
+    autonumber
+    participant I as Investor
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    I->>Server: Gửi phiếu Vote (Approve/Reject)
+    Server->>Database: Lưu chi tiết phiếu & Tính lại tỷ lệ %
+    Database-->>Server: Cập nhật thành công
+    Server-->>I: Cảm ơn bạn đã biểu quyết
+```
+
+### Diagram UI-020: Tạo dự án mới
+```mermaid
+sequenceDiagram
+    autonumber
+    participant O as Owner
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    O->>Server: Gửi form thông tin (Mô tả, Lãi suất, Milestones)
+    Server->>Database: Lưu Project (Trạng thái Draft/Pending)
+    Database-->>Server: Thành công
+    Server-->>O: Dự án đã được tạo và chờ duyệt
+```
+
+### Diagram UI-021: Cập nhật dự án
+```mermaid
+sequenceDiagram
+    autonumber
+    participant O as Owner
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    O->>Server: Chỉnh sửa nội dung dự án
+    Server->>Database: Update Project metadata
+    Server-->>O: Thông tin đã được cập nhật
+```
+
+### Diagram UI-022: Quản lý Milestones
+```mermaid
+sequenceDiagram
+    autonumber
+    participant O as Owner
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    O->>Server: Upload Bằng chứng Milestone
+    Server->>Database: Cập nhật Proof & Chuyển sang Voting
+    Server-->>O: Milestone đã chuyển trạng thái
+```
+
+### Diagram UI-023: Dừng huy động sớm
+```mermaid
+sequenceDiagram
+    autonumber
+    participant O as Owner
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    O->>Server: Yêu cầu kết thúc đợt gọi vốn
+    Server->>Database: Đóng trạng thái Funding & Tính số vốn thực tế
+    Server-->>O: Huy động hoàn tất sớm
+```
+
+### Diagram UI-024: Danh sách dự án của tôi
+```mermaid
+sequenceDiagram
+    autonumber
+    participant O as Owner
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    O->>Server: Truy cập My Projects
+    Server->>Database: Lấy Projects theo OID
+    Server-->>O: Hiển thị danh sách dự án
+```
+
+### Diagram UI-025: repay (Thanh toán)
+```mermaid
+sequenceDiagram
+    autonumber
+    participant O as Owner
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    O->>Server: Chọn thanh toán kỳ hạn (Repay)
+    Server->>Database: Khởi tạo Transaction & Trừ ví O
+    Server->>Database: Phân bổ tiền về ví Investors theo lịch trả nợ
+    Database-->>Server: Hoàn tất cập nhật nợ
+    Server-->>O: Thanh toán kỳ hạn thành công
+```
