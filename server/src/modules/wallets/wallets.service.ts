@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { DataSource, EntityManager } from 'typeorm';
 import {
   TransactionEntity,
@@ -27,7 +28,10 @@ import {
 
 @Injectable()
 export class WalletsService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly configService: ConfigService,
+  ) {}
 
   async requestDeposit(userId: number, amount: number) {
     const transactionRepo = this.dataSource.getRepository(TransactionEntity);
@@ -192,6 +196,15 @@ export class WalletsService {
     return tierRate;
   }
 
+  private getAdminPlatformId(): number {
+    const raw = this.configService.get<string>('ADMIN_PLATFORM_ID');
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      throw new BadRequestException('ADMIN_PLATFORM_ID is not configured.');
+    }
+    return parsed;
+  }
+
   /**
    * Cơ chế trả nợ (Repayment Logic)
    * Chủ dự án trả nợ cho dự án. Hệ thống tự động trừ nợ và phân phối về ví Investor
@@ -229,7 +242,9 @@ export class WalletsService {
           investment: { projectId },
         },
         relations: ['investment'],
+        lock: { mode: 'pessimistic_write' },
       });
+      const maxDueDateByInvestment = new Map<number, string>();
 
       let outstandingInvestorDebt = totalDebt;
       if (unpaidSchedules.length > 0) {
@@ -253,7 +268,6 @@ export class WalletsService {
                 }>()
             : [];
 
-        const maxDueDateByInvestment = new Map<number, string>();
         for (const row of maxDueDateRows) {
           maxDueDateByInvestment.set(
             Number(row.investmentId),
@@ -396,18 +410,62 @@ export class WalletsService {
         await transactionRepo.save(investorTx);
       }
 
-      const ADMIN_PLATFORM_ID = 1;
+      const paidAt = new Date();
+      const schedulesToMarkPaid: number[] = [];
+      if (unpaidSchedules.length > 0 && investorPayoutPool > 0) {
+        const orderedSchedules = unpaidSchedules
+          .slice()
+          .sort(
+            (a, b) =>
+              new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
+          );
+
+        let remainingInvestorAmount = investorPayoutPool;
+        for (const schedule of orderedSchedules) {
+          const grossAmount = Number(schedule.amount);
+          const principal = Number(schedule.investment.amount || 0);
+          const isFinalForInvestment =
+            this.normalizeDateKey(schedule.dueDate) ===
+            maxDueDateByInvestment.get(Number(schedule.investmentId));
+          const hasEmbeddedPrincipal =
+            isFinalForInvestment && grossAmount >= principal;
+          const effectiveAmount =
+            isFinalForInvestment && !hasEmbeddedPrincipal
+              ? FinancialCalculator.round(grossAmount + principal)
+              : grossAmount;
+
+          if (remainingInvestorAmount < effectiveAmount) {
+            break;
+          }
+
+          remainingInvestorAmount = FinancialCalculator.round(
+            remainingInvestorAmount - effectiveAmount,
+          );
+          schedulesToMarkPaid.push(schedule.id);
+        }
+      }
+
+      if (schedulesToMarkPaid.length > 0) {
+        await manager
+          .createQueryBuilder()
+          .update(PaymentScheduleEntity)
+          .set({ status: PaymentScheduleStatus.PAID, paidAt })
+          .where('id IN (:...ids)', { ids: schedulesToMarkPaid })
+          .execute();
+      }
+
+      const adminPlatformId = this.getAdminPlatformId();
       if (feeAmount > 0) {
         await manager
           .createQueryBuilder()
           .update(UserEntity)
           .set({ balance: () => 'balance + :amount' })
           .where('id = :id')
-          .setParameters({ id: ADMIN_PLATFORM_ID, amount: feeAmount })
+          .setParameters({ id: adminPlatformId, amount: feeAmount })
           .execute();
 
         const systemFeeTx = transactionRepo.create({
-          userId: ADMIN_PLATFORM_ID,
+          userId: adminPlatformId,
           amount: feeAmount,
           type: TransactionType.SYSTEM_FEE,
           status: TransactionStatus.SUCCESS,
@@ -672,7 +730,7 @@ export class WalletsService {
         });
       }
 
-      const ADMIN_PLATFORM_ID = 1;
+      const adminPlatformId = this.getAdminPlatformId();
       const totalSystemRevenue = FinancialCalculator.round(
         Math.max(feeAmount, 0),
       );
@@ -683,13 +741,13 @@ export class WalletsService {
           .update(UserEntity)
           .set({ balance: () => 'balance + :amount' })
           .where('id = :id', {
-            id: ADMIN_PLATFORM_ID,
+            id: adminPlatformId,
             amount: totalSystemRevenue,
           })
           .execute();
 
         const systemFeeTx = transactionRepo.create({
-          userId: ADMIN_PLATFORM_ID,
+          userId: adminPlatformId,
           amount: totalSystemRevenue,
           type: TransactionType.SYSTEM_FEE,
           status: TransactionStatus.SUCCESS,

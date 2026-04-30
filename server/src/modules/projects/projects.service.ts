@@ -336,13 +336,6 @@ export class ProjectsService {
     return { message: 'Thời gian đã được tua nhanh thành công.' };
   }
 
-  private async notifyProjectOwner(owner: UserEntity, message: string) {
-    if (!owner) return;
-    console.log(
-      `[DEPRECATED] notifyProjectOwner for owner ${owner.id}: ${message}`,
-    );
-  }
-
   async getFundingProjects(filters?: {
     search?: string;
     categoryId?: number;

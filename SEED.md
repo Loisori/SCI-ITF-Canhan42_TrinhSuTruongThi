@@ -1,4 +1,4 @@
-## 🌟 Delete Tables
+-- 🌟 Delete Tables
 
 -- 1. Vô hiệu hóa kiểm tra khóa ngoại
 SET FOREIGN_KEY_CHECKS = 0;
@@ -28,7 +28,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- 4. Kiểm tra nhanh (Tùy chọn)
 SELECT 'Database is now clean!' AS Status;
 
-## 🌟 Insert Users
+-- 🌟 Insert Users
 
 INSERT INTO users (
 email,
@@ -48,7 +48,28 @@ address,
 created_at,
 updated_at
 ) VALUES
--- 1. Investor (Nhà đầu tư)
+
+-- 1. Admin (Quản trị viên)
+(
+'admin@gmail.com',
+'123456',
+'System Admin',
+'admin',
+1000000000.00,
+'https://ui-avatars.com/api/?name=System+Admin&background=0D8ABC&color=fff',
+1,
+'Quản trị viên cấp cao của nền tảng InvestPro.',
+'https://images.unsplash.com/photo-1557683311-eac922347aa1',
+'{}',
+'{"all": true}',
+0,
+'system-admin',
+'Phố Duy Tân, Cầu Giấy, Hà Nội',
+NOW(),
+NOW()
+),
+
+-- 2. Investor (Nhà đầu tư)
 (
 'loisori1001@gmail.com',
 '123456',
@@ -68,7 +89,7 @@ NOW(),
 NOW()
 ),
 
--- 2. Owner (Chủ dự án)
+-- 3. Owner (Chủ dự án)
 (
 'xrejji04@gmail.com',
 '123456',
@@ -86,29 +107,9 @@ NOW()
 'Quận 1, TP. Hồ Chí Minh',
 NOW(),
 NOW()
-),
-
--- 3. Admin (Quản trị viên)
-(
-'admin@gmail.com',
-'123456',
-'System Admin',
-'admin',
-1000000000.00,
-'https://ui-avatars.com/api/?name=System+Admin&background=0D8ABC&color=fff',
-1,
-'Quản trị viên cấp cao của nền tảng InvestPro.',
-'https://images.unsplash.com/photo-1557683311-eac922347aa1',
-'{}',
-'{"all": true}',
-0,
-'system-admin',
-'Phố Duy Tân, Cầu Giấy, Hà Nội',
-NOW(),
-NOW()
 );
 
-## 🌟 Insert Categories
+-- 🌟 Insert Categories
 
 INSERT INTO project_categories (name, slug, description, icon_url, created_at) VALUES
 ('Art', 'art', 'Các dự án về hội họa, điêu khắc và nghệ thuật thị giác.', 'https://cdn-icons-png.flaticon.com/512/1048/1048953.png', NOW()),
@@ -127,7 +128,7 @@ INSERT INTO project_categories (name, slug, description, icon_url, created_at) V
 ('Technology', 'technology', 'Phần cứng, phần mềm, AI và các giải pháp công nghệ mới.', 'https://cdn-icons-png.flaticon.com/512/2103/2103633.png', NOW()),
 ('Theater', 'theater', 'Kịch nghệ, biểu diễn sân khấu và nghệ thuật trình diễn.', 'https://cdn-icons-png.flaticon.com/512/3133/3133139.png', NOW());
 
-## 🌟 Insert Projects
+-- 🌟 Insert Projects
 
 INSERT INTO projects (
 owner_id, category_id, title, slug, short_description, content,

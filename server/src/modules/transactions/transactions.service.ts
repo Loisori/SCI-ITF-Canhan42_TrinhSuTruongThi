@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import {
   TransactionEntity,
   TransactionStatus,
@@ -19,6 +19,7 @@ export class TransactionsService {
     private readonly transactionsRepository: Repository<TransactionEntity>,
     @InjectRepository(UserEntity)
     private readonly usersRepository: Repository<UserEntity>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async getMyTransactions(
@@ -112,44 +113,62 @@ export class TransactionsService {
     action: 'approve' | 'reject',
   ) {
     try {
-      const transaction = await this.transactionsRepository.findOne({
-        where: { id: transactionId },
-        relations: ['user'],
-      });
+      const finalizedTx = await this.dataSource.transaction(async (manager) => {
+        const transactionRepo = manager.getRepository(TransactionEntity);
+        const userRepo = manager.getRepository(UserEntity);
 
-      if (!transaction) throw new NotFoundException('Transaction not found');
-      if (transaction.status !== TransactionStatus.PENDING) {
-        throw new BadRequestException('Giao dịch này đã được xử lý');
-      }
+        const transaction = await transactionRepo.findOne({
+          where: { id: transactionId },
+          relations: ['user'],
+          lock: { mode: 'pessimistic_write' },
+        });
 
-      console.log(
-        `[TransactionsService] Admin ${adminId} ${action} withdrawal ${transactionId}. Amount: ${transaction.amount}`,
-      );
-
-      if (action === 'approve') {
-        const user = transaction.user;
-        const userBalance = Number(user.balance);
-        const txAmount = Number(transaction.amount);
-
-        if (userBalance < txAmount) {
-          transaction.status = TransactionStatus.FAILED;
-          transaction.description =
-            'Từ chối: Số dư không đủ tại thời điểm xử lý';
-          await this.transactionsRepository.save(transaction);
-          throw new BadRequestException('Số dư người dùng không đủ');
+        if (!transaction) throw new NotFoundException('Transaction not found');
+        if (transaction.status !== TransactionStatus.PENDING) {
+          throw new BadRequestException('Giao dịch này đã được xử lý');
         }
 
-        user.balance = userBalance - txAmount;
-        await this.usersRepository.save(user);
+        console.log(
+          `[TransactionsService] Admin ${adminId} ${action} withdrawal ${transactionId}. Amount: ${transaction.amount}`,
+        );
 
-        transaction.status = TransactionStatus.SUCCESS;
-        transaction.description = 'Rút tiền thành công';
-      } else {
-        transaction.status = TransactionStatus.FAILED;
-        transaction.description = 'Yêu cầu rút tiền bị từ chối bởi Admin';
-      }
+        if (action === 'approve') {
+          const user = await userRepo.findOne({
+            where: { id: transaction.userId },
+            lock: { mode: 'pessimistic_write' },
+          });
 
-      const finalizedTx = await this.transactionsRepository.save(transaction);
+          if (!user) throw new NotFoundException('User not found');
+
+          const userBalance = Number(user.balance);
+          const txAmount = Number(transaction.amount);
+
+          if (userBalance < txAmount) {
+            transaction.status = TransactionStatus.FAILED;
+            transaction.description =
+              'Từ chối: Số dư không đủ tại thời điểm xử lý';
+            await transactionRepo.save(transaction);
+            throw new BadRequestException('Số dư người dùng không đủ');
+          }
+
+          await manager
+            .createQueryBuilder()
+            .update(UserEntity)
+            .set({ balance: () => 'balance - :amount' })
+            .where('id = :id')
+            .setParameters({ id: user.id, amount: txAmount })
+            .execute();
+
+          transaction.status = TransactionStatus.SUCCESS;
+          transaction.description = 'Rút tiền thành công';
+        } else {
+          transaction.status = TransactionStatus.FAILED;
+          transaction.description = 'Yêu cầu rút tiền bị từ chối bởi Admin';
+        }
+
+        return transactionRepo.save(transaction);
+      });
+
       console.log(
         `[TransactionsService] Withdrawal finalized with status: ${finalizedTx.status}`,
       );

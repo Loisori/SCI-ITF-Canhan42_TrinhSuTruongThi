@@ -64,6 +64,16 @@ export class TasksService {
         return;
       }
 
+      const overdueScheduleIds = overdueSchedules.map((s) => s.id);
+      if (overdueScheduleIds.length > 0) {
+        await scheduleRepo
+          .createQueryBuilder()
+          .update(PaymentScheduleEntity)
+          .set({ status: PaymentScheduleStatus.OVERDUE })
+          .where('id IN (:...ids)', { ids: overdueScheduleIds })
+          .execute();
+      }
+
       for (const projectId of Array.from(projectIdsToMark)) {
         const project = await projectRepo.findOne({ where: { id: projectId } });
         if (project) {

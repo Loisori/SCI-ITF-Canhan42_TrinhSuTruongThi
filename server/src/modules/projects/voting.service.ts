@@ -11,49 +11,99 @@ import {
   MilestoneStatus,
 } from './entities/milestone.entity';
 import { MilestoneVoteEntity } from './entities/vote.entity';
+import { MilestoneVoteSnapshotEntity } from './entities/milestone-vote-snapshot.entity';
 import {
   InvestmentEntity,
   InvestmentStatus,
 } from '../investments/entities/investment.entity';
 import { MilestonesService } from './milestones.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { FinancialCalculator } from '../../common/utils/financial-calculator';
 
 @Injectable()
 export class VotingService {
   constructor(
     @InjectRepository(MilestoneVoteEntity)
     private readonly milestoneVotesRepository: Repository<MilestoneVoteEntity>,
+    @InjectRepository(MilestoneVoteSnapshotEntity)
+    private readonly milestoneVoteSnapshotsRepository: Repository<MilestoneVoteSnapshotEntity>,
     private readonly milestonesService: MilestonesService,
     private readonly dataSource: DataSource,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  async startMilestoneVoting(milestoneId: number, userId: number) {
-    const milestoneRepo = this.dataSource.getRepository(ProjectMilestoneEntity);
-    const milestone = await milestoneRepo.findOne({
-      where: { id: milestoneId },
-      relations: ['project'],
+  private async buildVotingSnapshot(
+    manager: DataSource['manager'],
+    milestoneId: number,
+    projectId: number,
+  ) {
+    const snapshotRepo = manager.getRepository(MilestoneVoteSnapshotEntity);
+    const investmentRepo = manager.getRepository(InvestmentEntity);
+
+    await snapshotRepo.delete({ milestoneId });
+
+    const investments = await investmentRepo.find({
+      where: { projectId, status: InvestmentStatus.ACTIVE },
     });
 
-    if (!milestone) throw new NotFoundException('Milestone not found');
-    if (milestone.project.ownerId !== userId) {
-      throw new ForbiddenException('Only project owner can start voting');
-    }
-    if (milestone.status !== MilestoneStatus.ADMIN_REVIEW) {
-      throw new BadRequestException(
-        'Milestone must be in Admin Review state to start voting',
+    const capitalByUser = new Map<number, number>();
+    for (const inv of investments) {
+      const current = capitalByUser.get(inv.userId) ?? 0;
+      capitalByUser.set(
+        inv.userId,
+        FinancialCalculator.round(current + Number(inv.amount)),
       );
     }
 
-    const votingDays = 3;
-    const endsAt = new Date();
-    endsAt.setDate(endsAt.getDate() + votingDays);
+    const rows = Array.from(capitalByUser.entries()).map(([userId, amount]) =>
+      snapshotRepo.create({
+        milestoneId,
+        userId,
+        capitalSnapshot: amount,
+      }),
+    );
 
-    milestone.status = MilestoneStatus.VOTING;
-    milestone.votingEndsAt = endsAt;
-    await milestoneRepo.save(milestone);
+    if (rows.length > 0) {
+      await snapshotRepo.save(rows);
+    }
+  }
 
-    return { message: 'Voting started', endsAt };
+  async startMilestoneVoting(milestoneId: number, userId: number) {
+    return this.dataSource.transaction(async (manager) => {
+      const milestoneRepo = manager.getRepository(ProjectMilestoneEntity);
+
+      const milestone = await milestoneRepo.findOne({
+        where: { id: milestoneId },
+        relations: ['project'],
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!milestone) throw new NotFoundException('Milestone not found');
+      if (milestone.project.ownerId !== userId) {
+        throw new ForbiddenException('Only project owner can start voting');
+      }
+      if (milestone.status !== MilestoneStatus.ADMIN_REVIEW) {
+        throw new BadRequestException(
+          'Milestone must be in Admin Review state to start voting',
+        );
+      }
+
+      const votingDays = 3;
+      const endsAt = new Date();
+      endsAt.setDate(endsAt.getDate() + votingDays);
+
+      milestone.status = MilestoneStatus.VOTING;
+      milestone.votingEndsAt = endsAt;
+      await milestoneRepo.save(milestone);
+
+      await this.buildVotingSnapshot(
+        manager,
+        milestone.id,
+        milestone.projectId,
+      );
+
+      return { message: 'Voting started', endsAt };
+    });
   }
 
   async submitVote(
@@ -78,19 +128,11 @@ export class VotingService {
       throw new BadRequestException('Thời gian bầu chọn đã kết thúc.');
     }
 
-    const investmentRepo = this.dataSource.getRepository(InvestmentEntity);
-    const investments = await investmentRepo.find({
-      where: { projectId: milestone.projectId, userId: userId },
+    const snapshot = await this.milestoneVoteSnapshotsRepository.findOne({
+      where: { milestoneId, userId },
     });
 
-    const activeInvestments = investments.filter(
-      (inv) => inv.status !== InvestmentStatus.WITHDRAWN,
-    );
-    const totalInvested = activeInvestments.reduce(
-      (sum, inv) => sum + Number(inv.amount),
-      0,
-    );
-
+    const totalInvested = Number(snapshot?.capitalSnapshot ?? 0);
     if (totalInvested <= 0) {
       throw new ForbiddenException(
         'Bạn phải là nhà đầu tư của dự án này mới có thể bầu chọn.',
@@ -172,28 +214,38 @@ export class VotingService {
   }
 
   async adminResetMilestoneVote(milestoneId: number) {
-    const milestoneRepo = this.dataSource.getRepository(ProjectMilestoneEntity);
-    const milestone = await milestoneRepo.findOne({
-      where: { id: milestoneId },
-      relations: ['project'],
+    return this.dataSource.transaction(async (manager) => {
+      const milestoneRepo = manager.getRepository(ProjectMilestoneEntity);
+      const votesRepo = manager.getRepository(MilestoneVoteEntity);
+      const milestone = await milestoneRepo.findOne({
+        where: { id: milestoneId },
+        relations: ['project'],
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!milestone) throw new NotFoundException('Milestone not found');
+
+      // 1. Delete old votes
+      await votesRepo.delete({ milestoneId });
+
+      // 2. Reset status and timer
+      milestone.status = MilestoneStatus.VOTING;
+      milestone.votingEndsAt = new Date(Date.now() + 72 * 60 * 60 * 1000); // 72h
+      await milestoneRepo.save(milestone);
+
+      await this.buildVotingSnapshot(
+        manager,
+        milestone.id,
+        milestone.projectId,
+      );
+
+      // Notify Investors (Async)
+      this.eventEmitter.emit('milestone.voting_reset', {
+        projectId: milestone.projectId,
+        milestoneId: milestone.id,
+        title: milestone.title,
+      });
+
+      return milestone;
     });
-    if (!milestone) throw new NotFoundException('Milestone not found');
-
-    // 1. Delete old votes
-    await this.milestoneVotesRepository.delete({ milestoneId });
-
-    // 2. Reset status and timer
-    milestone.status = MilestoneStatus.VOTING;
-    milestone.votingEndsAt = new Date(Date.now() + 72 * 60 * 60 * 1000); // 72h
-    await milestoneRepo.save(milestone);
-
-    // Notify Investors (Async)
-    this.eventEmitter.emit('milestone.voting_reset', {
-      projectId: milestone.projectId,
-      milestoneId: milestone.id,
-      title: milestone.title,
-    });
-
-    return milestone;
   }
 }

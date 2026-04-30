@@ -158,19 +158,38 @@ export class MilestonesService {
     const eventData = await this.dataSource.transaction(async (manager) => {
       const milestoneRepo = manager.getRepository(ProjectMilestoneEntity);
       const projectRepo = manager.getRepository(ProjectEntity);
-      const investmentRepo = manager.getRepository(InvestmentEntity);
       const usersRepo = manager.getRepository(UserEntity);
       const transactionRepo = manager.getRepository(TransactionEntity);
 
       const milestone = await milestoneRepo.findOne({
         where: { id: milestoneId, projectId },
+        lock: { mode: 'pessimistic_write' },
       });
       if (!milestone) throw new NotFoundException('Milestone not found');
+      if (
+        milestone.status !== MilestoneStatus.ADMIN_REVIEW &&
+        milestone.status !== MilestoneStatus.VOTING
+      ) {
+        throw new BadRequestException(
+          'Milestone is not eligible for disbursement.',
+        );
+      }
 
       const project = await projectRepo.findOne({
         where: { id: projectId },
+        lock: { mode: 'pessimistic_write' },
       });
       if (!project) throw new NotFoundException('Project not found');
+
+      const existingDisbursement = await transactionRepo.findOne({
+        where: {
+          type: TransactionType.DISBURSEMENT,
+          referenceId: milestone.id,
+        },
+      });
+      if (existingDisbursement) {
+        throw new BadRequestException('Milestone already disbursed.');
+      }
 
       const totalInvested = Number(project.currentAmount);
       const commissionAmount = FinancialCalculator.calculateCommission(
@@ -184,7 +203,7 @@ export class MilestonesService {
       );
 
       // 1. Update status
-      milestone.status = MilestoneStatus.COMPLETED;
+      milestone.status = MilestoneStatus.DISBURSED;
       milestone.disbursementDate = new Date();
       await milestoneRepo.save(milestone);
 
@@ -193,11 +212,17 @@ export class MilestonesService {
         where: { projectId: project.id, stage: milestone.stage + 1 },
       });
       if (nextMilestone) {
+        const intervalDays = milestone.intervalDays || 0;
         const nextDate = new Date();
-        nextDate.setDate(nextDate.getDate() + (milestone.intervalDays || 0));
+        nextDate.setDate(nextDate.getDate() + intervalDays);
 
-        nextMilestone.status = MilestoneStatus.PENDING;
-        nextMilestone.nextDisbursementDate = nextDate;
+        if (intervalDays > 0) {
+          nextMilestone.status = MilestoneStatus.PENDING;
+          nextMilestone.nextDisbursementDate = nextDate;
+        } else {
+          nextMilestone.status = MilestoneStatus.UPLOADING_PROOF;
+          nextMilestone.nextDisbursementDate = null;
+        }
         await milestoneRepo.save(nextMilestone);
       } else {
         project.status = ProjectStatus.COMPLETED;
@@ -246,7 +271,7 @@ export class MilestonesService {
           type: TransactionType.DISBURSEMENT,
           status: TransactionStatus.SUCCESS,
           description: `Giải ngân đợt ${milestone.stage} dự án ${project.title}`,
-          referenceId: project.id,
+          referenceId: milestone.id,
         });
         await transactionRepo.save(ownerTx);
       }
@@ -385,7 +410,9 @@ export class MilestonesService {
         where: { projectId: project.id },
       });
       const completedMilestones = milestones.filter(
-        (m) => m.status === MilestoneStatus.COMPLETED,
+        (m) =>
+          m.status === MilestoneStatus.COMPLETED ||
+          m.status === MilestoneStatus.DISBURSED,
       );
       const totalPercentageDisbursed = completedMilestones.reduce(
         (sum, m) => sum + Number(m.percentage),
@@ -403,11 +430,23 @@ export class MilestonesService {
         where: { projectId: project.id, status: InvestmentStatus.ACTIVE },
       });
 
-      for (const inv of investments) {
+      let totalRefunded = 0;
+      const lastIndex = investments.length - 1;
+
+      for (let index = 0; index < investments.length; index += 1) {
+        const inv = investments[index];
         const initialAmount = Number(inv.amount);
-        const refundAmount = Number(
-          ((initialAmount / totalRaised) * remainingBalanceToRefund).toFixed(2),
-        );
+        const baseRefund =
+          totalRaised > 0
+            ? (initialAmount / totalRaised) * remainingBalanceToRefund
+            : 0;
+        const refundAmount =
+          index === lastIndex
+            ? FinancialCalculator.round(
+                remainingBalanceToRefund - totalRefunded,
+              )
+            : FinancialCalculator.round(baseRefund);
+        totalRefunded = FinancialCalculator.round(totalRefunded + refundAmount);
 
         if (refundAmount > 0) {
           const investor = await userRepo.findOne({

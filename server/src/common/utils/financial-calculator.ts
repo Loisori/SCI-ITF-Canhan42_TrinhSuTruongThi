@@ -35,7 +35,7 @@ export class FinancialCalculator {
 
   /**
    * Calculates total debt:
-   * Principal + Interest + Platform fee on interest.
+   * Principal + Interest (no platform fee compounding).
    */
   static calculateTotalDebt(
     principal: number,
@@ -50,9 +50,9 @@ export class FinancialCalculator {
       normalizedPrincipal *
       (normalizedInterestRate / 100) *
       (normalizedDuration / 12);
-    const feeOnInterest = interest * this.toCommissionFraction(commissionRate);
+    void commissionRate;
 
-    return this.round(normalizedPrincipal + interest + feeOnInterest);
+    return this.round(normalizedPrincipal + interest);
   }
 
   /**

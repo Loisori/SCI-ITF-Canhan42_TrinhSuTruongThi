@@ -11,6 +11,7 @@ import { ProjectMilestoneEntity } from './entities/milestone.entity';
 import { ProjectDisputeEntity } from './entities/dispute.entity';
 import { MilestoneVoteEntity } from './entities/vote.entity';
 import { MilestoneDiscussionEntity } from './entities/discussion.entity';
+import { MilestoneVoteSnapshotEntity } from './entities/milestone-vote-snapshot.entity';
 import { AdminProjectsController } from './admin-projects.controller';
 import { TasksService } from './tasks.service';
 import { MilestonesService } from './milestones.service';
@@ -29,6 +30,7 @@ import { UsersModule } from '../users/users.module';
       ProjectMilestoneEntity,
       ProjectDisputeEntity,
       MilestoneVoteEntity,
+      MilestoneVoteSnapshotEntity,
       MilestoneDiscussionEntity,
     ]),
 
