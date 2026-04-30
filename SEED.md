@@ -52,7 +52,7 @@ updated_at
 -- 1. Admin (Quản trị viên)
 (
 'admin@gmail.com',
-'123456',
+'$2b$10$/5g9bzo2UVnsqIzpxHa9eOXDHi3Q4.ulKzCy8RfVJRj0FBtKiUub2',
 'System Admin',
 'admin',
 1000000000.00,
@@ -72,7 +72,7 @@ NOW()
 -- 2. Investor (Nhà đầu tư)
 (
 'loisori1001@gmail.com',
-'123456',
+'$2b$10$/5g9bzo2UVnsqIzpxHa9eOXDHi3Q4.ulKzCy8RfVJRj0FBtKiUub2',
 'Lợi Sori Investor',
 'investor',
 1000000000.00,
@@ -92,7 +92,7 @@ NOW()
 -- 3. Owner (Chủ dự án)
 (
 'xrejji04@gmail.com',
-'123456',
+'$2b$10$/5g9bzo2UVnsqIzpxHa9eOXDHi3Q4.ulKzCy8RfVJRj0FBtKiUub2',
 'Xrejji Project Owner',
 'owner',
 1000000000.00,
@@ -107,6 +107,39 @@ NOW()
 'Quận 1, TP. Hồ Chí Minh',
 NOW(),
 NOW()
+);
+
+-- 🌟 Insert KYCs (Investor + Owner)
+
+INSERT INTO kycs (
+user_id,
+id_card_number,
+front_image_url,
+back_image_url,
+status,
+rejection_reason,
+created_at,
+updated_at
+) VALUES
+(
+	(SELECT id FROM users WHERE email = 'loisori1001@gmail.com'),
+	'INV-0123456789',
+	'https://images.unsplash.com/photo-1522202176988-66273c2fd55f',
+	'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4',
+	'APPROVED',
+	NULL,
+	NOW(),
+	NOW()
+),
+(
+	(SELECT id FROM users WHERE email = 'xrejji04@gmail.com'),
+	'OWN-9876543210',
+	'https://images.unsplash.com/photo-1524504388940-b1c1722653e1',
+	'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab',
+	'APPROVED',
+	NULL,
+	NOW(),
+	NOW()
 );
 
 -- 🌟 Insert Categories
@@ -210,3 +243,25 @@ start_date, end_date, is_frozen, address, created_at
 ((SELECT id FROM users WHERE email = 'xrejji04@gmail.com'), 15, 'Nhạc kịch Broadway: Ánh đèn Sài Gòn', 'musical-saigon-lights', 'Vở diễn quy mô lớn với dàn diễn viên tài năng.', 'Nội dung...', 2000000000, 0, 5000000, 14.0, 5, 12, 'high', 'funding', '2026-05-05', '2026-11-05', 0, 'Nhà hát Thành phố', NOW()),
 ((SELECT id FROM users WHERE email = 'xrejji04@gmail.com'), 15, 'Kịch tương tác cho Trẻ em: Xứ sở Diệu kỳ', 'interactive-kids-theater', 'Vở diễn nơi khán giả nhí có thể tham gia vào cốt truyện.', 'Nội dung...', 600000000, 0, 1000000, 15.5, 6, 12, 'medium', 'funding', '2026-05-20', '2026-11-20', 0, 'TP. HCM', NOW()),
 ((SELECT id FROM users WHERE email = 'xrejji04@gmail.com'), 15, 'Sân khấu kịch thể nghiệm Mini-Show', 'mini-theater-show', 'Nơi thử nghiệm các hình thức biểu diễn mới.', 'Nội dung...', 300000000, 0, 500000, 17.0, 7, 9, 'medium', 'funding', '2026-06-12', '2027-02-12', 0, 'Quận 3, TP. HCM', NOW());
+
+-- 🌟 Insert Milestones (5 stages per project)
+
+INSERT INTO project_milestones (
+project_id,
+title,
+content,
+percentage,
+stage,
+status,
+interval_days,
+created_at
+)
+SELECT id, 'Giai đoạn 1 (20%)', NULL, 20, 1, 'pending', 0, NOW() FROM projects
+UNION ALL
+SELECT id, 'Giai đoạn 2 (20%)', NULL, 20, 2, 'pending', 0, NOW() FROM projects
+UNION ALL
+SELECT id, 'Giai đoạn 3 (20%)', NULL, 20, 3, 'pending', 0, NOW() FROM projects
+UNION ALL
+SELECT id, 'Giai đoạn 4 (20%)', NULL, 20, 4, 'pending', 0, NOW() FROM projects
+UNION ALL
+SELECT id, 'Giai đoạn 5 (20%)', NULL, 20, 5, 'pending', 0, NOW() FROM projects;

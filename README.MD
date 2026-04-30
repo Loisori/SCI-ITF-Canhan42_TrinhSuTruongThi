@@ -80,6 +80,83 @@ Hỗ trợ nạp tiền siêu tốc qua các cổng thanh toán hàng đầu Vi�
 
 ---
 
+## 📘 Technical Documentation
+
+### Escrow & Milestone Funding Model (Overview)
+- Investor funds are held in escrow during FUNDING.
+- Funds are released by milestone after proof upload, admin review, and capital-weighted voting.
+- Disputes can freeze the project and trigger refunds of undisbursed funds.
+
+### Money Flow & Repayment Formula
+Total debt is calculated using principal and interest only:
+
+$$Total\ Debt = P + (P \times r \times (d/12))$$
+
+Where:
+- $P$ = Principal invested
+- $r$ = Annual interest rate (percent)
+- $d$ = Duration in months
+
+Repayment split:
+- Investor Payout = principal + interest in the repayment batch
+- Platform Fee = fee rate * interest (credited to Admin/Platform wallet)
+- Owner Charge = Investor Payout + Platform Fee
+
+All monetary splits are rounded to 2 decimal places.
+
+### Transaction Types (11)
+- DEPOSIT: Wallet top-up request
+- WITHDRAWAL: Wallet withdrawal request
+- INVEST: Investment into a project
+- INTEREST_RECEIVE: Investor receives interest
+- REFUND: Refund for failed/terminated project
+- DISBURSEMENT: Escrow releases funds to project owner
+- REPAYMENT: Owner repays project debt
+- REPAY_INTEREST: Owner pays interest portion
+- REPAY_PRINCIPAL: Owner pays principal portion
+- SYSTEM_FEE: Platform fee collected
+- SYSTEM_LOG: System-only ledger entry
+
+### Mermaid Diagrams
+
+```mermaid
+sequenceDiagram
+  participant Owner as Owner Wallet
+  participant Escrow as Escrow System
+  participant Investor as Investor Wallet
+  participant Admin as Admin/Platform Wallet
+
+  Owner->>Escrow: Repayment request (1,132,000 VND)
+  Escrow->>Escrow: Lock funds
+  Escrow->>Escrow: Split logic (Investor Payout + Platform Fee)
+  Escrow->>Investor: Credit 1,100,000 VND
+  Escrow->>Admin: Credit 32,000 VND (Platform Fee)
+  Note over Escrow: Example split for illustration
+```
+
+```mermaid
+stateDiagram-v2
+  [*] --> PENDING
+  PENDING --> UPLOADING_PROOF: Owner starts proof
+  UPLOADING_PROOF --> ADMIN_REVIEW: Proof submitted
+  ADMIN_REVIEW --> VOTING: Admin approves
+  ADMIN_REVIEW --> UPLOADING_PROOF: Request more proof
+  VOTING --> DISBURSED: >= 50% approve (snapshot)
+  VOTING --> DISPUTED: < 50% approve
+  DISBURSED --> COMPLETED
+  DISPUTED --> FAILED: Admin terminates/refund
+```
+
+```mermaid
+flowchart TD
+  A[Owner starts voting] --> B[Snapshot investor capital]
+  B --> C[Investors submit votes]
+  C --> D[Sum YES weight / Total raised]
+  D --> E{>= 50%?}
+  E -- Yes --> F[Disburse milestone]
+  E -- No --> G[Mark DISPUTED]
+```
+
 ## 💻 Hướng Dẫn Cài Đặt
 
 ### 1. Cấu hình Môi trường
