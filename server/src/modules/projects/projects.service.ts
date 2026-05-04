@@ -1218,6 +1218,16 @@ export class ProjectsService {
         const project = await projectRepo.findOne({ where: { id: projectId } });
         if (!project) throw new NotFoundException('Project not found');
 
+        // Milestone 1 must be disbursed via approveFundedProject (Activation)
+        if (
+          milestone.stage === 1 &&
+          project.status === ProjectStatus.PENDING_ADMIN_REVIEW
+        ) {
+          throw new BadRequestException(
+            'Giai đoạn 1 không thể bắt đầu bình chọn. Vui lòng duyệt kích hoạt dự án để giải ngân đợt 1.',
+          );
+        }
+
         milestone.status = MilestoneStatus.VOTING;
         const votingDays = 3;
         const endsAt = new Date();

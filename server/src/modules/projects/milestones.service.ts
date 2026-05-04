@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, IsNull, Repository } from 'typeorm';
+import { DataSource, IsNull, Repository, Not } from 'typeorm';
 import { ProjectEntity, ProjectStatus } from './entities/project.entity';
 import {
   ProjectMilestoneEntity,
@@ -42,7 +42,10 @@ export class MilestonesService {
   async getPendingMilestones() {
     const milestoneRepo = this.dataSource.getRepository(ProjectMilestoneEntity);
     const milestones = await milestoneRepo.find({
-      where: { status: MilestoneStatus.ADMIN_REVIEW },
+      where: {
+        status: MilestoneStatus.ADMIN_REVIEW,
+        stage: Not(1),
+      },
       relations: ['project', 'project.owner'],
       order: { createdAt: 'ASC' },
     });
@@ -210,6 +213,17 @@ export class MilestonesService {
         lock: { mode: 'pessimistic_write' },
       });
       if (!project) throw new NotFoundException('Project not found');
+
+      // Safety Guard: Milestone 1 MUST be disbursed through Project Activation flow
+      // which generates the interest schedules.
+      if (
+        milestone.stage === 1 &&
+        project.status === ProjectStatus.PENDING_ADMIN_REVIEW
+      ) {
+        throw new BadRequestException(
+          'Giai đoạn 1 phải được giải ngân thông qua quy trình Duyệt kích hoạt dự án (Project Activation) để khởi tạo lịch trả nợ.',
+        );
+      }
 
       const existingDisbursement = await transactionRepo.findOne({
         where: {

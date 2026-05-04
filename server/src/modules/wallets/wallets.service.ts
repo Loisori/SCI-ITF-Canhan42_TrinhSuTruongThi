@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DataSource, EntityManager } from 'typeorm';
+import { DataSource, EntityManager, In } from 'typeorm';
 import {
   TransactionEntity,
   TransactionStatus,
@@ -238,7 +238,10 @@ export class WalletsService {
 
       const unpaidSchedules = await scheduleRepo.find({
         where: {
-          status: PaymentScheduleStatus.UNPAID,
+          status: In([
+            PaymentScheduleStatus.UNPAID,
+            PaymentScheduleStatus.OVERDUE,
+          ]),
           investment: { projectId },
         },
         relations: ['investment'],
@@ -524,7 +527,10 @@ export class WalletsService {
       const allSchedulesToPay = await scheduleRepo.find({
         where: {
           dueDate,
-          status: PaymentScheduleStatus.UNPAID,
+          status: In([
+            PaymentScheduleStatus.UNPAID,
+            PaymentScheduleStatus.OVERDUE,
+          ]),
           investment: { projectId: projectId },
         },
         relations: ['investment'],
@@ -604,7 +610,10 @@ export class WalletsService {
 
       const totalUnpaidSchedulesInProject = await scheduleRepo.count({
         where: {
-          status: PaymentScheduleStatus.UNPAID,
+          status: In([
+            PaymentScheduleStatus.UNPAID,
+            PaymentScheduleStatus.OVERDUE,
+          ]),
           investment: { projectId },
         },
       });
@@ -809,8 +818,8 @@ export class WalletsService {
       .leftJoinAndSelect('schedule.investment', 'investment')
       .leftJoinAndSelect('investment.project', 'project')
       .where('project.ownerId = :ownerId', { ownerId })
-      .andWhere('schedule.status = :status', {
-        status: PaymentScheduleStatus.UNPAID,
+      .andWhere('schedule.status IN (:...statuses)', {
+        statuses: [PaymentScheduleStatus.UNPAID, PaymentScheduleStatus.OVERDUE],
       })
       .orderBy('schedule.dueDate', 'ASC')
       .getMany();

@@ -1,27 +1,27 @@
 [
   {
-    "id": 30001,
-    "title": "éting",
+    "id": 4,
+    "title": "téting 3",
     "thumbnailUrl": null,
-    "shortDescription": "213",
-    "slug": "eting",
-    "address": "123123",
+    "shortDescription": "",
+    "slug": "teting-3",
+    "address": "",
     "targetCapital": 1000000,
     "currentAmount": 1000000,
     "interestRate": 5,
-    "durationMonths": 3,
+    "durationMonths": 12,
     "minInvestment": 10000,
     "riskLevel": "medium",
     "fundingProgress": 100,
     "status": "active",
-    "totalDebt": 1012500,
+    "totalDebt": 1050000,
     "startDate": "2026-05-04",
     "endDate": "2026-05-05",
     "category": {
-      "id": 1,
-      "name": "Art",
-      "slug": "art",
-      "iconUrl": "https://cdn-icons-png.flaticon.com/512/1048/1048953.png"
+      "id": 7,
+      "name": "Film & Video",
+      "slug": "film-video",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/1179/1179069.png"
     },
     "owner": {
       "id": 3,
@@ -37,59 +37,197 @@
     },
     "images": [],
     "isFrozen": false,
-    "createdAt": "2026-05-04T04:15:10.689Z",
+    "createdAt": "2026-05-04T06:13:48.864Z",
     "milestones": [
       {
-        "id": 30001,
+        "id": 10,
         "title": "Đợt 1: Khởi động",
         "percentage": 20,
         "stage": 1,
         "status": "disbursed",
         "evidenceUrls": null,
-        "createdAt": "2026-05-04T04:15:10.811Z"
+        "createdAt": "2026-05-04T06:13:48.975Z"
       },
       {
-        "id": 30002,
+        "id": 11,
         "title": "Đợt 2: Triển khai",
         "percentage": 30,
         "stage": 2,
-        "status": "disbursed",
-        "evidenceUrls": [
-          "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1777891617/investpro/users/3/acu0qpkeyjxqijzr29fj.jpg"
-        ],
-        "createdAt": "2026-05-04T04:15:10.947Z"
+        "status": "uploading_proof",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-04T06:13:49.076Z"
       },
       {
-        "id": 30003,
+        "id": 12,
         "title": "Đợt 3: Hoàn thiện",
         "percentage": 50,
         "stage": 3,
-        "status": "voting",
-        "evidenceUrls": [
-          "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1777891617/investpro/users/3/acu0qpkeyjxqijzr29fj.jpg"
-        ],
-        "createdAt": "2026-05-04T04:15:11.056Z"
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-04T06:13:49.177Z"
       }
     ],
     "disputes": [],
-    "content": "3123"
+    "content": ""
+  },
+  {
+    "id": 3,
+    "title": "123123",
+    "thumbnailUrl": null,
+    "shortDescription": "",
+    "slug": "123123-1",
+    "address": "12d",
+    "targetCapital": 1000000,
+    "currentAmount": 0,
+    "interestRate": 5,
+    "durationMonths": 12,
+    "minInvestment": 10000,
+    "riskLevel": "medium",
+    "fundingProgress": 0,
+    "status": "pending_admin_review",
+    "totalDebt": 0,
+    "startDate": "2026-05-04",
+    "endDate": null,
+    "category": {
+      "id": 2,
+      "name": "Comics",
+      "slug": "comics",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/3011/3011306.png"
+    },
+    "owner": {
+      "id": 3,
+      "slug": "xrejji-project-owner",
+      "fullName": "Xrejji Project Owner",
+      "email": "xrejji04@gmail.com",
+      "avatarUrl": "https://ui-avatars.com/api/?name=Xrejji+Owner&background=random",
+      "bio": "Chuyên gia phát triển dự án bất động sản và nông nghiệp công nghệ cao.",
+      "socialLinks": {
+        "website": "xrejji.com"
+      },
+      "address": "Quận 1, TP. Hồ Chí Minh"
+    },
+    "images": [],
+    "isFrozen": false,
+    "createdAt": "2026-05-04T06:11:05.054Z",
+    "milestones": [
+      {
+        "id": 7,
+        "title": "Đợt 1: Khởi động",
+        "percentage": 20,
+        "stage": 1,
+        "status": "uploading_proof",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-04T06:11:05.161Z"
+      },
+      {
+        "id": 8,
+        "title": "Đợt 2: Triển khai",
+        "percentage": 30,
+        "stage": 2,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-04T06:11:05.265Z"
+      },
+      {
+        "id": 9,
+        "title": "Đợt 3: Hoàn thiện",
+        "percentage": 50,
+        "stage": 3,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-04T06:11:05.369Z"
+      }
+    ],
+    "disputes": [],
+    "content": ""
+  },
+  {
+    "id": 2,
+    "title": "testing 2",
+    "thumbnailUrl": null,
+    "shortDescription": "",
+    "slug": "testing-2",
+    "address": "",
+    "targetCapital": 1000000,
+    "currentAmount": 1000000,
+    "interestRate": 5,
+    "durationMonths": 12,
+    "minInvestment": 10000,
+    "riskLevel": "medium",
+    "fundingProgress": 100,
+    "status": "active",
+    "totalDebt": 1050000,
+    "startDate": "2026-05-04",
+    "endDate": null,
+    "category": {
+      "id": 2,
+      "name": "Comics",
+      "slug": "comics",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/3011/3011306.png"
+    },
+    "owner": {
+      "id": 3,
+      "slug": "xrejji-project-owner",
+      "fullName": "Xrejji Project Owner",
+      "email": "xrejji04@gmail.com",
+      "avatarUrl": "https://ui-avatars.com/api/?name=Xrejji+Owner&background=random",
+      "bio": "Chuyên gia phát triển dự án bất động sản và nông nghiệp công nghệ cao.",
+      "socialLinks": {
+        "website": "xrejji.com"
+      },
+      "address": "Quận 1, TP. Hồ Chí Minh"
+    },
+    "images": [],
+    "isFrozen": false,
+    "createdAt": "2026-05-04T06:00:38.548Z",
+    "milestones": [
+      {
+        "id": 4,
+        "title": "Đợt 1: Khởi động",
+        "percentage": 20,
+        "stage": 1,
+        "status": "disbursed",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-04T06:00:38.664Z"
+      },
+      {
+        "id": 5,
+        "title": "Đợt 2: Triển khai",
+        "percentage": 30,
+        "stage": 2,
+        "status": "uploading_proof",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-04T06:00:38.768Z"
+      },
+      {
+        "id": 6,
+        "title": "Đợt 3: Hoàn thiện",
+        "percentage": 50,
+        "stage": 3,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-04T06:00:38.870Z"
+      }
+    ],
+    "disputes": [],
+    "content": ""
   },
   {
     "id": 1,
     "title": "testing",
     "thumbnailUrl": null,
-    "shortDescription": "asdasd",
+    "shortDescription": "123123123",
     "slug": "testing",
-    "address": "asdadas",
+    "address": "312123",
     "targetCapital": 1000000,
     "currentAmount": 1000000,
     "interestRate": 5,
-    "durationMonths": 6,
+    "durationMonths": 12,
     "minInvestment": 10000,
     "riskLevel": "medium",
     "fundingProgress": 100,
-    "status": "active",
-    "totalDebt": 1025000,
+    "status": "completed",
+    "totalDebt": 1050000,
     "startDate": "2026-05-04",
     "endDate": "2026-05-05",
     "category": {
@@ -112,7 +250,7 @@
     },
     "images": [],
     "isFrozen": false,
-    "createdAt": "2026-05-04T03:34:57.852Z",
+    "createdAt": "2026-05-04T05:39:58.004Z",
     "milestones": [
       {
         "id": 1,
@@ -121,30 +259,32 @@
         "stage": 1,
         "status": "disbursed",
         "evidenceUrls": null,
-        "createdAt": "2026-05-04T03:34:57.978Z"
+        "createdAt": "2026-05-04T05:39:58.126Z"
       },
       {
         "id": 2,
         "title": "Đợt 2: Triển khai",
         "percentage": 30,
         "stage": 2,
-        "status": "voting",
+        "status": "disbursed",
         "evidenceUrls": [
-          "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1777891617/investpro/users/3/acu0qpkeyjxqijzr29fj.jpg"
+          "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1777898620/investpro/users/3/hfm1dsbrdlwixyndi7hy.jpg"
         ],
-        "createdAt": "2026-05-04T03:34:58.088Z"
+        "createdAt": "2026-05-04T05:39:58.250Z"
       },
       {
         "id": 3,
         "title": "Đợt 3: Hoàn thiện",
         "percentage": 50,
         "stage": 3,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-04T03:34:58.192Z"
+        "status": "disbursed",
+        "evidenceUrls": [
+          "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1777898620/investpro/users/3/hfm1dsbrdlwixyndi7hy.jpg"
+        ],
+        "createdAt": "2026-05-04T05:39:58.358Z"
       }
     ],
     "disputes": [],
-    "content": "asdasdasd"
+    "content": "123123"
   }
 ]
