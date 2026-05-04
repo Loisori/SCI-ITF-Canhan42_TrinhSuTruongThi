@@ -83,28 +83,41 @@ Hỗ trợ nạp tiền siêu tốc qua các cổng thanh toán hàng đầu Vi�
 ## 📘 Technical Documentation
 
 ### Escrow & Milestone Funding Model (Overview)
+
 - Investor funds are held in escrow during FUNDING.
-- Funds are released by milestone after proof upload, admin review, and capital-weighted voting.
+- When funding closes, platform fee is collected once and the net pool is released by milestone.
+- Stage 1 is released by Admin after funding closes.
+- Subsequent stages require proof upload, admin review, and capital-weighted voting before disbursement.
 - Disputes can freeze the project and trigger refunds of undisbursed funds.
 
 ### Money Flow & Repayment Formula
+
 Total debt is calculated using principal and interest only:
 
 $$Total\ Debt = P + (P \times r \times (d/12))$$
 
 Where:
+
 - $P$ = Principal invested
 - $r$ = Annual interest rate (percent)
 - $d$ = Duration in months
 
 Repayment split:
+
 - Investor Payout = principal + interest in the repayment batch
-- Platform Fee = fee rate * interest (credited to Admin/Platform wallet)
+- Platform Fee = fee rate \* interest (credited to Admin/Platform wallet)
 - Owner Charge = Investor Payout + Platform Fee
+
+Milestone disbursement (single upfront fee):
+
+- Platform Fee = Total Raised \* Commission Rate (credited once to Admin wallet)
+- Net Pool = Total Raised - Platform Fee
+- Milestone Payout = Net Pool \* (Milestone%/100)
 
 All monetary splits are rounded to 2 decimal places.
 
 ### Transaction Types (11)
+
 - DEPOSIT: Wallet top-up request
 - WITHDRAWAL: Wallet withdrawal request
 - INVEST: Investment into a project
@@ -140,6 +153,7 @@ stateDiagram-v2
   PENDING --> UPLOADING_PROOF: Owner starts proof
   UPLOADING_PROOF --> ADMIN_REVIEW: Proof submitted
   ADMIN_REVIEW --> VOTING: Admin approves
+  ADMIN_REVIEW --> DISBURSED: Stage 1 admin release
   ADMIN_REVIEW --> UPLOADING_PROOF: Request more proof
   VOTING --> DISBURSED: >= 50% approve (snapshot)
   VOTING --> DISPUTED: < 50% approve

@@ -34,16 +34,15 @@ Tài liệu này mô tả chi tiết cách dòng tiền di chuyển giữa Nhà 
 5. Tạo bản ghi `TransactionType.INVEST`.
 6. Tự động tính toán và tạo lịch trả lãi (`payment_schedules`) cho tương lai.
 
-### C. Giải ngân cho Chủ dự án (Disbursement)
+### C. Giải ngân cho Chủ dự án (Disbursement - Milestone)
 
-**Luồng**: Vốn Dự án → Ví Owner (Sau khi trừ phí lúc đầu tư).
+**Luồng**: Vốn Dự án → Ví Admin (Phí sàn, thu một lần) → Ví Owner.
 
-1. Khi dự án huy động vốn thành công, chuyển trạng thái sang `PENDING_ADMIN_REVIEW` và **tính toán tổng nợ (Total Debt)**.
-2. Giai đoạn 1 (Stage 1 - 20%) chờ **Admin phê duyệt thủ công**.
-3. Hệ thống tính toán **Phí nền tảng (Commission Fee)** trên tổng vốn: `Total Invested * Commission Rate`.
-4. Số tiền thực nhận: `Net Received = Total Invested - Commission Fee`.
-5. Admin click giải ngân, **cộng tiền** vào `owner.balance`.
-6. Tạo bản ghi `TransactionType.DISBURSEMENT`.
+1. Khi dự án dừng huy động (owner stop hoặc đạt mục tiêu), trạng thái chuyển sang `PENDING_ADMIN_REVIEW`. Milestone 1 được đưa về `ADMIN_REVIEW` để Admin duyệt giải ngân đợt 1.
+2. Hệ thống tính **Phí nền tảng một lần** trên tổng vốn: `Fee = Total Raised * Commission Rate` và **cộng tiền vào ví Admin** (Transaction `SYSTEM_FEE`, referenceId = projectId).
+3. Số tiền còn lại (Net Pool) để giải ngân theo milestone: `Net Pool = Total Raised - Fee`.
+4. Admin duyệt giải ngân đợt 1: Owner nhận `Net Pool * (Milestone %)`. Tạo `TransactionType.DISBURSEMENT` (referenceId = milestoneId).
+5. Sau giải ngân, milestone tiếp theo chuyển sang `UPLOADING_PROOF` (hoặc `PENDING` nếu có `intervalDays`). Owner upload bằng chứng, Admin finalize để mở Voting (72h). Nếu tổng vốn đồng ý >= 50% thì giải ngân milestone tiếp theo; nếu không thì `DISPUTED`.
 
 ### D. Trả lãi định kỳ/Linh hoạt (ROI - Interest Repayment)
 
@@ -93,7 +92,8 @@ Tài liệu này mô tả chi tiết cách dòng tiền di chuyển giữa Nhà 
 | `deposit`          | Nạp tiền  | User nạp tiền từ bên ngoài vào hệ thống.            | External -> Wallet (+)       |
 | `withdraw`         | Rút tiền  | User rút tiền từ hệ thống về ngân hàng.             | Wallet -> External (-)       |
 | `invest`           | Đầu tư    | User dùng số dư ví để góp vốn vào dự án.            | Wallet (-) -> Project (+)    |
-| `disbursement`     | Giải ngân | Chủ dự án nhận được vốn từ nền tảng.                | Platform -> Owner Wallet (+) |
+| `disbursement`     | Giải ngân | Chủ dự án nhận được vốn ròng theo milestone.        | Platform -> Owner Wallet (+) |
+| `system_fee`       | Phí sàn   | Phí nền tảng thu theo milestone/repayment.          | Platform -> Admin Wallet (+) |
 | `repay_interest`   | Trả lãi   | Chủ dự án đóng tiền lãi định kỳ (có tính phí).      | Owner Wallet (-) -> Platform |
 | `repay_principal`  | Trả gốc   | Chủ dự án đóng tiền gốc trả lại.                    | Owner Wallet (-) -> Platform |
 | `interest_receive` | Nhận tiền | User nhận được tiền lãi/gốc từ Owner trả.           | Platform -> Wallet (+)       |
@@ -105,7 +105,11 @@ Tài liệu này mô tả chi tiết cách dòng tiền di chuyển giữa Nhà 
 
 - **Số dư khả dụng**: `balance` (lưu trong bảng `users`).
 - **Tổng Nợ Dự Án (Total Debt)**: `Principal + (Principal * InterestRate * (DurationMonths / 12))`
-- **Tiền nhận thực tế qua Giải ngây (Owner Net)**: `Total_Invested * (1 - Commission_Rate)`.
+- **Phí sàn một lần khi kết thúc huy động**:
+  - `Fee = Total_Raised * Commission_Rate`
+  - `Net Pool = Total_Raised - Fee`
+- **Giải ngân theo milestone**:
+  - `Milestone Payout = Net Pool * (Milestone%/100)`
 - **Phí thu lợi nhuận**: Owner trả lãi -> Nền tảng cắt X% phí dựa trên Tier dự án -> Investor nhận Net.
 
 ---

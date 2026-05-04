@@ -3,7 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DataSource, EntityManager, LessThan } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
+import { DataSource, EntityManager, IsNull, LessThan } from 'typeorm';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import {
@@ -39,6 +40,7 @@ export class InvestmentsService {
     private readonly dataSource: DataSource,
     private readonly eventEmitter: EventEmitter2,
     private readonly usersService: UsersService,
+    private readonly configService: ConfigService,
   ) {}
 
   private toCommissionFraction(commissionRate?: number | null): number {
@@ -46,6 +48,91 @@ export class InvestmentsService {
     if (!Number.isFinite(raw) || raw <= 0) return 0;
     // - nếu lưu % (5 -> 0.05) hoặc fraction (0.05 -> 0.05)
     return raw > 1 ? raw / 100 : raw;
+  }
+
+  private async finalizeGoalReached(
+    manager: EntityManager,
+    project: ProjectEntity,
+  ): Promise<void> {
+    const projectsRepo = manager.getRepository(ProjectEntity);
+    const milestonesRepo = manager.getRepository(ProjectMilestoneEntity);
+    const transactionsRepo = manager.getRepository(TransactionEntity);
+    const usersRepo = manager.getRepository(UserEntity);
+
+    project.status = ProjectStatus.PENDING_ADMIN_REVIEW;
+    project.totalDebt = FinancialCalculator.calculateTotalDebt(
+      Number(project.currentAmount),
+      project.interestRate,
+      project.durationMonths,
+      project.commissionRate,
+    );
+    await projectsRepo.save(project);
+
+    const upfrontFee = FinancialCalculator.calculateCommission(
+      Number(project.currentAmount),
+      project.commissionRate,
+    );
+
+    if (upfrontFee > 0) {
+      const existingFeeTx = await transactionsRepo.findOne({
+        where: {
+          type: TransactionType.SYSTEM_FEE,
+          referenceId: project.id,
+          parentTransactionId: IsNull(),
+          status: TransactionStatus.SUCCESS,
+        },
+      });
+
+      if (!existingFeeTx) {
+        const adminPlatformId = this.getAdminPlatformId();
+        const adminUser = await usersRepo.findOne({
+          where: { id: adminPlatformId },
+          lock: { mode: 'pessimistic_write' },
+        });
+        if (!adminUser) {
+          throw new NotFoundException('Admin platform account not found');
+        }
+
+        await manager
+          .createQueryBuilder()
+          .update(UserEntity)
+          .set({ balance: () => 'balance + :amount' })
+          .where('id = :id')
+          .setParameters({ id: adminPlatformId, amount: upfrontFee })
+          .execute();
+
+        const feeTx = transactionsRepo.create({
+          userId: adminPlatformId,
+          amount: upfrontFee,
+          type: TransactionType.SYSTEM_FEE,
+          status: TransactionStatus.SUCCESS,
+          description: `Phí sàn dự án ${project.title} (kết thúc huy động)`,
+          referenceId: project.id,
+        });
+        await transactionsRepo.save(feeTx);
+      }
+    }
+
+    const stage1 = await milestonesRepo.findOne({
+      where: { projectId: project.id, stage: 1 },
+      lock: { mode: 'pessimistic_write' },
+    });
+    if (!stage1) {
+      throw new BadRequestException(
+        'Không tìm thấy thông tin giải ngân đợt 1.',
+      );
+    }
+    stage1.status = MilestoneStatus.ADMIN_REVIEW;
+    await milestonesRepo.save(stage1);
+  }
+
+  private getAdminPlatformId(): number {
+    const raw = this.configService.get<string>('ADMIN_PLATFORM_ID');
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      throw new BadRequestException('ADMIN_PLATFORM_ID is not configured.');
+    }
+    return parsed;
   }
 
   async getMyInvestments(userId: number) {
@@ -178,7 +265,6 @@ export class InvestmentsService {
         const usersRepo = manager.getRepository(UserEntity);
         const projectsRepo = manager.getRepository(ProjectEntity);
         const investmentsRepo = manager.getRepository(InvestmentEntity);
-        const schedulesRepo = manager.getRepository(PaymentScheduleEntity);
         const transactionsRepo = manager.getRepository(TransactionEntity);
 
         const user = await usersRepo.findOne({
@@ -223,11 +309,36 @@ export class InvestmentsService {
           throw new BadRequestException('Insufficient balance.');
         }
 
-        user.balance = Number(user.balance) - amount;
-        project.currentAmount = Number(project.currentAmount) + amount;
+        const currentCapital = Number(project.currentAmount);
+        const goalAmount = Number(project.goalAmount);
 
+        if (!project.allowOverfunding && currentCapital >= goalAmount) {
+          await this.finalizeGoalReached(manager, project);
+          throw new BadRequestException('Project funding has ended.');
+        }
+
+        if (!project.allowOverfunding && currentCapital + amount > goalAmount) {
+          const remaining = goalAmount - currentCapital;
+          throw new BadRequestException(
+            remaining > 0
+              ? `Dự án này không cho phép vượt mục tiêu. Bạn chỉ có thể đầu tư tối đa ${remaining.toLocaleString()} ₫.`
+              : 'Dự án đã đạt mục tiêu huy động.',
+          );
+        }
+
+        user.balance = Number(user.balance) - amount;
+        project.currentAmount = currentCapital + amount;
+
+        const isGoalReached =
+          Number(project.currentAmount) >= Number(project.goalAmount);
         await usersRepo.save(user);
-        await projectsRepo.save(project);
+        const shouldCloseFunding = isGoalReached && !project.allowOverfunding;
+
+        if (shouldCloseFunding) {
+          await this.finalizeGoalReached(manager, project);
+        } else {
+          await projectsRepo.save(project);
+        }
 
         const investment = investmentsRepo.create({
           userId,
@@ -237,34 +348,6 @@ export class InvestmentsService {
         });
 
         const savedInvestment = await investmentsRepo.save(investment);
-
-        const monthlyInterest = this.roundCurrency(
-          (amount * Number(project.interestRate)) / 100 / 12,
-        );
-
-        const schedules: PaymentScheduleEntity[] = [];
-        for (let month = 1; month <= project.durationMonths; month += 1) {
-          const dueDate = new Date(now);
-          dueDate.setMonth(dueDate.getMonth() + month);
-          const scheduleAmount =
-            month === project.durationMonths
-              ? this.roundCurrency(monthlyInterest + amount)
-              : monthlyInterest;
-
-          schedules.push(
-            schedulesRepo.create({
-              investmentId: savedInvestment.id,
-              dueDate,
-              amount: scheduleAmount,
-              status: PaymentScheduleStatus.UNPAID,
-              paidAt: null,
-            }),
-          );
-        }
-
-        if (schedules.length > 0) {
-          await schedulesRepo.save(schedules);
-        }
 
         const transaction = transactionsRepo.create({
           userId,
@@ -282,11 +365,10 @@ export class InvestmentsService {
           investmentId: savedInvestment.id,
           userBalance: user.balance,
           projectCurrentAmount: project.currentAmount,
-          paymentScheduleCount: schedules.length,
+          paymentScheduleCount: 0,
           projectTitle: project.title,
           projectOwnerId: project.ownerId,
-          isGoalReached:
-            Number(project.currentAmount) >= Number(project.goalAmount),
+          isGoalReached,
           amount,
         };
       })
@@ -308,6 +390,71 @@ export class InvestmentsService {
 
         return result;
       });
+  }
+
+  async generatePaymentSchedulesForProject(
+    projectId: number,
+    activationDate: Date,
+  ) {
+    return this.dataSource.transaction(async (manager) => {
+      const projectsRepo = manager.getRepository(ProjectEntity);
+      const investmentsRepo = manager.getRepository(InvestmentEntity);
+      const schedulesRepo = manager.getRepository(PaymentScheduleEntity);
+
+      const project = await projectsRepo.findOne({
+        where: { id: projectId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!project) throw new NotFoundException('Project not found.');
+
+      const baseDate = activationDate ? new Date(activationDate) : new Date();
+
+      const investments = await investmentsRepo.find({
+        where: { projectId, status: InvestmentStatus.ACTIVE },
+        relations: ['paymentSchedules'],
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      const schedules: PaymentScheduleEntity[] = [];
+      let createdSchedules = 0;
+
+      for (const investment of investments) {
+        if ((investment.paymentSchedules ?? []).length > 0) {
+          continue;
+        }
+
+        const amount = Number(investment.amount);
+        const monthlyInterest = this.roundCurrency(
+          (amount * Number(project.interestRate)) / 100 / 12,
+        );
+
+        for (let month = 1; month <= project.durationMonths; month += 1) {
+          const dueDate = new Date(baseDate);
+          dueDate.setMonth(dueDate.getMonth() + month);
+          const scheduleAmount =
+            month === project.durationMonths
+              ? this.roundCurrency(monthlyInterest + amount)
+              : monthlyInterest;
+
+          schedules.push(
+            schedulesRepo.create({
+              investmentId: investment.id,
+              dueDate,
+              amount: scheduleAmount,
+              status: PaymentScheduleStatus.UNPAID,
+              paidAt: null,
+            }),
+          );
+          createdSchedules += 1;
+        }
+      }
+
+      if (schedules.length > 0) {
+        await schedulesRepo.save(schedules);
+      }
+
+      return { createdSchedules };
+    });
   }
 
   async handleProjectTimeout(projectId?: number, manager?: EntityManager) {

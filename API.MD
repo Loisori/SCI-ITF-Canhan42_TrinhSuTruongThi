@@ -72,6 +72,13 @@ This document details the available API endpoints for the InvestPro platform.
 | `GET`    | `/milestones/:mId/discussions`  | List discussions for a milestone.                     | No             |
 | `POST`   | `/:id/disputes`                 | Create a dispute for a project.                       | JWT + Investor |
 
+### 📌 Milestone Disbursement Flow (Summary)
+
+- When funding closes, the project moves to `PENDING_ADMIN_REVIEW` and Stage 1 awaits Admin approval.
+- Admin releases Stage 1 via `PATCH /admin/projects/:id/approve-disbursement` (platform fee is credited to Admin first, then owner receives net).
+- For later stages: owner submits proof `PATCH /projects/:id/milestones/:mId/proof` -> Admin finalizes `POST /admin/projects/:id/milestones/:mId/finalize` -> investors vote `POST /projects/milestones/:mId/vote`.
+- If YES vote weight >= 50% of total raised, the next milestone is disbursed.
+
 ---
 
 ### 📂 Project Categories (`/project-categories`)

@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import {
   ProjectMilestoneEntity,
   MilestoneStatus,
@@ -32,7 +32,7 @@ export class VotingService {
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
-  private async buildVotingSnapshot(
+  async buildVotingSnapshot(
     manager: DataSource['manager'],
     milestoneId: number,
     projectId: number,
@@ -43,7 +43,10 @@ export class VotingService {
     await snapshotRepo.delete({ milestoneId });
 
     const investments = await investmentRepo.find({
-      where: { projectId, status: InvestmentStatus.ACTIVE },
+      where: {
+        projectId,
+        status: In([InvestmentStatus.ACTIVE, InvestmentStatus.COMPLETED]),
+      },
     });
 
     const capitalByUser = new Map<number, number>();

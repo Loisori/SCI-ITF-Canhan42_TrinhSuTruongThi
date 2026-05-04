@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Injectable, Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -17,6 +17,19 @@ import { MediaModule } from './modules/media/media.module';
 import { AiChatModule } from './modules/ai-chat/ai-chat.module';
 import { WalletsModule } from './modules/wallets/wallets.module';
 import { createTypeOrmConfig } from './config/typeorm.config';
+
+@Injectable()
+class ConfigStartupValidation implements OnModuleInit {
+  constructor(private readonly configService: ConfigService) {}
+
+  onModuleInit() {
+    const raw = this.configService.get<string>('ADMIN_PLATFORM_ID');
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      throw new Error('ADMIN_PLATFORM_ID is not configured.');
+    }
+  }
+}
 
 @Module({
   imports: [
@@ -47,6 +60,6 @@ import { createTypeOrmConfig } from './config/typeorm.config';
   ],
 
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ConfigStartupValidation],
 })
 export class AppModule {}

@@ -122,24 +122,24 @@ created_at,
 updated_at
 ) VALUES
 (
-	(SELECT id FROM users WHERE email = 'loisori1001@gmail.com'),
-	'INV-0123456789',
-	'https://images.unsplash.com/photo-1522202176988-66273c2fd55f',
-	'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4',
-	'APPROVED',
-	NULL,
-	NOW(),
-	NOW()
+(SELECT id FROM users WHERE email = 'loisori1001@gmail.com'),
+'INV-0123456789',
+'https://images.unsplash.com/photo-1522202176988-66273c2fd55f',
+'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4',
+'APPROVED',
+NULL,
+NOW(),
+NOW()
 ),
 (
-	(SELECT id FROM users WHERE email = 'xrejji04@gmail.com'),
-	'OWN-9876543210',
-	'https://images.unsplash.com/photo-1524504388940-b1c1722653e1',
-	'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab',
-	'APPROVED',
-	NULL,
-	NOW(),
-	NOW()
+(SELECT id FROM users WHERE email = 'xrejji04@gmail.com'),
+'OWN-9876543210',
+'https://images.unsplash.com/photo-1524504388940-b1c1722653e1',
+'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab',
+'APPROVED',
+NULL,
+NOW(),
+NOW()
 );
 
 -- 🌟 Insert Categories

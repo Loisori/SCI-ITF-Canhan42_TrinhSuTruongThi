@@ -5,6 +5,7 @@ import {
   NotFoundException,
   OnModuleInit,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository, Not, IsNull } from 'typeorm';
 import * as fs from 'node:fs/promises';
@@ -48,6 +49,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../notifications/entities/notification.entity';
 import { UsersService } from '../users/users.service';
+import { InvestmentsService } from '../investments/investments.service';
 
 @Injectable()
 export class ProjectsService {
@@ -64,6 +66,8 @@ export class ProjectsService {
     private readonly votingService: VotingService,
     private readonly eventEmitter: EventEmitter2,
     private readonly notificationsService: NotificationsService,
+    private readonly investmentsService: InvestmentsService,
+    private readonly configService: ConfigService,
   ) {}
 
   async onModuleInit() {
@@ -119,6 +123,91 @@ export class ProjectsService {
 
   private toCommissionFraction(commissionRate?: number | null): number {
     return FinancialCalculator.toCommissionFraction(commissionRate);
+  }
+
+  private async finalizeGoalReached(
+    manager: EntityManager,
+    project: ProjectEntity,
+  ): Promise<void> {
+    const projectsRepo = manager.getRepository(ProjectEntity);
+    const milestonesRepo = manager.getRepository(ProjectMilestoneEntity);
+    const transactionsRepo = manager.getRepository(TransactionEntity);
+    const usersRepo = manager.getRepository(UserEntity);
+
+    project.status = ProjectStatus.PENDING_ADMIN_REVIEW;
+    project.totalDebt = FinancialCalculator.calculateTotalDebt(
+      Number(project.currentAmount),
+      project.interestRate,
+      project.durationMonths,
+      project.commissionRate,
+    );
+    await projectsRepo.save(project);
+
+    const upfrontFee = FinancialCalculator.calculateCommission(
+      Number(project.currentAmount),
+      project.commissionRate,
+    );
+
+    if (upfrontFee > 0) {
+      const existingFeeTx = await transactionsRepo.findOne({
+        where: {
+          type: TransactionType.SYSTEM_FEE,
+          referenceId: project.id,
+          parentTransactionId: IsNull(),
+          status: TransactionStatus.SUCCESS,
+        },
+      });
+
+      if (!existingFeeTx) {
+        const adminPlatformId = this.getAdminPlatformId();
+        const adminUser = await usersRepo.findOne({
+          where: { id: adminPlatformId },
+          lock: { mode: 'pessimistic_write' },
+        });
+        if (!adminUser) {
+          throw new NotFoundException('Admin platform account not found');
+        }
+
+        await manager
+          .createQueryBuilder()
+          .update(UserEntity)
+          .set({ balance: () => 'balance + :amount' })
+          .where('id = :id')
+          .setParameters({ id: adminPlatformId, amount: upfrontFee })
+          .execute();
+
+        const feeTx = transactionsRepo.create({
+          userId: adminPlatformId,
+          amount: upfrontFee,
+          type: TransactionType.SYSTEM_FEE,
+          status: TransactionStatus.SUCCESS,
+          description: `Phí sàn dự án ${project.title} (kết thúc huy động)`,
+          referenceId: project.id,
+        });
+        await transactionsRepo.save(feeTx);
+      }
+    }
+
+    const stage1 = await milestonesRepo.findOne({
+      where: { projectId: project.id, stage: 1 },
+      lock: { mode: 'pessimistic_write' },
+    });
+    if (!stage1) {
+      throw new BadRequestException(
+        'Không tìm thấy thông tin giải ngân đợt 1.',
+      );
+    }
+    stage1.status = MilestoneStatus.ADMIN_REVIEW;
+    await milestonesRepo.save(stage1);
+  }
+
+  private getAdminPlatformId(): number {
+    const raw = this.configService.get<string>('ADMIN_PLATFORM_ID');
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      throw new BadRequestException('ADMIN_PLATFORM_ID is not configured.');
+    }
+    return parsed;
   }
 
   async getProjectCategories() {
@@ -263,9 +352,15 @@ export class ProjectsService {
     }
 
     // Set project to ACTIVE
+    const activationDate = new Date();
     await this.projectsRepository.update(projectId, {
       status: ProjectStatus.ACTIVE,
     });
+
+    await this.investmentsService.generatePaymentSchedulesForProject(
+      projectId,
+      activationDate,
+    );
 
     // Trigger disbursement for Milestone 1
     const result = await this.disburseMilestoneFunds(stage1.id);
@@ -689,8 +784,6 @@ export class ProjectsService {
     const result = await this.dataSource.transaction(async (manager) => {
       const projectsRepo = manager.getRepository(ProjectEntity);
       const investmentsRepo = manager.getRepository(InvestmentEntity);
-      const usersRepo = manager.getRepository(UserEntity);
-      const transactionsRepo = manager.getRepository(TransactionEntity);
 
       const project = await projectsRepo.findOne({
         where: { id: projectId },
@@ -713,29 +806,12 @@ export class ProjectsService {
         );
       }
 
-      // Lấy tất cả investments của dự án (trừ withdrawn) để tính phí & trả lãi.
+      // Lấy tất cả investments của dự án (trừ withdrawn).
       const projectInvestments = await investmentsRepo.find({
         where: { projectId },
         relations: ['paymentSchedules'],
         lock: { mode: 'pessimistic_write' },
       });
-
-      const interestSourceInvestments = projectInvestments.filter(
-        (inv) => inv.status !== InvestmentStatus.WITHDRAWN,
-      );
-
-      const totalInvested = interestSourceInvestments.reduce(
-        (sum, inv) => sum + Number(inv.amount),
-        0,
-      );
-
-      const commissionFraction = this.toCommissionFraction(
-        project.commissionRate,
-      );
-      const commissionAmount = Number(
-        (totalInvested * commissionFraction).toFixed(2),
-      );
-      const netReceived = Number((totalInvested - commissionAmount).toFixed(2));
 
       if (this.toCommissionFraction(project.commissionRate) <= 0) {
         const ownerCompletedCount = await projectsRepo.count({
@@ -761,37 +837,7 @@ export class ProjectsService {
         await investmentsRepo.save(projectInvestments);
       }
 
-      project.status = ProjectStatus.PENDING_ADMIN_REVIEW;
-      project.totalDebt = FinancialCalculator.calculateTotalDebt(
-        Number(project.currentAmount),
-        project.interestRate,
-        project.durationMonths,
-        project.commissionRate,
-      );
-      await projectsRepo.save(project);
-
-      const milestonesRepo = manager.getRepository(ProjectMilestoneEntity);
-      const milestones = await milestonesRepo.find({
-        where: { projectId: project.id },
-        order: { stage: 'ASC' },
-      });
-
-      if (milestones.length === 0) {
-        throw new BadRequestException(
-          'Dự án chưa được thiết lập các giai đoạn giải ngân.',
-        );
-      }
-
-      const stage1 = milestones.find((m) => m.stage === 1);
-      if (!stage1) {
-        throw new BadRequestException(
-          'Không tìm thấy thông tin giải ngân đợt 1.',
-        );
-      }
-
-      // Update Stage 1 to ADMIN_REVIEW
-      stage1.status = MilestoneStatus.ADMIN_REVIEW;
-      await milestonesRepo.save(stage1);
+      await this.finalizeGoalReached(manager, project);
 
       return {
         message: 'Dự án đã dừng nhận vốn.',
@@ -864,13 +910,15 @@ export class ProjectsService {
         user.balance = userBalance - amount;
         project.currentAmount = currentCapital + amount;
 
-        // Auto close funding if goal reached and overfunding disabled
-        if (!project.allowOverfunding && project.currentAmount >= goalAmount) {
-          project.status = ProjectStatus.PENDING_ADMIN_REVIEW;
-        }
-
         await usersRepo.save(user);
-        await projectsRepo.save(project);
+        const isGoalReached = project.currentAmount >= goalAmount;
+        const shouldCloseFunding = isGoalReached && !project.allowOverfunding;
+
+        if (shouldCloseFunding) {
+          await this.finalizeGoalReached(manager, project);
+        } else {
+          await projectsRepo.save(project);
+        }
 
         return {
           message: 'Investment successful.',
@@ -879,7 +927,7 @@ export class ProjectsService {
           project: this.serializeProject(project),
           projectTitle: project.title,
           projectOwnerId: project.ownerId,
-          isGoalReached: currentCapital + amount >= Number(project.goalAmount),
+          isGoalReached,
         };
       })
       .then((result) => {
@@ -1178,6 +1226,12 @@ export class ProjectsService {
 
         await milestoneRepo.save(milestone);
 
+        await this.votingService.buildVotingSnapshot(
+          manager,
+          milestone.id,
+          milestone.projectId,
+        );
+
         // Trigger voting started event so that VotingService and Investors are aware
         this.eventEmitter.emit('milestone.voting_started', {
           projectId: milestone.projectId,
@@ -1359,29 +1413,12 @@ export class ProjectsService {
     ownerId: number,
     evidenceUrls: string[],
   ) {
-    const milestoneRepo = this.dataSource.getRepository(ProjectMilestoneEntity);
-    const projectRepo = this.dataSource.getRepository(ProjectEntity);
-
-    const milestone = await milestoneRepo.findOne({
-      where: { id: milestoneId, projectId },
-    });
-    if (!milestone) throw new NotFoundException('Milestone not found');
-    if (milestone.status !== MilestoneStatus.UPLOADING_PROOF) {
-      throw new BadRequestException(
-        'Không thể cập nhật bằng chứng ở giai đoạn này.',
-      );
-    }
-
-    const project = await projectRepo.findOne({ where: { id: projectId } });
-    if (!project) throw new NotFoundException('Project not found');
-    if (project.ownerId !== ownerId) {
-      throw new ForbiddenException('Only project owner can upload proof');
-    }
-
-    milestone.evidenceUrls = evidenceUrls;
-    // Status stays at UPLOADING_PROOF until 'Start Voting' is explicitly clicked
-    await milestoneRepo.save(milestone);
-
+    const milestone = await this.milestonesService.uploadMilestoneProof(
+      projectId,
+      milestoneId,
+      ownerId,
+      evidenceUrls,
+    );
     await this.syncProjectsDataJsonFile();
     return milestone;
   }

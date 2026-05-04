@@ -105,7 +105,7 @@ export class AdminDashboardService {
 
     const successfulCapital = Number(successfulCapitalRaw?.sum ?? 0);
 
-    const systemRevenueRaw = await this.investmentsRepository
+    const commissionRevenueRaw = await this.investmentsRepository
       .createQueryBuilder('inv')
       .leftJoin('inv.project', 'project')
       .select(`COALESCE(SUM(inv.amount * (${feeFractionExpr})), 0)`, 'sum')
@@ -117,10 +117,19 @@ export class AdminDashboardService {
       })
       .getRawOne<{ sum: string }>();
 
+    const commissionRevenue = Number(commissionRevenueRaw?.sum ?? 0);
+
+    const systemRevenueRaw = await this.transactionsRepository
+      .createQueryBuilder('tx')
+      .select('COALESCE(SUM(tx.amount), 0)', 'sum')
+      .where('tx.type = :type', { type: TransactionType.SYSTEM_FEE })
+      .andWhere('tx.status = :status', { status: TransactionStatus.SUCCESS })
+      .getRawOne<{ sum: string }>();
+
     const systemRevenue = Number(systemRevenueRaw?.sum ?? 0);
     const commissionRate =
       successfulCapital > 0
-        ? Number(((systemRevenue / successfulCapital) * 100).toFixed(2))
+        ? Number(((commissionRevenue / successfulCapital) * 100).toFixed(2))
         : 0;
 
     return {

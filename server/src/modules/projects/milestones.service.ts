@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, IsNull, Repository } from 'typeorm';
 import { ProjectEntity, ProjectStatus } from './entities/project.entity';
 import {
   ProjectMilestoneEntity,
@@ -95,6 +95,15 @@ export class MilestonesService {
     });
 
     if (!milestone) throw new NotFoundException('Milestone not found');
+
+    const project = await this.projectRepo.findOne({
+      where: { id: projectId },
+    });
+    if (!project) throw new NotFoundException('Project not found');
+    if (project.ownerId !== ownerId) {
+      throw new ForbiddenException('Only project owner can upload proof');
+    }
+
     const isPendingButPastInterval =
       milestone.status === MilestoneStatus.PENDING &&
       milestone.nextDisbursementDate &&
@@ -113,7 +122,7 @@ export class MilestonesService {
     milestone.status = MilestoneStatus.ADMIN_REVIEW;
     await milestoneRepo.save(milestone);
 
-    return { message: 'Proof uploaded successfully', status: milestone.status };
+    return milestone;
   }
 
   async createOrUpdateMilestones(
@@ -135,6 +144,27 @@ export class MilestonesService {
       ) {
         throw new BadRequestException(
           'Cannot update milestones after funding ends',
+        );
+      }
+
+      if (!milestonesData || milestonesData.length === 0) {
+        throw new BadRequestException('Milestones data is required.');
+      }
+
+      let totalPercentage = 0;
+      for (const milestone of milestonesData) {
+        const percent = Number(milestone.percentage);
+        if (!Number.isFinite(percent) || percent <= 0) {
+          throw new BadRequestException(
+            'Milestone percentage must be a positive number.',
+          );
+        }
+        totalPercentage += percent;
+      }
+
+      if (FinancialCalculator.round(totalPercentage) !== 100) {
+        throw new BadRequestException(
+          'Tổng phần trăm milestone phải bằng 100%.',
         );
       }
 
@@ -191,16 +221,112 @@ export class MilestonesService {
         throw new BadRequestException('Milestone already disbursed.');
       }
 
-      const totalInvested = Number(project.currentAmount);
-      const commissionAmount = FinancialCalculator.calculateCommission(
-        totalInvested,
+      const totalRaised = Number(project.currentAmount);
+      const upfrontFeeTx = await transactionRepo.findOne({
+        where: {
+          type: TransactionType.SYSTEM_FEE,
+          referenceId: project.id,
+          parentTransactionId: IsNull(),
+          status: TransactionStatus.SUCCESS,
+        },
+      });
+
+      const feeRate = FinancialCalculator.toCommissionFraction(
         project.commissionRate,
       );
-      const netReceived = totalInvested - commissionAmount;
+      const upfrontFeeAmount = upfrontFeeTx ? Number(upfrontFeeTx.amount) : 0;
 
-      const disbursementAmount = FinancialCalculator.round(
-        netReceived * (milestone.percentage / 100),
+      if (feeRate > 0 && !upfrontFeeTx) {
+        throw new BadRequestException(
+          'Platform fee has not been collected for this project.',
+        );
+      }
+
+      const netPool = FinancialCalculator.round(totalRaised - upfrontFeeAmount);
+      if (netPool < 0) {
+        throw new BadRequestException('Net disbursement pool is invalid.');
+      }
+
+      const nextMilestone = await milestoneRepo.findOne({
+        where: { projectId: project.id, stage: milestone.stage + 1 },
+      });
+
+      let netDisbursement = FinancialCalculator.round(
+        netPool * (milestone.percentage / 100),
       );
+
+      if (!nextMilestone) {
+        const milestoneSummary = await milestoneRepo.find({
+          where: { projectId: project.id },
+          select: ['id', 'percentage'],
+        });
+        const totalPercentage = milestoneSummary.reduce(
+          (sum, m) => sum + Number(m.percentage),
+          0,
+        );
+
+        if (totalPercentage === 100) {
+          const otherMilestoneIds = milestoneSummary
+            .filter((m) => m.id !== milestone.id)
+            .map((m) => m.id);
+
+          let alreadyDisbursed = 0;
+          if (otherMilestoneIds.length > 0) {
+            const rawTotal = await transactionRepo
+              .createQueryBuilder('tx')
+              .select('SUM(tx.amount)', 'total')
+              .where('tx.type = :type', {
+                type: TransactionType.DISBURSEMENT,
+              })
+              .andWhere('tx.status = :status', {
+                status: TransactionStatus.SUCCESS,
+              })
+              .andWhere('tx.referenceId IN (:...ids)', {
+                ids: otherMilestoneIds,
+              })
+              .getRawOne<{ total: string | null }>();
+
+            alreadyDisbursed = FinancialCalculator.round(
+              Number(rawTotal?.total ?? 0),
+            );
+          }
+
+          const remaining = FinancialCalculator.round(
+            netPool - alreadyDisbursed,
+          );
+          if (remaining < 0) {
+            throw new BadRequestException('Net pool already fully disbursed.');
+          }
+          netDisbursement = remaining;
+        }
+      }
+
+      const owner = await usersRepo.findOne({
+        where: { id: project.ownerId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!owner) throw new NotFoundException('Owner not found');
+
+      if (netDisbursement > 0) {
+        await manager
+          .createQueryBuilder()
+          .update(UserEntity)
+          .set({ balance: () => 'balance + :amount' })
+          .where('id = :id')
+          .setParameters({ id: owner.id, amount: netDisbursement })
+          .execute();
+
+        const ownerTx = transactionRepo.create({
+          userId: project.ownerId,
+          amount: netDisbursement,
+          type: TransactionType.DISBURSEMENT,
+          status: TransactionStatus.SUCCESS,
+          description: `Giải ngân đợt ${milestone.stage} dự án ${project.title}`,
+          referenceId: milestone.id,
+          parentTransactionId: null,
+        });
+        await transactionRepo.save(ownerTx);
+      }
 
       // 1. Update status
       milestone.status = MilestoneStatus.DISBURSED;
@@ -208,9 +334,6 @@ export class MilestonesService {
       await milestoneRepo.save(milestone);
 
       // 2. Unlock next milestone if exists
-      const nextMilestone = await milestoneRepo.findOne({
-        where: { projectId: project.id, stage: milestone.stage + 1 },
-      });
       if (nextMilestone) {
         const intervalDays = milestone.intervalDays || 0;
         const nextDate = new Date();
@@ -256,29 +379,9 @@ export class MilestonesService {
         await projectRepo.save(project);
       }
 
-      // 3. Credit Owner
-      const owner = await usersRepo.findOne({
-        where: { id: project.ownerId },
-        lock: { mode: 'pessimistic_write' },
-      });
-      if (owner && disbursementAmount > 0) {
-        owner.balance = Number(owner.balance) + disbursementAmount;
-        await usersRepo.save(owner);
-
-        const ownerTx = transactionRepo.create({
-          userId: project.ownerId,
-          amount: disbursementAmount,
-          type: TransactionType.DISBURSEMENT,
-          status: TransactionStatus.SUCCESS,
-          description: `Giải ngân đợt ${milestone.stage} dự án ${project.title}`,
-          referenceId: milestone.id,
-        });
-        await transactionRepo.save(ownerTx);
-      }
-
       return {
         status: 'success',
-        amount: disbursementAmount,
+        amount: netDisbursement,
         projectId: project.id,
         milestoneId: milestone.id,
         title: milestone.title,

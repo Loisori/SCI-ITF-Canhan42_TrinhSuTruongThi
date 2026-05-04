@@ -1,22 +1,22 @@
 [
   {
-    "id": 1,
-    "title": "testing",
-    "thumbnailUrl": "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1776585972/investpro/users/2/i7amumcwbbsdfb9io4yf.jpg",
-    "shortDescription": "dadsawda",
-    "slug": "testing",
-    "address": "123123123 da nang",
+    "id": 30001,
+    "title": "éting",
+    "thumbnailUrl": null,
+    "shortDescription": "213",
+    "slug": "eting",
+    "address": "123123",
     "targetCapital": 1000000,
     "currentAmount": 1000000,
-    "interestRate": 12,
-    "durationMonths": 12,
+    "interestRate": 5,
+    "durationMonths": 3,
     "minInvestment": 10000,
     "riskLevel": "medium",
     "fundingProgress": 100,
     "status": "active",
-    "totalDebt": 1120000,
-    "startDate": "2026-04-19",
-    "endDate": "2026-04-20",
+    "totalDebt": 1012500,
+    "startDate": "2026-05-04",
+    "endDate": "2026-05-05",
     "category": {
       "id": 1,
       "name": "Art",
@@ -24,7 +24,7 @@
       "iconUrl": "https://cdn-icons-png.flaticon.com/512/1048/1048953.png"
     },
     "owner": {
-      "id": 2,
+      "id": 3,
       "slug": "xrejji-project-owner",
       "fullName": "Xrejji Project Owner",
       "email": "xrejji04@gmail.com",
@@ -35,29 +35,102 @@
       },
       "address": "Quận 1, TP. Hồ Chí Minh"
     },
-    "images": [
-      "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1776585972/investpro/users/2/i7amumcwbbsdfb9io4yf.jpg"
-    ],
+    "images": [],
     "isFrozen": false,
-    "createdAt": "2026-04-19T01:06:21.467Z",
+    "createdAt": "2026-05-04T04:15:10.689Z",
+    "milestones": [
+      {
+        "id": 30001,
+        "title": "Đợt 1: Khởi động",
+        "percentage": 20,
+        "stage": 1,
+        "status": "disbursed",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-04T04:15:10.811Z"
+      },
+      {
+        "id": 30002,
+        "title": "Đợt 2: Triển khai",
+        "percentage": 30,
+        "stage": 2,
+        "status": "voting",
+        "evidenceUrls": [
+          "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1777891617/investpro/users/3/acu0qpkeyjxqijzr29fj.jpg"
+        ],
+        "createdAt": "2026-05-04T04:15:10.947Z"
+      },
+      {
+        "id": 30003,
+        "title": "Đợt 3: Hoàn thiện",
+        "percentage": 50,
+        "stage": 3,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-04T04:15:11.056Z"
+      }
+    ],
+    "disputes": [],
+    "content": "3123"
+  },
+  {
+    "id": 1,
+    "title": "testing",
+    "thumbnailUrl": null,
+    "shortDescription": "asdasd",
+    "slug": "testing",
+    "address": "asdadas",
+    "targetCapital": 1000000,
+    "currentAmount": 1000000,
+    "interestRate": 5,
+    "durationMonths": 6,
+    "minInvestment": 10000,
+    "riskLevel": "medium",
+    "fundingProgress": 100,
+    "status": "active",
+    "totalDebt": 1025000,
+    "startDate": "2026-05-04",
+    "endDate": "2026-05-05",
+    "category": {
+      "id": 1,
+      "name": "Art",
+      "slug": "art",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/1048/1048953.png"
+    },
+    "owner": {
+      "id": 3,
+      "slug": "xrejji-project-owner",
+      "fullName": "Xrejji Project Owner",
+      "email": "xrejji04@gmail.com",
+      "avatarUrl": "https://ui-avatars.com/api/?name=Xrejji+Owner&background=random",
+      "bio": "Chuyên gia phát triển dự án bất động sản và nông nghiệp công nghệ cao.",
+      "socialLinks": {
+        "website": "xrejji.com"
+      },
+      "address": "Quận 1, TP. Hồ Chí Minh"
+    },
+    "images": [],
+    "isFrozen": false,
+    "createdAt": "2026-05-04T03:34:57.852Z",
     "milestones": [
       {
         "id": 1,
         "title": "Đợt 1: Khởi động",
         "percentage": 20,
         "stage": 1,
-        "status": "completed",
+        "status": "disbursed",
         "evidenceUrls": null,
-        "createdAt": "2026-04-19T01:06:21.827Z"
+        "createdAt": "2026-05-04T03:34:57.978Z"
       },
       {
         "id": 2,
         "title": "Đợt 2: Triển khai",
         "percentage": 30,
         "stage": 2,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-04-19T01:06:21.955Z"
+        "status": "voting",
+        "evidenceUrls": [
+          "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1777891617/investpro/users/3/acu0qpkeyjxqijzr29fj.jpg"
+        ],
+        "createdAt": "2026-05-04T03:34:58.088Z"
       },
       {
         "id": 3,
@@ -66,10 +139,10 @@
         "stage": 3,
         "status": "pending",
         "evidenceUrls": null,
-        "createdAt": "2026-04-19T01:06:22.113Z"
+        "createdAt": "2026-05-04T03:34:58.192Z"
       }
     ],
     "disputes": [],
-    "content": "wdawdawdawdawd"
+    "content": "asdasdasd"
   }
 ]

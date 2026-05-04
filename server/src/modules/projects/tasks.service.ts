@@ -18,6 +18,7 @@ import {
   PaymentScheduleStatus,
 } from '../investments/entities/schedule.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { VotingService } from './voting.service';
 
 @Injectable()
 export class TasksService {
@@ -28,7 +29,17 @@ export class TasksService {
     private readonly projectsRepository: Repository<ProjectEntity>,
     private readonly dataSource: DataSource,
     private readonly eventEmitter: EventEmitter2,
+    private readonly votingService: VotingService,
   ) {}
+
+  /**
+   * Runs every minute to finalize expired milestone voting.
+   */
+  @Cron(CronExpression.EVERY_MINUTE)
+  async closeExpiredVotingWindows() {
+    this.logger.log('Checking for expired milestone votes...');
+    await this.votingService.closeExpiredVotes();
+  }
 
   /**
    * Runs every day at midnight to check for overdue payments.
