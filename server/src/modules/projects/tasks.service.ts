@@ -4,6 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, LessThanOrEqual, Repository } from 'typeorm';
 import { ProjectEntity, ProjectStatus } from './entities/project.entity';
 import {
+  ProjectMilestoneEntity,
+  MilestoneStatus,
+} from './entities/milestone.entity';
+import {
   InvestmentEntity,
   InvestmentStatus,
 } from '../investments/entities/investment.entity';
@@ -27,10 +31,50 @@ export class TasksService {
   constructor(
     @InjectRepository(ProjectEntity)
     private readonly projectsRepository: Repository<ProjectEntity>,
+    @InjectRepository(ProjectMilestoneEntity)
+    private readonly milestoneRepository: Repository<ProjectMilestoneEntity>,
     private readonly dataSource: DataSource,
     private readonly eventEmitter: EventEmitter2,
     private readonly votingService: VotingService,
   ) {}
+
+  /**
+   * Runs every minute to transition milestones from 'pending' to 'uploading_proof'
+   * when their nextDisbursementDate has arrived.
+   */
+  @Cron(CronExpression.EVERY_MINUTE)
+  async activateDueMilestones() {
+    this.logger.log('Checking for due milestones to activate...');
+
+    await this.dataSource.transaction(async (manager) => {
+      const milestoneRepo = manager.getRepository(ProjectMilestoneEntity);
+
+      const dueMilestones = await milestoneRepo.find({
+        where: {
+          status: MilestoneStatus.PENDING,
+          nextDisbursementDate: LessThanOrEqual(new Date()),
+        },
+      });
+
+      if (dueMilestones.length === 0) {
+        return;
+      }
+
+      this.logger.log(`Activating ${dueMilestones.length} due milestones.`);
+
+      const milestoneIds = dueMilestones.map((m) => m.id);
+      await milestoneRepo
+        .createQueryBuilder()
+        .update(ProjectMilestoneEntity)
+        .set({ status: MilestoneStatus.UPLOADING_PROOF })
+        .where('id IN (:...ids)', { ids: milestoneIds })
+        .execute();
+
+      this.logger.log(
+        `Successfully transitioned ${dueMilestones.length} milestones to UPLOADING_PROOF.`,
+      );
+    });
+  }
 
   /**
    * Runs every minute to finalize expired milestone voting.

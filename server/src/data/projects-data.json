@@ -53,7 +53,7 @@
         "title": "Đợt 2: Triển khai",
         "percentage": 30,
         "stage": 2,
-        "status": "voting",
+        "status": "disbursed",
         "evidenceUrls": [
           "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1777891617/investpro/users/3/acu0qpkeyjxqijzr29fj.jpg"
         ],
@@ -64,8 +64,10 @@
         "title": "Đợt 3: Hoàn thiện",
         "percentage": 50,
         "stage": 3,
-        "status": "pending",
-        "evidenceUrls": null,
+        "status": "voting",
+        "evidenceUrls": [
+          "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1777891617/investpro/users/3/acu0qpkeyjxqijzr29fj.jpg"
+        ],
         "createdAt": "2026-05-04T04:15:11.056Z"
       }
     ],
