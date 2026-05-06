@@ -3,7 +3,7 @@
 //services
 import { useCallback, useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Cookies from "js-cookie";
 import api from "@/lib/axios";
 import { Rocket, Bell } from "lucide-react";
@@ -22,20 +22,10 @@ const AUTH_CHANGED_EVENT = "auth-changed";
 export default function Navbar() {
   const [user, setUser] = useState<NavbarUserProfile | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
-  const router = useRouter();
   const pathname = usePathname();
 
-  // Notification hook, wrapped in a try/catch or checked so it handles missing context gracefully if needed
-  // However, layout already wraps with provider properly
   const { notifications, unreadCount, markAsRead, markAllAsRead } =
-    typeof useNotifications === "function"
-      ? useNotifications()
-      : {
-          notifications: [],
-          unreadCount: 0,
-          markAsRead: async () => {},
-          markAllAsRead: async () => {},
-        };
+    useNotifications();
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement | null>(null);
@@ -119,6 +109,12 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-3 md:gap-4 shrink-0 order-2 ml-auto md:ml-0 md:order-3">
+            <Link
+              href="/blogs"
+              className="hidden lg:inline-flex text-smaller font-bold text-slate-600 dark:text-slate-300 hover:text-primary transition"
+            >
+              Blog
+            </Link>
             {isInitializing ? (
               /* --- SKELETON LOADER ĐỂ TRÁNH NHÁY GIAO DIỆN --- */
               <div className="flex items-center gap-4">

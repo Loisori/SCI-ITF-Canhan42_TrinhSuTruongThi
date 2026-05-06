@@ -9,7 +9,6 @@ import {
   Banknote,
   Landmark,
   Wallet,
-  CircleAlert,
   ShieldCheck,
 } from "lucide-react";
 

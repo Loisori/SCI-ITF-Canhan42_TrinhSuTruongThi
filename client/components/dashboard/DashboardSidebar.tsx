@@ -20,6 +20,7 @@ import {
   Settings,
   LogOut,
   UserCircle,
+  Newspaper,
 } from "lucide-react";
 
 interface DashboardSidebarProps {
@@ -53,6 +54,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
     { name: "Duyệt KYC", view: "kyc-audit", icon: UserCircle },
     { name: "Duyệt Rút tiền", view: "withdrawal-audit", icon: Wallet },
     { name: "Giải ngân", view: "disbursements", icon: Banknote },
+    { name: "Blog", view: "blog-management", icon: Newspaper },
     { name: "Người dùng", view: "user-management", icon: Users },
   ];
 

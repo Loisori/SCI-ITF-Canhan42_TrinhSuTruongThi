@@ -20,6 +20,7 @@ import UserManagement from "./views/admin/UserManagement";
 import Disbursements from "./views/admin/Disbursements";
 import KycAudit from "./views/admin/KycAudit";
 import WithdrawalAudit from "./views/admin/WithdrawalAudit";
+import BlogManagement from "./views/admin/BlogManagement";
 
 export default function DashboardContent({
   profile,
@@ -67,6 +68,8 @@ export default function DashboardContent({
         return <KycAudit />;
       case "withdrawal-audit":
         return <WithdrawalAudit />;
+      case "blog-management":
+        return <BlogManagement />;
 
       default:
         return <Overview profile={profile} />;

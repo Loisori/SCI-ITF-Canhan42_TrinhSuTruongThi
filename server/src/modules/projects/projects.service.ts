@@ -16,7 +16,7 @@ import {
   ProjectStatus,
 } from './entities/project.entity';
 import { InvestProjectDto } from './dto/invest-project.dto';
-import { UserEntity } from '../users/entities/user.entity';
+import { UserEntity, UserRole } from '../users/entities/user.entity';
 import {
   InvestmentEntity,
   InvestmentStatus,
@@ -94,6 +94,40 @@ export class ProjectsService {
       }
       console.log(`[ProjectsService] Backfill complete.`);
     }
+  }
+
+  async getHomepageStats() {
+    const investmentRepo = this.dataSource.getRepository(InvestmentEntity);
+    const userRepo = this.dataSource.getRepository(UserEntity);
+
+    const [activeProjects, investors, avgReturnRaw, capitalRaw] =
+      await Promise.all([
+        this.projectsRepository.count({
+          where: { status: ProjectStatus.FUNDING },
+        }),
+        userRepo.count({ where: { role: UserRole.INVESTOR } }),
+        this.projectsRepository
+          .createQueryBuilder('project')
+          .select('COALESCE(AVG(project.interestRate), 0)', 'avg')
+          .where('project.status IN (:...statuses)', {
+            statuses: [ProjectStatus.FUNDING, ProjectStatus.COMPLETED],
+          })
+          .getRawOne<{ avg: string }>(),
+        investmentRepo
+          .createQueryBuilder('investment')
+          .select('COALESCE(SUM(investment.amount), 0)', 'sum')
+          .where('investment.status != :withdrawn', {
+            withdrawn: InvestmentStatus.WITHDRAWN,
+          })
+          .getRawOne<{ sum: string }>(),
+      ]);
+
+    return {
+      totalCapitalRaised: Math.round(Number(capitalRaw?.sum ?? 0)),
+      activeProjects: Math.round(activeProjects),
+      investors: Math.round(investors),
+      averageReturnRate: Math.round(Number(avgReturnRaw?.avg ?? 0)),
+    };
   }
 
   private generateRawSlug(title: string): string {

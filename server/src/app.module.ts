@@ -16,6 +16,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { MediaModule } from './modules/media/media.module';
 import { AiChatModule } from './modules/ai-chat/ai-chat.module';
 import { WalletsModule } from './modules/wallets/wallets.module';
+import { BlogsModule } from './modules/blogs/blogs.module';
 import { createTypeOrmConfig } from './config/typeorm.config';
 
 @Injectable()
@@ -57,6 +58,7 @@ class ConfigStartupValidation implements OnModuleInit {
     MediaModule,
     AiChatModule,
     WalletsModule,
+    BlogsModule,
   ],
 
   controllers: [AppController],

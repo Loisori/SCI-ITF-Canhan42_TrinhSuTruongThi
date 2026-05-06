@@ -57,6 +57,11 @@ export class ProjectsController {
     return this.projectsService.getFundingProjectSuggestions(q ?? '', 12);
   }
 
+  @Get('stats/homepage')
+  getHomepageStats() {
+    return this.projectsService.getHomepageStats();
+  }
+
   @UseGuards(JwtAuthGuard, IsOwnerGuard)
   @Get('owner')
   getOwnerProjects(
