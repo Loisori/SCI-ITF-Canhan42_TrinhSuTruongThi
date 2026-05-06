@@ -261,7 +261,7 @@ export class ProjectsService {
 
     const [projects, total] = await this.projectsRepository.findAndCount({
       where: { ownerId },
-      relations: ['media', 'category', 'owner'],
+      relations: ['media', 'category', 'owner', 'milestones', 'disputes'],
       order: { createdAt: 'DESC' },
       take,
       skip,
