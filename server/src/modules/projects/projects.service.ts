@@ -1011,10 +1011,15 @@ export class ProjectsService {
       milestones: project.milestones?.map((m) => ({
         id: m.id,
         title: m.title,
+        content: m.content,
         percentage: m.percentage,
         stage: m.stage,
         status: m.status,
         evidenceUrls: m.evidenceUrls,
+        disbursementDate: m.disbursementDate,
+        votingEndsAt: m.votingEndsAt,
+        intervalDays: m.intervalDays,
+        nextDisbursementDate: m.nextDisbursementDate,
         createdAt: m.createdAt,
       })),
       disputes: project.disputes
@@ -1038,7 +1043,7 @@ export class ProjectsService {
 
     const project = await projectRepo.findOne({
       where: { id: projectId },
-      relations: ['media', 'category'],
+      relations: ['media', 'category', 'milestones'],
     });
 
     if (!project) {

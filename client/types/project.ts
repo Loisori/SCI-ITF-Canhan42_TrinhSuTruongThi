@@ -39,6 +39,7 @@ export type ProjectMilestone = {
   evidenceUrls?: string[] | null;
   disbursementDate?: string | null;
   votingEndsAt?: string | null;
+  intervalDays?: number;
   nextDisbursementDate?: string | null;
   createdAt: string;
 };

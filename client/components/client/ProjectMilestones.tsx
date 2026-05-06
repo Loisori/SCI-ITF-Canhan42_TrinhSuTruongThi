@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import MDEditor from "@uiw/react-md-editor";
 import api from "@/lib/axios";
 import { ProjectMilestone } from "@/types/project";
 import { ProjectMilestonesProps } from "@/types/milestones";
+import rehypeSanitize from "rehype-sanitize";
 import {
   CheckCircle2,
   Circle,
@@ -12,7 +14,6 @@ import {
   Image as ImageIcon,
   ThumbsUp,
   ThumbsDown,
-  Info,
   MessageSquare,
   Send,
   User,
@@ -257,7 +258,6 @@ export default function ProjectMilestones({
           .sort((a, b) => a.stage - b.stage)
           .map((m: ProjectMilestone) => {
             const config = getStatusConfig(m.status);
-            const Icon = config.icon;
             const isVotingOpen = m.status === "voting";
             const isDisputed =
               m.status === "disputed" || m.status === "admin_review";
@@ -309,9 +309,21 @@ export default function ProjectMilestones({
                           </span>
                         )}
                       </div>
-                      <p className="text-smaller text-slate-600 dark:text-slate-400 mb-3">
-                        {m.content || "Chưa có mô tả chi tiết."}
-                      </p>
+                      <div
+                        className="mb-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-900/60 p-3"
+                        data-color-mode="light"
+                      >
+                        {m.content ? (
+                          <MDEditor.Markdown
+                            source={m.content}
+                            rehypePlugins={[[rehypeSanitize]]}
+                          />
+                        ) : (
+                          <p className="text-smaller text-slate-600 dark:text-slate-400">
+                            Chưa có mô tả chi tiết.
+                          </p>
+                        )}
+                      </div>
 
                       <div className="flex flex-wrap gap-4 items-center">
                         <div className="flex items-center gap-1.5 text-smaller font-semibold text-slate-500">

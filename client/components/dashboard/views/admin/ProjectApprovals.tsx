@@ -509,9 +509,21 @@ export default function ProjectApprovals() {
                                       {milestone.percentage}%
                                     </span>
                                   </div>
-                                  <p className="text-smaller text-slate-600 dark:text-slate-300 mt-2">
-                                    {milestone.content || "Không có mô tả."}
-                                  </p>
+                                  <div
+                                    className="mt-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 p-3"
+                                    data-color-mode="light"
+                                  >
+                                    {milestone.content ? (
+                                      <MDEditor.Markdown
+                                        source={milestone.content}
+                                        rehypePlugins={[[rehypeSanitize]]}
+                                      />
+                                    ) : (
+                                      <p className="text-smaller text-slate-600 dark:text-slate-300">
+                                        Không có mô tả.
+                                      </p>
+                                    )}
+                                  </div>
                                   <div className="flex flex-wrap gap-4 mt-3 text-[11px] text-slate-500 font-semibold uppercase tracking-wide">
                                     <span>Trạng thái: {milestone.status}</span>
                                     <span>

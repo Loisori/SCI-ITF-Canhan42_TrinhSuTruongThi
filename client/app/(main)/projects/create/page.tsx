@@ -674,21 +674,20 @@ export default function CreateProjectPage() {
                       </span>
                     </div>
                   </div>
-                  <textarea
-                    placeholder="Mô tả công việc dự kiến cho giai đoạn này..."
-                    value={m.content}
-                    onChange={(e) =>
-                      setMilestones((prev) =>
-                        prev.map((item, i) =>
-                          i === index
-                            ? { ...item, content: e.target.value }
-                            : item,
-                        ),
-                      )
-                    }
-                    rows={2}
-                    className="w-full px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-small"
-                  />
+                  <div className="markdown-field-wrapper">
+                    <MarkdownField
+                      value={m.content}
+                      onChange={(val) =>
+                        setMilestones((prev) =>
+                          prev.map((item, i) =>
+                            i === index ? { ...item, content: val } : item,
+                          ),
+                        )
+                      }
+                      label="Mô tả công việc dự kiến (Markdown)"
+                      placeholder="Mô tả công việc dự kiến cho giai đoạn này..."
+                    />
+                  </div>
                 </div>
               ))}
               <div className="flex justify-end pr-2">
