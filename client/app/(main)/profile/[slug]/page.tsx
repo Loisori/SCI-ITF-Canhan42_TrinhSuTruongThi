@@ -61,6 +61,21 @@ type VotingHistoryGroup = {
   items: VotingHistoryItem[];
 };
 
+type InvestedProjectActivity = {
+  projectId: number;
+  projectTitle: string;
+  projectSlug?: string;
+  thumbnailUrl?: string | null;
+  votes: VotingHistoryItem[];
+  disputes: Array<{
+    id: number;
+    reason: string;
+    evidenceUrl?: string | null;
+    status: string;
+    createdAt: string;
+  }>;
+};
+
 export default function PublicProfilePage() {
   const params = useParams<{ slug: string }>();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -71,11 +86,15 @@ export default function PublicProfilePage() {
     InvestedProjectItem[]
   >([]);
   const [votingHistory, setVotingHistory] = useState<VotingHistoryItem[]>([]);
+  const [investedActivity, setInvestedActivity] = useState<
+    InvestedProjectActivity[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<
     "about" | "created" | "invested" | "disputes" | "voting"
   >("about");
   const [votingLoading, setVotingLoading] = useState(false);
+  const [investedActivityLoading, setInvestedActivityLoading] = useState(false);
   const [nowTimestamp, setNowTimestamp] = useState(() => Date.now());
 
   useEffect(() => {
@@ -139,6 +158,89 @@ export default function PublicProfilePage() {
   useEffect(() => {
     setVotingHistory([]);
   }, [params.slug]);
+
+  useEffect(() => {
+    if (
+      activeSection !== "invested" ||
+      !profile ||
+      investedProjects.length === 0
+    ) {
+      setInvestedActivity([]);
+      return;
+    }
+
+    const fetchInvestedActivity = async () => {
+      setInvestedActivityLoading(true);
+
+      try {
+        const activityEntries = await Promise.all(
+          investedProjects.map(async (project) => {
+            const detailRes = await api.get<ProjectDetail>(
+              `/api/projects/${project.id}`,
+            );
+            const milestones = detailRes.data.milestones ?? [];
+
+            const voteEntries = await Promise.all(
+              milestones.map(async (milestone) => {
+                const response = await api.get<
+                  Array<{
+                    userId: number | string;
+                    id: number;
+                    isApprove: boolean;
+                    comment: string | null;
+                    createdAt: string;
+                  }>
+                >(`/api/projects/milestones/${milestone.id}/votes`);
+
+                return (response.data || [])
+                  .filter((vote) => Number(vote.userId) === profile.id)
+                  .map((vote) => ({
+                    id: vote.id,
+                    projectId: detailRes.data.id,
+                    projectTitle: detailRes.data.title,
+                    milestoneId: milestone.id,
+                    milestoneTitle: milestone.title,
+                    milestoneStage: milestone.stage,
+                    isApprove: vote.isApprove,
+                    comment: vote.comment,
+                    createdAt: vote.createdAt,
+                  }));
+              }),
+            );
+
+            const disputes = (detailRes.data.disputes ?? [])
+              .filter((dispute) => Number(dispute.userId) === profile.id)
+              .map((dispute) => ({
+                id: dispute.id,
+                reason: dispute.reason,
+                evidenceUrl: dispute.evidenceUrl,
+                status: dispute.status,
+                createdAt: dispute.createdAt,
+              }));
+
+            return {
+              projectId: detailRes.data.id,
+              projectTitle: detailRes.data.title,
+              projectSlug: project.slug,
+              thumbnailUrl:
+                detailRes.data.thumbnailUrl ?? project.thumbnailUrl ?? null,
+              votes: voteEntries.flat(),
+              disputes,
+            };
+          }),
+        );
+
+        setInvestedActivity(activityEntries);
+      } catch (error) {
+        console.error("Failed to fetch invested activity:", error);
+        setInvestedActivity([]);
+      } finally {
+        setInvestedActivityLoading(false);
+      }
+    };
+
+    void fetchInvestedActivity();
+  }, [activeSection, investedProjects, profile]);
 
   useEffect(() => {
     if (
@@ -580,6 +682,134 @@ export default function PublicProfilePage() {
                         nowTimestamp={nowTimestamp}
                       />
                     ))}
+                  </div>
+
+                  <div className="space-y-4">
+                    <h4 className="text-h5 font-black text-slate-900 dark:text-white">
+                      Hoạt động của bạn
+                    </h4>
+
+                    {investedActivityLoading ? (
+                      <div className="p-6 rounded-4xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500">
+                        Đang tải dữ liệu bình chọn và tranh chấp...
+                      </div>
+                    ) : investedActivity.length > 0 ? (
+                      <div className="space-y-4">
+                        {investedActivity.map((activity) => {
+                          const agreeVotes = activity.votes.filter(
+                            (vote) => vote.isApprove,
+                          );
+                          const disagreeVotes = activity.votes.filter(
+                            (vote) => !vote.isApprove,
+                          );
+
+                          return (
+                            <article
+                              key={activity.projectId}
+                              className="p-6 rounded-4xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5"
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                  <h5 className="text-h6 font-bold text-slate-900 dark:text-white">
+                                    {activity.projectTitle}
+                                  </h5>
+                                  <p className="text-small text-slate-500">
+                                    {activity.votes.length} lượt bình chọn của
+                                    bạn, {activity.disputes.length} tranh chấp
+                                    của bạn
+                                  </p>
+                                </div>
+                                <div className="flex gap-2 flex-wrap">
+                                  <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold uppercase tracking-widest">
+                                    Đồng ý: {agreeVotes.length}
+                                  </span>
+                                  <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-[11px] font-bold uppercase tracking-widest">
+                                    Không đồng ý: {disagreeVotes.length}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="rounded-3xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/70 dark:bg-emerald-900/15 p-4 space-y-3">
+                                  <div className="font-bold text-emerald-700 dark:text-emerald-300">
+                                    Bài bình chọn của bạn
+                                  </div>
+                                  {activity.votes.length ? (
+                                    activity.votes.map((vote) => (
+                                      <div
+                                        key={vote.id}
+                                        className="rounded-2xl bg-white dark:bg-slate-900/70 border border-emerald-100 dark:border-emerald-900/40 p-3"
+                                      >
+                                        <p className="text-smaller font-semibold text-slate-900 dark:text-white">
+                                          Giai đoạn {vote.milestoneStage}:{" "}
+                                          {vote.milestoneTitle}
+                                        </p>
+                                        <p className="text-smaller text-slate-600 dark:text-slate-300 mt-1">
+                                          {vote.comment ||
+                                            (vote.isApprove
+                                              ? "Đồng ý."
+                                              : "Không có lý do.")}
+                                        </p>
+                                        <p className="text-[11px] text-slate-400 mt-2">
+                                          {new Date(
+                                            vote.createdAt,
+                                          ).toLocaleString("vi-VN")}
+                                        </p>
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <p className="text-smaller text-slate-500">
+                                      Bạn chưa có bình chọn nào ở dự án này.
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="rounded-3xl border border-rose-200 dark:border-rose-900/40 bg-rose-50/70 dark:bg-rose-900/15 p-4 space-y-3">
+                                  <div className="font-bold text-rose-700 dark:text-rose-300">
+                                    Tranh chấp của bạn
+                                  </div>
+                                  {activity.disputes.length ? (
+                                    activity.disputes.map((dispute) => (
+                                      <div
+                                        key={dispute.id}
+                                        className="rounded-2xl bg-white dark:bg-slate-900/70 border border-rose-100 dark:border-rose-900/40 p-3"
+                                      >
+                                        <p className="text-smaller font-semibold text-slate-900 dark:text-white">
+                                          {dispute.status}
+                                        </p>
+                                        <div className="mt-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/40 p-3">
+                                          <MarkdownPreview
+                                            source={dispute.reason}
+                                            rehypePlugins={[[rehypeSanitize]]}
+                                            style={{
+                                              background: "transparent",
+                                              color: "inherit",
+                                            }}
+                                          />
+                                        </div>
+                                        <p className="text-[11px] text-slate-400 mt-2">
+                                          {new Date(
+                                            dispute.createdAt,
+                                          ).toLocaleString("vi-VN")}
+                                        </p>
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <p className="text-smaller text-slate-500">
+                                      Bạn chưa tạo tranh chấp nào ở dự án này.
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </article>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="p-6 rounded-4xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500">
+                        Chưa có dữ liệu bình chọn hoặc tranh chấp để hiển thị.
+                      </div>
+                    )}
                   </div>
                 </section>
               ) : (
