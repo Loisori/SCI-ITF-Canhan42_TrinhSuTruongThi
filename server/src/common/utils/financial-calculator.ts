@@ -8,7 +8,7 @@ export class FinancialCalculator {
    * Prevents penny gaps and floating point errors.
    */
   static round(amount: number): number {
-    return Number(Number(amount).toFixed(2));
+    return Math.round(amount);
   }
 
   /**
@@ -30,12 +30,12 @@ export class FinancialCalculator {
     rate: number | null | undefined,
   ): number {
     const fraction = this.toCommissionFraction(rate);
-    return this.round(amount * fraction);
+    return Math.round(amount * fraction);
   }
 
   /**
    * Calculates total debt:
-   * Principal + Interest (no platform fee compounding).
+   * Principal + Interest + (Interest * PlatformFeeRate)
    */
   static calculateTotalDebt(
     principal: number,
@@ -43,16 +43,15 @@ export class FinancialCalculator {
     durationMonths: number,
     commissionRate?: number | null,
   ): number {
-    const normalizedPrincipal = Number(principal) || 0;
-    const normalizedInterestRate = Number(interestRatePercent) || 0;
-    const normalizedDuration = Number(durationMonths) || 0;
-    const interest =
-      normalizedPrincipal *
-      (normalizedInterestRate / 100) *
-      (normalizedDuration / 12);
-    void commissionRate;
+    const P = Number(principal) || 0;
+    const R = (Number(interestRatePercent) || 0) / 100;
+    const T = (Number(durationMonths) || 0) / 12;
+    const feeRate = this.toCommissionFraction(commissionRate);
 
-    return this.round(normalizedPrincipal + interest);
+    const totalInterest = P * R * T;
+    const platformFee = totalInterest * feeRate;
+
+    return Math.round(P + totalInterest + platformFee);
   }
 
   /**

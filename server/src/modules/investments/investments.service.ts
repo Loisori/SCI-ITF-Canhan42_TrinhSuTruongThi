@@ -418,29 +418,42 @@ export class InvestmentsService {
       const schedules: PaymentScheduleEntity[] = [];
       let createdSchedules = 0;
 
+      const feeRate = this.toCommissionFraction(project.commissionRate);
+
       for (const investment of investments) {
         if ((investment.paymentSchedules ?? []).length > 0) {
           continue;
         }
 
-        const amount = Number(investment.amount);
-        const monthlyInterest = this.roundCurrency(
-          (amount * Number(project.interestRate)) / 100 / 12,
-        );
+        const principal = Number(investment.amount);
+        const interestRate = Number(project.interestRate) / 100;
+        const duration = project.durationMonths;
 
-        for (let month = 1; month <= project.durationMonths; month += 1) {
+        // Total Interest and Platform Fee for this investment
+        const totalInterest = principal * interestRate * (duration / 12);
+        const totalFee = totalInterest * feeRate;
+        const totalInterestAndFee = totalInterest + totalFee;
+
+        const monthlyInterestPlusFee = totalInterestAndFee / duration;
+        const monthlyTotal = Math.round(monthlyInterestPlusFee);
+
+        for (let month = 1; month <= duration; month += 1) {
           const dueDate = new Date(baseDate);
           dueDate.setMonth(dueDate.getMonth() + month);
-          const scheduleAmount =
-            month === project.durationMonths
-              ? this.roundCurrency(monthlyInterest + amount)
-              : monthlyInterest;
+
+          let scheduleAmount = monthlyTotal;
+          if (month === duration) {
+            // Last month: handle principal and any rounding adjustments
+            const totalToPay = Math.round(totalInterestAndFee);
+            const paidInPreviousMonths = monthlyTotal * (duration - 1);
+            scheduleAmount = principal + (totalToPay - paidInPreviousMonths);
+          }
 
           schedules.push(
             schedulesRepo.create({
               investmentId: investment.id,
               dueDate,
-              amount: scheduleAmount,
+              amount: Math.round(scheduleAmount),
               status: PaymentScheduleStatus.UNPAID,
               paidAt: null,
             }),
@@ -817,6 +830,6 @@ export class InvestmentsService {
   }
 
   private roundCurrency(value: number): number {
-    return Math.round(value * 100) / 100;
+    return Math.round(value);
   }
 }

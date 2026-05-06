@@ -285,15 +285,15 @@ export class WalletsService {
             const isFinalForInvestment =
               this.normalizeDateKey(schedule.dueDate) ===
               maxDueDateByInvestment.get(Number(schedule.investmentId));
+
             const hasEmbeddedPrincipal =
               isFinalForInvestment && grossAmount >= principal;
 
-            const effectiveAmount =
-              isFinalForInvestment && !hasEmbeddedPrincipal
-                ? FinancialCalculator.round(grossAmount + principal)
-                : grossAmount;
+            const principalShare = isFinalForInvestment ? principal : 0;
+            const interestPlusFee = grossAmount - principalShare;
+            const interestShare = Math.round(interestPlusFee / (1 + feeRate));
 
-            return sum + effectiveAmount;
+            return sum + principalShare + interestShare;
           }, 0),
         );
       }
@@ -561,6 +561,8 @@ export class WalletsService {
         );
       }
 
+      const feeRate = await this.resolveProjectFeeRate(manager, project);
+
       const scheduleBreakdowns = allSchedulesToPay.map((schedule) => {
         const grossAmount = Number(schedule.amount);
         const investmentPrincipal = Number(schedule.investment.amount || 0);
@@ -568,26 +570,9 @@ export class WalletsService {
           this.normalizeDateKey(schedule.dueDate) ===
           maxDueDateByInvestment.get(Number(schedule.investmentId));
 
-        // New data: final schedule already includes principal.
-        // Legacy data: final schedule may still contain interest only.
-        const hasEmbeddedPrincipal =
-          isFinalForInvestment && grossAmount >= investmentPrincipal;
-
-        const principalShare = isFinalForInvestment
-          ? FinancialCalculator.round(
-              hasEmbeddedPrincipal
-                ? Math.min(investmentPrincipal, grossAmount)
-                : investmentPrincipal,
-            )
-          : 0;
-
-        const interestShare = FinancialCalculator.round(
-          isFinalForInvestment
-            ? hasEmbeddedPrincipal
-              ? Math.max(grossAmount - principalShare, 0)
-              : grossAmount
-            : grossAmount,
-        );
+        const principalShare = isFinalForInvestment ? investmentPrincipal : 0;
+        const interestPlusFee = grossAmount - principalShare;
+        const interestShare = Math.round(interestPlusFee / (1 + feeRate));
 
         return {
           schedule,
@@ -606,7 +591,7 @@ export class WalletsService {
         principalAmount + interestAmount,
       );
 
-      const feeRate = await this.resolveProjectFeeRate(manager, project);
+
 
       const totalUnpaidSchedulesInProject = await scheduleRepo.count({
         where: {
@@ -620,8 +605,12 @@ export class WalletsService {
       const isFinalRepaymentBatch =
         totalUnpaidSchedulesInProject === allSchedulesToPay.length;
 
-      // Platform fee is charged on interest only.
-      let feeAmount = FinancialCalculator.round(interestAmount * feeRate);
+      // Platform fee is the remaining balance of the schedule amounts
+      const totalScheduleAmount = allSchedulesToPay.reduce(
+        (sum, s) => sum + Number(s.amount),
+        0,
+      );
+      let feeAmount = Math.round(totalScheduleAmount - debtPaymentAmount);
       if (isFinalRepaymentBatch) {
         feeAmount = FinancialCalculator.round(
           Math.max(Number(project.totalDebt) - debtPaymentAmount, 0),
