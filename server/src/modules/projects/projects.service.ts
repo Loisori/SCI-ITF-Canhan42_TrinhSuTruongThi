@@ -41,6 +41,7 @@ import {
 import { MilestoneVoteEntity } from './entities/vote.entity';
 import { MilestoneDiscussionEntity } from './entities/discussion.entity';
 import { ProjectDisputeEntity, DisputeStatus } from './entities/dispute.entity';
+import { ProjectCommentEntity } from './entities/comment.entity';
 import { KycStatus } from '../users/entities/kyc.entity';
 import { FinancialCalculator } from '../../common/utils/financial-calculator';
 import { MilestonesService } from './milestones.service';
@@ -1201,6 +1202,89 @@ export class ProjectsService {
       }
 
       return dispute;
+    });
+  }
+
+  async getProjectComments(projectId: number) {
+    const comments = await this.dataSource
+      .getRepository(ProjectCommentEntity)
+      .find({
+        where: { projectId },
+        relations: ['user'],
+        order: { createdAt: 'ASC' },
+      });
+
+    return comments.map((comment) => ({
+      id: comment.id,
+      projectId: comment.projectId,
+      userId: comment.userId,
+      content: comment.content,
+      createdAt: comment.createdAt,
+      user: comment.user
+        ? {
+            id: comment.user.id,
+            fullName: comment.user.fullName,
+            email: comment.user.email,
+            avatarUrl: comment.user.avatarUrl,
+          }
+        : null,
+    }));
+  }
+
+  async createProjectComment(projectId: number, userId: number, content: string) {
+    const trimmedContent = content.trim();
+    if (!trimmedContent) {
+      throw new BadRequestException('content is required');
+    }
+
+    return this.dataSource.transaction(async (manager) => {
+      const projectRepo = manager.getRepository(ProjectEntity);
+      const investRepo = manager.getRepository(InvestmentEntity);
+      const commentRepo = manager.getRepository(ProjectCommentEntity);
+
+      const project = await projectRepo.findOne({ where: { id: projectId } });
+      if (!project) {
+        throw new NotFoundException('Project not found');
+      }
+
+      const investment = await investRepo.findOne({
+        where: { projectId, userId },
+      });
+
+      if (!investment || investment.status === InvestmentStatus.WITHDRAWN) {
+        throw new ForbiddenException(
+          'Only investors of this project can comment',
+        );
+      }
+
+      const comment = commentRepo.create({
+        projectId,
+        userId,
+        content: trimmedContent,
+      });
+
+      await commentRepo.save(comment);
+      const comments = await commentRepo.find({
+        where: { projectId },
+        relations: ['user'],
+        order: { createdAt: 'ASC' },
+      });
+
+      return comments.map((item) => ({
+        id: item.id,
+        projectId: item.projectId,
+        userId: item.userId,
+        content: item.content,
+        createdAt: item.createdAt,
+        user: item.user
+          ? {
+              id: item.user.id,
+              fullName: item.user.fullName,
+              email: item.user.email,
+              avatarUrl: item.user.avatarUrl,
+            }
+          : null,
+      }));
     });
   }
 

@@ -92,7 +92,7 @@ export default function Disbursements() {
             className="bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm flex flex-col md:flex-row"
           >
             {/* Image Preview Area */}
-            <div className="md:w-1/3 bg-slate-100 dark:bg-slate-800 relative group aspect-video md:aspect-auto min-h-[20rem]">
+            <div className="md:w-1/3 bg-slate-100 dark:bg-slate-800 relative group aspect-video md:aspect-auto min-h-80">
               {m.proofUrl ? (
                 <>
                   <img

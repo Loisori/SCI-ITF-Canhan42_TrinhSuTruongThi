@@ -48,6 +48,7 @@ type ProjectContentSection =
   | "lifecycle"
   | "milestones"
   | "comments"
+  | "disputes"
   | "voting";
 
 type MilestoneVote = {
@@ -57,6 +58,20 @@ type MilestoneVote = {
   isApprove: boolean;
   comment: string | null;
   investorCapital: number;
+  createdAt: string;
+  user: {
+    id: number;
+    fullName: string;
+    email: string;
+    avatarUrl?: string | null;
+  } | null;
+};
+
+type ProjectComment = {
+  id: number;
+  projectId: number;
+  userId: number;
+  content: string;
   createdAt: string;
   user: {
     id: number;
@@ -103,6 +118,10 @@ export default function ProjectDetailPage() {
     Record<number, MilestoneVote[]>
   >({});
   const [votesLoading, setVotesLoading] = useState(false);
+  const [projectComments, setProjectComments] = useState<ProjectComment[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentContent, setCommentContent] = useState("");
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
 
   const fetchProject = async () => {
     const slugValue = String(params.slug ?? "").trim();
@@ -148,6 +167,8 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     setMilestoneVotes({});
+    setProjectComments([]);
+    setCommentContent("");
   }, [project?.id]);
 
   useEffect(() => {
@@ -225,6 +246,29 @@ export default function ProjectDetailPage() {
 
     void fetchMilestoneVotes();
   }, [activeSection, milestones, project?.id]);
+
+  useEffect(() => {
+    if (activeSection !== "comments" || !project?.id) {
+      return;
+    }
+
+    const fetchProjectComments = async () => {
+      setCommentsLoading(true);
+
+      try {
+        const response = await api.get<ProjectComment[]>(
+          `/api/projects/${project.id}/comments`,
+        );
+        setProjectComments(response.data);
+      } catch {
+        setProjectComments([]);
+      } finally {
+        setCommentsLoading(false);
+      }
+    };
+
+    void fetchProjectComments();
+  }, [activeSection, project?.id]);
 
   useEffect(() => {
     window.dispatchEvent(
@@ -335,6 +379,41 @@ export default function ProjectDetailPage() {
       });
     } finally {
       setInvesting(false);
+    }
+  };
+
+  const handleSubmitComment = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!project || !commentContent.trim()) {
+      return;
+    }
+
+    setCommentSubmitting(true);
+
+    try {
+      const response = await api.post<ProjectComment[]>(
+        `/api/projects/${project.id}/comments`,
+        { content: commentContent },
+      );
+      setProjectComments(response.data);
+      setCommentContent("");
+      setToast({ type: "success", message: "Đã gửi bình luận." });
+    } catch (error: unknown) {
+      const message =
+        (
+          error as {
+            response?: { data?: { message?: string | string[] } };
+          }
+        )?.response?.data?.message ??
+        "Chỉ nhà đầu tư của dự án này mới có thể bình luận.";
+
+      setToast({
+        type: "error",
+        message: Array.isArray(message) ? message[0] : message,
+      });
+    } finally {
+      setCommentSubmitting(false);
     }
   };
 
@@ -607,6 +686,17 @@ export default function ProjectDetailPage() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setActiveSection("disputes")}
+                  className={`px-4 py-5 text-sm font-semibold transition-colors  text-smaller ${
+                    activeSection === "disputes"
+                      ? "text-primary border-b border-primary"
+                      : "text-slate-700 dark:text-slate-300"
+                  }`}
+                >
+                  Disputes
+                </button>
+                <button
+                  type="button"
                   onClick={() => setActiveSection("voting")}
                   className={`px-4 py-5 text-sm font-semibold transition-colors  text-smaller ${
                     activeSection === "voting"
@@ -695,7 +785,7 @@ export default function ProjectDetailPage() {
                       </div>
                       {project.owner.bio && (
                         <p className="text-smaller text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-3 italic">
-                          "{project.owner.bio}"
+                          &ldquo;{project.owner.bio}&rdquo;
                         </p>
                       )}
                     </Link>
@@ -737,7 +827,97 @@ export default function ProjectDetailPage() {
                 <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
                   <div>
                     <h2 className="text-h6 font-black text-slate-900 dark:text-white">
-                      Dispute Comments
+                      Comments
+                    </h2>
+                    <p className="text-smaller text-slate-500 mt-1">
+                      Bình luận từ các nhà đầu tư đã tham gia dự án.
+                    </p>
+                  </div>
+
+                  {role === "investor" ? (
+                    <form
+                      onSubmit={handleSubmitComment}
+                      className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 p-4 space-y-3"
+                    >
+                      <textarea
+                        value={commentContent}
+                        onChange={(e) => setCommentContent(e.target.value)}
+                        placeholder="Viết bình luận của bạn..."
+                        rows={3}
+                        className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-small outline-none focus:ring-1 ring-primary"
+                      />
+                      <div className="flex justify-end">
+                        <button
+                          type="submit"
+                          disabled={commentSubmitting || !commentContent.trim()}
+                          className="px-4 py-2 rounded-lg bg-primary text-white text-smaller font-bold disabled:opacity-60"
+                        >
+                          {commentSubmitting ? "Đang gửi..." : "Gửi bình luận"}
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <p className="rounded-lg bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 p-3 text-smaller text-slate-500">
+                      Chỉ tài khoản Investor đã đầu tư vào dự án mới có thể viết
+                      bình luận.
+                    </p>
+                  )}
+
+                  {commentsLoading ? (
+                    <p className="text-smaller text-slate-500">
+                      Đang tải bình luận...
+                    </p>
+                  ) : projectComments.length ? (
+                    <div className="space-y-3">
+                      {projectComments.map((comment) => (
+                        <div
+                          key={comment.id}
+                          className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 p-4"
+                        >
+                          <div className="flex items-center justify-between gap-3 mb-2">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <img
+                                src={
+                                  comment.user?.avatarUrl ||
+                                  `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.user?.fullName || `User ${comment.userId}`)}&background=random`
+                                }
+                                alt={comment.user?.fullName || "Investor"}
+                                className="w-9 h-9 rounded-full object-cover bg-slate-200 dark:bg-slate-700"
+                              />
+                              <div className="min-w-0">
+                                <div className="font-bold text-slate-900 dark:text-white text-smaller truncate">
+                                  {comment.user?.fullName ||
+                                    `User ${comment.userId}`}
+                                </div>
+                                <div className="text-[11px] uppercase tracking-wide text-slate-400 font-semibold">
+                                  {new Date(comment.createdAt).toLocaleString(
+                                    "vi-VN",
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-small text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                            {comment.content}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-smaller text-slate-500">
+                      Chưa có bình luận nào.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeSection === "disputes" && (
+              <div id="disputes" className="wrapper wrapper--lg mt-10">
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+                  <div>
+                    <h2 className="text-h6 font-black text-slate-900 dark:text-white">
+                      Disputes
                     </h2>
                     <p className="text-smaller text-slate-500 mt-1">
                       Nội dung khiếu nại và trạng thái xử lý của từng tranh

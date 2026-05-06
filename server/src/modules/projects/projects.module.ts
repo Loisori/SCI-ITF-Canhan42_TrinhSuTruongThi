@@ -9,6 +9,7 @@ import { ProjectCategoryEntity } from './entities/category.entity';
 import { ProjectMediaEntity } from './entities/media.entity';
 import { ProjectMilestoneEntity } from './entities/milestone.entity';
 import { ProjectDisputeEntity } from './entities/dispute.entity';
+import { ProjectCommentEntity } from './entities/comment.entity';
 import { MilestoneVoteEntity } from './entities/vote.entity';
 import { MilestoneDiscussionEntity } from './entities/discussion.entity';
 import { MilestoneVoteSnapshotEntity } from './entities/milestone-vote-snapshot.entity';
@@ -29,6 +30,7 @@ import { UsersModule } from '../users/users.module';
       ProjectMediaEntity,
       ProjectMilestoneEntity,
       ProjectDisputeEntity,
+      ProjectCommentEntity,
       MilestoneVoteEntity,
       MilestoneVoteSnapshotEntity,
       MilestoneDiscussionEntity,

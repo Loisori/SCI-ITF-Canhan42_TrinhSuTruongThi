@@ -224,6 +224,22 @@ export class ProjectsController {
     return this.projectsService.getMilestoneVotes(mId);
   }
 
+  @Get(':id/comments')
+  getProjectComments(@Param('id', ParseIntPipe) id: number) {
+    return this.projectsService.getProjectComments(id);
+  }
+
+  @UseGuards(JwtAuthGuard, IsInvestorGuard, AccountStatusGuard)
+  @Post(':id/comments')
+  createProjectComment(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUser('id') userId: number,
+    @Body('content') content: string,
+  ) {
+    if (!content?.trim()) throw new BadRequestException('content is required');
+    return this.projectsService.createProjectComment(id, userId, content);
+  }
+
   @UseGuards(JwtAuthGuard, IsInvestorGuard, AccountStatusGuard)
   @Post(':id/disputes')
   createDispute(
