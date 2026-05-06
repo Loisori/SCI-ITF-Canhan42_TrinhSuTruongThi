@@ -1,5 +1,149 @@
 [
   {
+    "id": 48,
+    "title": "asd",
+    "thumbnailUrl": null,
+    "shortDescription": "12",
+    "slug": "asd",
+    "address": "",
+    "targetCapital": 1000000,
+    "currentAmount": 0,
+    "interestRate": 12,
+    "durationMonths": 12,
+    "minInvestment": 10000,
+    "riskLevel": "medium",
+    "fundingProgress": 0,
+    "status": "pending",
+    "totalDebt": 0,
+    "startDate": "2026-05-06",
+    "endDate": "2026-05-29",
+    "category": {
+      "id": 4,
+      "name": "Dance",
+      "slug": "dance",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/3133/3133098.png"
+    },
+    "owner": {
+      "id": 3,
+      "slug": "xrejji-project-owner",
+      "fullName": "Xrejji Project Owner",
+      "email": "xrejji04@gmail.com",
+      "avatarUrl": "https://ui-avatars.com/api/?name=Xrejji+Owner&background=random",
+      "bio": "Chuyên gia phát triển dự án bất động sản và nông nghiệp công nghệ cao.",
+      "socialLinks": {
+        "website": "xrejji.com"
+      },
+      "address": "Quận 1, TP. Hồ Chí Minh"
+    },
+    "images": [],
+    "isFrozen": false,
+    "createdAt": "2026-05-06T03:09:07.973Z",
+    "milestones": [
+      {
+        "id": 234,
+        "title": "Đợt 3: Hoàn thiện",
+        "percentage": 50,
+        "stage": 3,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T03:09:08.310Z"
+      },
+      {
+        "id": 233,
+        "title": "Đợt 2: Triển khai",
+        "percentage": 30,
+        "stage": 2,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T03:09:08.204Z"
+      },
+      {
+        "id": 232,
+        "title": "Đợt 1: Khởi động",
+        "percentage": 20,
+        "stage": 1,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T03:09:08.087Z"
+      }
+    ],
+    "disputes": [],
+    "content": "12"
+  },
+  {
+    "id": 47,
+    "title": "asdasd",
+    "thumbnailUrl": "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1778061585/investpro/users/3/njkicicf60tlqipufxpr.jpg",
+    "shortDescription": "asdasd",
+    "slug": "asdasd",
+    "address": "asdasd",
+    "targetCapital": 1000000,
+    "currentAmount": 0,
+    "interestRate": 4,
+    "durationMonths": 6,
+    "minInvestment": 10000,
+    "riskLevel": "medium",
+    "fundingProgress": 0,
+    "status": "pending",
+    "totalDebt": 0,
+    "startDate": "2026-05-06",
+    "endDate": "2026-05-07",
+    "category": {
+      "id": 3,
+      "name": "Crafts",
+      "slug": "crafts",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/3040/3040181.png"
+    },
+    "owner": {
+      "id": 3,
+      "slug": "xrejji-project-owner",
+      "fullName": "Xrejji Project Owner",
+      "email": "xrejji04@gmail.com",
+      "avatarUrl": "https://ui-avatars.com/api/?name=Xrejji+Owner&background=random",
+      "bio": "Chuyên gia phát triển dự án bất động sản và nông nghiệp công nghệ cao.",
+      "socialLinks": {
+        "website": "xrejji.com"
+      },
+      "address": "Quận 1, TP. Hồ Chí Minh"
+    },
+    "images": [
+      "https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1778061585/investpro/users/3/njkicicf60tlqipufxpr.jpg"
+    ],
+    "isFrozen": false,
+    "createdAt": "2026-05-06T03:00:02.535Z",
+    "milestones": [
+      {
+        "id": 229,
+        "title": "Đợt 1: Khởi động",
+        "percentage": 20,
+        "stage": 1,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T03:00:02.872Z"
+      },
+      {
+        "id": 230,
+        "title": "Đợt 2: Triển khai",
+        "percentage": 30,
+        "stage": 2,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T03:00:02.976Z"
+      },
+      {
+        "id": 231,
+        "title": "Đợt 3: Hoàn thiện",
+        "percentage": 50,
+        "stage": 3,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T03:00:03.082Z"
+      }
+    ],
+    "disputes": [],
+    "content": "asdasdasd![Image](https://res.cloudinary.com/dhxrsiqip/image/upload/f_auto,q_auto/v1778061585/investpro/users/3/njkicicf60tlqipufxpr.jpg)\nasasass"
+  },
+  {
     "id": 46,
     "title": "asdasdasd",
     "thumbnailUrl": null,
@@ -71,28 +215,28 @@
     "content": ""
   },
   {
-    "id": 1,
-    "title": "Triển lãm Nghệ thuật Đương đại 2026",
+    "id": 23,
+    "title": "Xưởng Socola Thủ công từ Cacao Tiền Giang",
     "thumbnailUrl": null,
-    "shortDescription": "Trưng bày các tác phẩm điêu khắc hiện đại.",
-    "slug": "art-exhibition-2026",
-    "address": "Quận 1, TP. HCM",
-    "targetCapital": 500000000,
+    "shortDescription": "Sản xuất socola nguyên chất 100%.",
+    "slug": "handcrafted-chocolate-factory",
+    "address": "Tiền Giang",
+    "targetCapital": 800000000,
     "currentAmount": 0,
-    "interestRate": 12,
-    "durationMonths": 12,
+    "interestRate": 13,
+    "durationMonths": 18,
     "minInvestment": 1000000,
-    "riskLevel": "low",
+    "riskLevel": "medium",
     "fundingProgress": 0,
     "status": "funding",
     "totalDebt": 0,
-    "startDate": "2026-05-01",
-    "endDate": "2026-08-01",
+    "startDate": "2026-05-28",
+    "endDate": "2026-11-28",
     "category": {
-      "id": 1,
-      "name": "Art",
-      "slug": "art",
-      "iconUrl": "https://cdn-icons-png.flaticon.com/512/1048/1048953.png"
+      "id": 8,
+      "name": "Food",
+      "slug": "food",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/2737/2737034.png"
     },
     "owner": {
       "id": 3,
@@ -111,34 +255,7 @@
     "createdAt": "2026-05-06T02:11:23.000Z",
     "milestones": [
       {
-        "id": 1,
-        "title": "Giai đoạn 4 (20%)",
-        "percentage": 20,
-        "stage": 4,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 46,
-        "title": "Giai đoạn 2 (20%)",
-        "percentage": 20,
-        "stage": 2,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 91,
-        "title": "Giai đoạn 5 (20%)",
-        "percentage": 20,
-        "stage": 5,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 136,
+        "id": 158,
         "title": "Giai đoạn 3 (20%)",
         "percentage": 20,
         "stage": 3,
@@ -147,7 +264,34 @@
         "createdAt": "2026-05-06T02:11:23.000Z"
       },
       {
-        "id": 181,
+        "id": 23,
+        "title": "Giai đoạn 4 (20%)",
+        "percentage": 20,
+        "stage": 4,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 68,
+        "title": "Giai đoạn 2 (20%)",
+        "percentage": 20,
+        "stage": 2,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 113,
+        "title": "Giai đoạn 5 (20%)",
+        "percentage": 20,
+        "stage": 5,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 203,
         "title": "Giai đoạn 1 (20%)",
         "percentage": 20,
         "stage": 1,
@@ -160,28 +304,28 @@
     "content": "Nội dung..."
   },
   {
-    "id": 2,
-    "title": "Xưởng vẽ tranh Sơn dầu Kỹ thuật số",
+    "id": 44,
+    "title": "Kịch tương tác cho Trẻ em: Xứ sở Diệu kỳ",
     "thumbnailUrl": null,
-    "shortDescription": "Kết hợp nghệ thuật truyền thống và AI.",
-    "slug": "digital-oil-painting-studio",
-    "address": "Quận 3, TP. HCM",
-    "targetCapital": 300000000,
+    "shortDescription": "Vở diễn nơi khán giả nhí có thể tham gia vào cốt truyện.",
+    "slug": "interactive-kids-theater",
+    "address": "TP. HCM",
+    "targetCapital": 600000000,
     "currentAmount": 0,
-    "interestRate": 15,
-    "durationMonths": 10,
-    "minInvestment": 500000,
+    "interestRate": 15.5,
+    "durationMonths": 12,
+    "minInvestment": 1000000,
     "riskLevel": "medium",
     "fundingProgress": 0,
     "status": "funding",
     "totalDebt": 0,
-    "startDate": "2026-05-10",
-    "endDate": "2026-09-10",
+    "startDate": "2026-05-20",
+    "endDate": "2026-11-20",
     "category": {
-      "id": 1,
-      "name": "Art",
-      "slug": "art",
-      "iconUrl": "https://cdn-icons-png.flaticon.com/512/1048/1048953.png"
+      "id": 15,
+      "name": "Theater",
+      "slug": "theater",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/3133/3133139.png"
     },
     "owner": {
       "id": 3,
@@ -200,16 +344,7 @@
     "createdAt": "2026-05-06T02:11:23.000Z",
     "milestones": [
       {
-        "id": 2,
-        "title": "Giai đoạn 4 (20%)",
-        "percentage": 20,
-        "stage": 4,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 47,
+        "id": 89,
         "title": "Giai đoạn 2 (20%)",
         "percentage": 20,
         "stage": 2,
@@ -218,7 +353,16 @@
         "createdAt": "2026-05-06T02:11:23.000Z"
       },
       {
-        "id": 92,
+        "id": 44,
+        "title": "Giai đoạn 4 (20%)",
+        "percentage": 20,
+        "stage": 4,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 134,
         "title": "Giai đoạn 5 (20%)",
         "percentage": 20,
         "stage": 5,
@@ -227,7 +371,7 @@
         "createdAt": "2026-05-06T02:11:23.000Z"
       },
       {
-        "id": 137,
+        "id": 179,
         "title": "Giai đoạn 3 (20%)",
         "percentage": 20,
         "stage": 3,
@@ -236,10 +380,99 @@
         "createdAt": "2026-05-06T02:11:23.000Z"
       },
       {
-        "id": 182,
+        "id": 224,
         "title": "Giai đoạn 1 (20%)",
         "percentage": 20,
         "stage": 1,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      }
+    ],
+    "disputes": [],
+    "content": "Nội dung..."
+  },
+  {
+    "id": 24,
+    "title": "Chuỗi Trà sữa Thảo mộc Organic",
+    "thumbnailUrl": null,
+    "shortDescription": "Nước uống tốt cho sức khỏe cho giới văn phòng.",
+    "slug": "organic-herbal-milktea",
+    "address": "Quận 1, TP. HCM",
+    "targetCapital": 600000000,
+    "currentAmount": 0,
+    "interestRate": 15.5,
+    "durationMonths": 12,
+    "minInvestment": 1000000,
+    "riskLevel": "medium",
+    "fundingProgress": 0,
+    "status": "funding",
+    "totalDebt": 0,
+    "startDate": "2026-06-15",
+    "endDate": "2026-12-15",
+    "category": {
+      "id": 8,
+      "name": "Food",
+      "slug": "food",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/2737/2737034.png"
+    },
+    "owner": {
+      "id": 3,
+      "slug": "xrejji-project-owner",
+      "fullName": "Xrejji Project Owner",
+      "email": "xrejji04@gmail.com",
+      "avatarUrl": "https://ui-avatars.com/api/?name=Xrejji+Owner&background=random",
+      "bio": "Chuyên gia phát triển dự án bất động sản và nông nghiệp công nghệ cao.",
+      "socialLinks": {
+        "website": "xrejji.com"
+      },
+      "address": "Quận 1, TP. Hồ Chí Minh"
+    },
+    "images": [],
+    "isFrozen": false,
+    "createdAt": "2026-05-06T02:11:23.000Z",
+    "milestones": [
+      {
+        "id": 204,
+        "title": "Giai đoạn 1 (20%)",
+        "percentage": 20,
+        "stage": 1,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 24,
+        "title": "Giai đoạn 4 (20%)",
+        "percentage": 20,
+        "stage": 4,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 69,
+        "title": "Giai đoạn 2 (20%)",
+        "percentage": 20,
+        "stage": 2,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 114,
+        "title": "Giai đoạn 5 (20%)",
+        "percentage": 20,
+        "stage": 5,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 159,
+        "title": "Giai đoạn 3 (20%)",
+        "percentage": 20,
+        "stage": 3,
         "status": "pending",
         "evidenceUrls": null,
         "createdAt": "2026-05-06T02:11:23.000Z"
@@ -396,15 +629,6 @@
         "createdAt": "2026-05-06T02:11:23.000Z"
       },
       {
-        "id": 94,
-        "title": "Giai đoạn 5 (20%)",
-        "percentage": 20,
-        "stage": 5,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
         "id": 139,
         "title": "Giai đoạn 3 (20%)",
         "percentage": 20,
@@ -418,6 +642,104 @@
         "title": "Giai đoạn 1 (20%)",
         "percentage": 20,
         "stage": 1,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 94,
+        "title": "Giai đoạn 5 (20%)",
+        "percentage": 20,
+        "stage": 5,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      }
+    ],
+    "disputes": [],
+    "content": "Nội dung..."
+  },
+  {
+    "id": 25,
+    "title": "Game RPG: Quest of InvestPro",
+    "thumbnailUrl": null,
+    "shortDescription": "Hành trình trở thành tỷ phú trong thế giới ảo.",
+    "slug": "rpg-quest-of-investpro",
+    "address": "Quận 9, TP. HCM",
+    "targetCapital": 2500000000,
+    "currentAmount": 0,
+    "interestRate": 18,
+    "durationMonths": 36,
+    "minInvestment": 1000000,
+    "riskLevel": "high",
+    "fundingProgress": 0,
+    "status": "funding",
+    "totalDebt": 0,
+    "startDate": "2026-05-01",
+    "endDate": "2027-05-01",
+    "category": {
+      "id": 9,
+      "name": "Games",
+      "slug": "games",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/686/686588.png"
+    },
+    "owner": {
+      "id": 3,
+      "slug": "xrejji-project-owner",
+      "fullName": "Xrejji Project Owner",
+      "email": "xrejji04@gmail.com",
+      "avatarUrl": "https://ui-avatars.com/api/?name=Xrejji+Owner&background=random",
+      "bio": "Chuyên gia phát triển dự án bất động sản và nông nghiệp công nghệ cao.",
+      "socialLinks": {
+        "website": "xrejji.com"
+      },
+      "address": "Quận 1, TP. Hồ Chí Minh"
+    },
+    "images": [],
+    "isFrozen": false,
+    "createdAt": "2026-05-06T02:11:23.000Z",
+    "milestones": [
+      {
+        "id": 70,
+        "title": "Giai đoạn 2 (20%)",
+        "percentage": 20,
+        "stage": 2,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 115,
+        "title": "Giai đoạn 5 (20%)",
+        "percentage": 20,
+        "stage": 5,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 160,
+        "title": "Giai đoạn 3 (20%)",
+        "percentage": 20,
+        "stage": 3,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 205,
+        "title": "Giai đoạn 1 (20%)",
+        "percentage": 20,
+        "stage": 1,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 25,
+        "title": "Giai đoạn 4 (20%)",
+        "percentage": 20,
+        "stage": 4,
         "status": "pending",
         "evidenceUrls": null,
         "createdAt": "2026-05-06T02:11:23.000Z"
@@ -2029,28 +2351,28 @@
     "content": "Nội dung..."
   },
   {
-    "id": 23,
-    "title": "Xưởng Socola Thủ công từ Cacao Tiền Giang",
+    "id": 2,
+    "title": "Xưởng vẽ tranh Sơn dầu Kỹ thuật số",
     "thumbnailUrl": null,
-    "shortDescription": "Sản xuất socola nguyên chất 100%.",
-    "slug": "handcrafted-chocolate-factory",
-    "address": "Tiền Giang",
-    "targetCapital": 800000000,
+    "shortDescription": "Kết hợp nghệ thuật truyền thống và AI.",
+    "slug": "digital-oil-painting-studio",
+    "address": "Quận 3, TP. HCM",
+    "targetCapital": 300000000,
     "currentAmount": 0,
-    "interestRate": 13,
-    "durationMonths": 18,
-    "minInvestment": 1000000,
+    "interestRate": 15,
+    "durationMonths": 10,
+    "minInvestment": 500000,
     "riskLevel": "medium",
     "fundingProgress": 0,
     "status": "funding",
     "totalDebt": 0,
-    "startDate": "2026-05-28",
-    "endDate": "2026-11-28",
+    "startDate": "2026-05-10",
+    "endDate": "2026-09-10",
     "category": {
-      "id": 8,
-      "name": "Food",
-      "slug": "food",
-      "iconUrl": "https://cdn-icons-png.flaticon.com/512/2737/2737034.png"
+      "id": 1,
+      "name": "Art",
+      "slug": "art",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/1048/1048953.png"
     },
     "owner": {
       "id": 3,
@@ -2069,25 +2391,7 @@
     "createdAt": "2026-05-06T02:11:23.000Z",
     "milestones": [
       {
-        "id": 23,
-        "title": "Giai đoạn 4 (20%)",
-        "percentage": 20,
-        "stage": 4,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 68,
-        "title": "Giai đoạn 2 (20%)",
-        "percentage": 20,
-        "stage": 2,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 113,
+        "id": 92,
         "title": "Giai đoạn 5 (20%)",
         "percentage": 20,
         "stage": 5,
@@ -2096,7 +2400,16 @@
         "createdAt": "2026-05-06T02:11:23.000Z"
       },
       {
-        "id": 158,
+        "id": 182,
+        "title": "Giai đoạn 1 (20%)",
+        "percentage": 20,
+        "stage": 1,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 137,
         "title": "Giai đoạn 3 (20%)",
         "percentage": 20,
         "stage": 3,
@@ -2105,69 +2418,7 @@
         "createdAt": "2026-05-06T02:11:23.000Z"
       },
       {
-        "id": 203,
-        "title": "Giai đoạn 1 (20%)",
-        "percentage": 20,
-        "stage": 1,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      }
-    ],
-    "disputes": [],
-    "content": "Nội dung..."
-  },
-  {
-    "id": 24,
-    "title": "Chuỗi Trà sữa Thảo mộc Organic",
-    "thumbnailUrl": null,
-    "shortDescription": "Nước uống tốt cho sức khỏe cho giới văn phòng.",
-    "slug": "organic-herbal-milktea",
-    "address": "Quận 1, TP. HCM",
-    "targetCapital": 600000000,
-    "currentAmount": 0,
-    "interestRate": 15.5,
-    "durationMonths": 12,
-    "minInvestment": 1000000,
-    "riskLevel": "medium",
-    "fundingProgress": 0,
-    "status": "funding",
-    "totalDebt": 0,
-    "startDate": "2026-06-15",
-    "endDate": "2026-12-15",
-    "category": {
-      "id": 8,
-      "name": "Food",
-      "slug": "food",
-      "iconUrl": "https://cdn-icons-png.flaticon.com/512/2737/2737034.png"
-    },
-    "owner": {
-      "id": 3,
-      "slug": "xrejji-project-owner",
-      "fullName": "Xrejji Project Owner",
-      "email": "xrejji04@gmail.com",
-      "avatarUrl": "https://ui-avatars.com/api/?name=Xrejji+Owner&background=random",
-      "bio": "Chuyên gia phát triển dự án bất động sản và nông nghiệp công nghệ cao.",
-      "socialLinks": {
-        "website": "xrejji.com"
-      },
-      "address": "Quận 1, TP. Hồ Chí Minh"
-    },
-    "images": [],
-    "isFrozen": false,
-    "createdAt": "2026-05-06T02:11:23.000Z",
-    "milestones": [
-      {
-        "id": 24,
-        "title": "Giai đoạn 4 (20%)",
-        "percentage": 20,
-        "stage": 4,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 69,
+        "id": 47,
         "title": "Giai đoạn 2 (20%)",
         "percentage": 20,
         "stage": 2,
@@ -2176,117 +2427,10 @@
         "createdAt": "2026-05-06T02:11:23.000Z"
       },
       {
-        "id": 114,
-        "title": "Giai đoạn 5 (20%)",
-        "percentage": 20,
-        "stage": 5,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 159,
-        "title": "Giai đoạn 3 (20%)",
-        "percentage": 20,
-        "stage": 3,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 204,
-        "title": "Giai đoạn 1 (20%)",
-        "percentage": 20,
-        "stage": 1,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      }
-    ],
-    "disputes": [],
-    "content": "Nội dung..."
-  },
-  {
-    "id": 25,
-    "title": "Game RPG: Quest of InvestPro",
-    "thumbnailUrl": null,
-    "shortDescription": "Hành trình trở thành tỷ phú trong thế giới ảo.",
-    "slug": "rpg-quest-of-investpro",
-    "address": "Quận 9, TP. HCM",
-    "targetCapital": 2500000000,
-    "currentAmount": 0,
-    "interestRate": 18,
-    "durationMonths": 36,
-    "minInvestment": 1000000,
-    "riskLevel": "high",
-    "fundingProgress": 0,
-    "status": "funding",
-    "totalDebt": 0,
-    "startDate": "2026-05-01",
-    "endDate": "2027-05-01",
-    "category": {
-      "id": 9,
-      "name": "Games",
-      "slug": "games",
-      "iconUrl": "https://cdn-icons-png.flaticon.com/512/686/686588.png"
-    },
-    "owner": {
-      "id": 3,
-      "slug": "xrejji-project-owner",
-      "fullName": "Xrejji Project Owner",
-      "email": "xrejji04@gmail.com",
-      "avatarUrl": "https://ui-avatars.com/api/?name=Xrejji+Owner&background=random",
-      "bio": "Chuyên gia phát triển dự án bất động sản và nông nghiệp công nghệ cao.",
-      "socialLinks": {
-        "website": "xrejji.com"
-      },
-      "address": "Quận 1, TP. Hồ Chí Minh"
-    },
-    "images": [],
-    "isFrozen": false,
-    "createdAt": "2026-05-06T02:11:23.000Z",
-    "milestones": [
-      {
-        "id": 25,
+        "id": 2,
         "title": "Giai đoạn 4 (20%)",
         "percentage": 20,
         "stage": 4,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 70,
-        "title": "Giai đoạn 2 (20%)",
-        "percentage": 20,
-        "stage": 2,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 115,
-        "title": "Giai đoạn 5 (20%)",
-        "percentage": 20,
-        "stage": 5,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 160,
-        "title": "Giai đoạn 3 (20%)",
-        "percentage": 20,
-        "stage": 3,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 205,
-        "title": "Giai đoạn 1 (20%)",
-        "percentage": 20,
-        "stage": 1,
         "status": "pending",
         "evidenceUrls": null,
         "createdAt": "2026-05-06T02:11:23.000Z"
@@ -3898,28 +4042,28 @@
     "content": "Nội dung..."
   },
   {
-    "id": 44,
-    "title": "Kịch tương tác cho Trẻ em: Xứ sở Diệu kỳ",
+    "id": 1,
+    "title": "Triển lãm Nghệ thuật Đương đại 2026",
     "thumbnailUrl": null,
-    "shortDescription": "Vở diễn nơi khán giả nhí có thể tham gia vào cốt truyện.",
-    "slug": "interactive-kids-theater",
-    "address": "TP. HCM",
-    "targetCapital": 600000000,
+    "shortDescription": "Trưng bày các tác phẩm điêu khắc hiện đại.",
+    "slug": "art-exhibition-2026",
+    "address": "Quận 1, TP. HCM",
+    "targetCapital": 500000000,
     "currentAmount": 0,
-    "interestRate": 15.5,
+    "interestRate": 12,
     "durationMonths": 12,
     "minInvestment": 1000000,
-    "riskLevel": "medium",
+    "riskLevel": "low",
     "fundingProgress": 0,
     "status": "funding",
     "totalDebt": 0,
-    "startDate": "2026-05-20",
-    "endDate": "2026-11-20",
+    "startDate": "2026-05-01",
+    "endDate": "2026-08-01",
     "category": {
-      "id": 15,
-      "name": "Theater",
-      "slug": "theater",
-      "iconUrl": "https://cdn-icons-png.flaticon.com/512/3133/3133139.png"
+      "id": 1,
+      "name": "Art",
+      "slug": "art",
+      "iconUrl": "https://cdn-icons-png.flaticon.com/512/1048/1048953.png"
     },
     "owner": {
       "id": 3,
@@ -3938,34 +4082,16 @@
     "createdAt": "2026-05-06T02:11:23.000Z",
     "milestones": [
       {
-        "id": 44,
-        "title": "Giai đoạn 4 (20%)",
+        "id": 181,
+        "title": "Giai đoạn 1 (20%)",
         "percentage": 20,
-        "stage": 4,
+        "stage": 1,
         "status": "pending",
         "evidenceUrls": null,
         "createdAt": "2026-05-06T02:11:23.000Z"
       },
       {
-        "id": 89,
-        "title": "Giai đoạn 2 (20%)",
-        "percentage": 20,
-        "stage": 2,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 134,
-        "title": "Giai đoạn 5 (20%)",
-        "percentage": 20,
-        "stage": 5,
-        "status": "pending",
-        "evidenceUrls": null,
-        "createdAt": "2026-05-06T02:11:23.000Z"
-      },
-      {
-        "id": 179,
+        "id": 136,
         "title": "Giai đoạn 3 (20%)",
         "percentage": 20,
         "stage": 3,
@@ -3974,10 +4100,28 @@
         "createdAt": "2026-05-06T02:11:23.000Z"
       },
       {
-        "id": 224,
-        "title": "Giai đoạn 1 (20%)",
+        "id": 91,
+        "title": "Giai đoạn 5 (20%)",
         "percentage": 20,
-        "stage": 1,
+        "stage": 5,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 46,
+        "title": "Giai đoạn 2 (20%)",
+        "percentage": 20,
+        "stage": 2,
+        "status": "pending",
+        "evidenceUrls": null,
+        "createdAt": "2026-05-06T02:11:23.000Z"
+      },
+      {
+        "id": 1,
+        "title": "Giai đoạn 4 (20%)",
+        "percentage": 20,
+        "stage": 4,
         "status": "pending",
         "evidenceUrls": null,
         "createdAt": "2026-05-06T02:11:23.000Z"
