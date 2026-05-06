@@ -29,6 +29,8 @@ function ProjectListInner() {
   const searchFromUrl = searchParams.get("search") ?? "";
   const categoryFromUrl = searchParams.get("category") ?? "";
   const [nowTimestamp, setNowTimestamp] = useState(() => Date.now());
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
 
   const [searchValue, setSearchValue] = useState(searchFromUrl);
 
@@ -39,6 +41,7 @@ function ProjectListInner() {
 
   useEffect(() => {
     setSearchValue(searchFromUrl);
+    setCurrentPage(1);
   }, [searchFromUrl]);
 
   const { data: categories = [] } = useQuery({
@@ -73,6 +76,13 @@ function ProjectListInner() {
     },
   });
 
+  // Pagination logic
+  const totalPages = Math.ceil(projects.length / itemsPerPage);
+  const paginatedProjects = projects.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
   const pushProjectsUrl = (next: { search?: string; category?: string }) => {
     const params = new URLSearchParams();
     const s = next.search?.trim() ?? "";
@@ -91,6 +101,7 @@ function ProjectListInner() {
   };
 
   const setCategoryFilter = (categoryId: string | null) => {
+    setCurrentPage(1);
     pushProjectsUrl({
       search: searchFromUrl,
       category: categoryId ?? undefined,
@@ -187,7 +198,7 @@ function ProjectListInner() {
 
         {!loading && !isError ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project) => (
+            {paginatedProjects.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
@@ -202,6 +213,38 @@ function ProjectListInner() {
             Không có dự án phù hợp. Thử bỏ bộ lọc hoặc từ khóa khác.
           </p>
         ) : null}
+
+        {/* Pagination Controls */}
+        {!loading && !isError && projects.length > 0 && (
+          <div className="flex items-center justify-between mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+            <p className="text-smaller text-slate-600 dark:text-slate-400">
+              Hiển thị {(currentPage - 1) * itemsPerPage + 1} đến{" "}
+              {Math.min(currentPage * itemsPerPage, projects.length)} trong{" "}
+              {projects.length} dự án
+            </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-smaller font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors"
+              >
+                ← Trước
+              </button>
+              <span className="text-smaller font-semibold text-slate-600 dark:text-slate-400 px-2">
+                Trang {currentPage} / {totalPages}
+              </span>
+              <button
+                onClick={() =>
+                  setCurrentPage(Math.min(totalPages, currentPage + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-smaller font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors"
+              >
+                Sau →
+              </button>
+            </div>
+          </div>
+        )}
       </main>
 
       <Footer />
