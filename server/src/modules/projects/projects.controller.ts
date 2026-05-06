@@ -219,6 +219,11 @@ export class ProjectsController {
     return this.projectsService.getMilestoneDiscussions(mId);
   }
 
+  @Get('milestones/:mId/votes')
+  getMilestoneVotes(@Param('mId', ParseIntPipe) mId: number) {
+    return this.projectsService.getMilestoneVotes(mId);
+  }
+
   @UseGuards(JwtAuthGuard, IsInvestorGuard, AccountStatusGuard)
   @Post(':id/disputes')
   createDispute(

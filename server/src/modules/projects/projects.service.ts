@@ -1563,4 +1563,8 @@ export class ProjectsService {
   async getMilestoneDiscussions(milestoneId: number) {
     return this.milestonesService.getMilestoneDiscussions(milestoneId);
   }
+
+  async getMilestoneVotes(milestoneId: number) {
+    return this.votingService.getMilestoneVotes(milestoneId);
+  }
 }

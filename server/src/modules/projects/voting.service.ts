@@ -170,6 +170,32 @@ export class VotingService {
     };
   }
 
+  async getMilestoneVotes(milestoneId: number) {
+    const votes = await this.milestoneVotesRepository.find({
+      where: { milestoneId },
+      relations: ['user'],
+      order: { createdAt: 'ASC' },
+    });
+
+    return votes.map((vote) => ({
+      id: vote.id,
+      milestoneId: vote.milestoneId,
+      userId: vote.userId,
+      isApprove: vote.isApprove,
+      comment: vote.comment,
+      investorCapital: vote.investorCapital,
+      createdAt: vote.createdAt,
+      user: vote.user
+        ? {
+            id: vote.user.id,
+            fullName: vote.user.fullName,
+            email: vote.user.email,
+            avatarUrl: vote.user.avatarUrl,
+          }
+        : null,
+    }));
+  }
+
   async closeExpiredVotes() {
     const milestoneRepo = this.dataSource.getRepository(ProjectMilestoneEntity);
     const now = new Date();

@@ -6,7 +6,7 @@ import Link from "next/link";
 import Navbar from "@/components/client/Navbar";
 import Footer from "@/components/client/Footer";
 import api from "@/lib/axios";
-import { ProjectDetail } from "@/types/project";
+import { ProjectDetail, ProjectDispute } from "@/types/project";
 import { Profile, UserProfile } from "@/types/user";
 import { ToastState } from "@/types/ui";
 import ProjectMilestones from "@/components/client/ProjectMilestones";
@@ -43,7 +43,28 @@ const MarkdownPreview = dynamic(() => import("@uiw/react-markdown-preview"), {
   ),
 });
 
-type ProjectContentSection = "campaign" | "lifecycle" | "milestones";
+type ProjectContentSection =
+  | "campaign"
+  | "lifecycle"
+  | "milestones"
+  | "comments"
+  | "voting";
+
+type MilestoneVote = {
+  id: number;
+  milestoneId: number;
+  userId: number;
+  isApprove: boolean;
+  comment: string | null;
+  investorCapital: number;
+  createdAt: string;
+  user: {
+    id: number;
+    fullName: string;
+    email: string;
+    avatarUrl?: string | null;
+  } | null;
+};
 
 function DetailSkeleton() {
   return (
@@ -78,6 +99,10 @@ export default function ProjectDetailPage() {
   const [activeSection, setActiveSection] =
     useState<ProjectContentSection>("campaign");
   const [ownerProjectsCount, setOwnerProjectsCount] = useState(0);
+  const [milestoneVotes, setMilestoneVotes] = useState<
+    Record<number, MilestoneVote[]>
+  >({});
+  const [votesLoading, setVotesLoading] = useState(false);
 
   const fetchProject = async () => {
     const slugValue = String(params.slug ?? "").trim();
@@ -122,6 +147,10 @@ export default function ProjectDetailPage() {
   }, [params.slug]);
 
   useEffect(() => {
+    setMilestoneVotes({});
+  }, [project?.id]);
+
+  useEffect(() => {
     const owner = project?.owner;
     if (!owner) {
       setOwnerProjectsCount(0);
@@ -164,6 +193,38 @@ export default function ProjectDetailPage() {
     const timer = window.setTimeout(() => setToast(null), 2600);
     return () => window.clearTimeout(timer);
   }, [toast]);
+
+  const milestones = useMemo(() => project?.milestones ?? [], [project]);
+
+  useEffect(() => {
+    if (activeSection !== "voting" || !milestones.length) {
+      return;
+    }
+
+    const fetchMilestoneVotes = async () => {
+      setVotesLoading(true);
+
+      try {
+        const entries = await Promise.all(
+          milestones.map(async (milestone) => {
+            const response = await api.get<MilestoneVote[]>(
+              `/api/projects/milestones/${milestone.id}/votes`,
+            );
+
+            return [milestone.id, response.data] as const;
+          }),
+        );
+
+        setMilestoneVotes(Object.fromEntries(entries));
+      } catch {
+        setMilestoneVotes({});
+      } finally {
+        setVotesLoading(false);
+      }
+    };
+
+    void fetchMilestoneVotes();
+  }, [activeSection, milestones, project?.id]);
 
   useEffect(() => {
     window.dispatchEvent(
@@ -533,6 +594,28 @@ export default function ProjectDetailPage() {
                 >
                   Milestones
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveSection("comments")}
+                  className={`px-4 py-5 text-sm font-semibold transition-colors  text-smaller ${
+                    activeSection === "comments"
+                      ? "text-primary border-b border-primary"
+                      : "text-slate-700 dark:text-slate-300"
+                  }`}
+                >
+                  Comments
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveSection("voting")}
+                  className={`px-4 py-5 text-sm font-semibold transition-colors  text-smaller ${
+                    activeSection === "voting"
+                      ? "text-primary border-b border-primary"
+                      : "text-slate-700 dark:text-slate-300"
+                  }`}
+                >
+                  Voting
+                </button>
               </div>
             </div>
             {activeSection === "campaign" && (
@@ -646,6 +729,196 @@ export default function ProjectDetailPage() {
                   onUpdate={fetchProject}
                   setToast={setToast}
                 />
+              </div>
+            )}
+
+            {activeSection === "comments" && (
+              <div id="comments" className="wrapper wrapper--lg mt-10">
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+                  <div>
+                    <h2 className="text-h6 font-black text-slate-900 dark:text-white">
+                      Dispute Comments
+                    </h2>
+                    <p className="text-smaller text-slate-500 mt-1">
+                      Nội dung khiếu nại và trạng thái xử lý của từng tranh
+                      chấp.
+                    </p>
+                  </div>
+
+                  {project.disputes?.length ? (
+                    <div className="space-y-4">
+                      {project.disputes.map((dispute: ProjectDispute) => (
+                        <div
+                          key={dispute.id}
+                          className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 p-4"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                            <div>
+                              <div className="font-bold text-slate-900 dark:text-white">
+                                Dispute #{dispute.id}
+                              </div>
+                              <div className="text-[11px] uppercase tracking-wide text-slate-400 font-semibold">
+                                {new Date(dispute.createdAt).toLocaleString(
+                                  "vi-VN",
+                                )}
+                              </div>
+                            </div>
+                            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                              {dispute.status}
+                            </span>
+                          </div>
+                          <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 p-3 prose prose-slate max-w-none dark:prose-invert">
+                            <MarkdownPreview
+                              source={dispute.reason}
+                              rehypePlugins={[[rehypeSanitize]]}
+                              style={{
+                                background: "transparent",
+                                color: "inherit",
+                              }}
+                            />
+                          </div>
+                          {dispute.evidenceUrl && (
+                            <a
+                              href={dispute.evidenceUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex mt-3 text-smaller font-semibold text-primary hover:underline"
+                            >
+                              Xem bằng chứng
+                            </a>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-smaller text-slate-500">
+                      Chưa có tranh chấp nào.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeSection === "voting" && (
+              <div id="voting" className="wrapper wrapper--lg mt-10">
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+                  <div>
+                    <h2 className="text-h6 font-black text-slate-900 dark:text-white">
+                      Voting Reasons
+                    </h2>
+                    <p className="text-smaller text-slate-500 mt-1">
+                      Lý do đồng ý và không đồng ý của nhà đầu tư theo từng giai
+                      đoạn.
+                    </p>
+                  </div>
+
+                  {votesLoading ? (
+                    <p className="text-smaller text-slate-500">
+                      Đang tải dữ liệu bình chọn...
+                    </p>
+                  ) : milestones.length ? (
+                    <div className="space-y-4">
+                      {milestones
+                        .slice()
+                        .sort((a, b) => a.stage - b.stage)
+                        .map((milestone) => {
+                          const votes = milestoneVotes[milestone.id] ?? [];
+                          const agreeVotes = votes.filter(
+                            (vote) => vote.isApprove,
+                          );
+                          const disagreeVotes = votes.filter(
+                            (vote) => !vote.isApprove,
+                          );
+
+                          return (
+                            <div
+                              key={milestone.id}
+                              className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 p-4 space-y-4"
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <div>
+                                  <div className="font-bold text-slate-900 dark:text-white">
+                                    Giai đoạn {milestone.stage}:{" "}
+                                    {milestone.title}
+                                  </div>
+                                  <div className="text-[11px] text-slate-500">
+                                    {votes.length} lượt bình chọn
+                                  </div>
+                                </div>
+                                <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-700">
+                                  Voting tab
+                                </span>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="rounded-lg border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/70 dark:bg-emerald-900/15 p-4 space-y-3">
+                                  <div className="font-bold text-emerald-700 dark:text-emerald-300">
+                                    Đồng ý
+                                  </div>
+                                  {agreeVotes.length ? (
+                                    <div className="space-y-3">
+                                      {agreeVotes.map((vote) => (
+                                        <div
+                                          key={vote.id}
+                                          className="rounded-lg bg-white dark:bg-slate-900/70 border border-emerald-100 dark:border-emerald-900/40 p-3"
+                                        >
+                                          <div className="font-semibold text-slate-900 dark:text-white text-smaller">
+                                            {vote.user?.fullName ||
+                                              `User ${vote.userId}`}
+                                          </div>
+                                          <p className="text-smaller text-slate-600 dark:text-slate-300 mt-1">
+                                            {vote.comment ||
+                                              "Không có lý do được nhập."}
+                                          </p>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <p className="text-smaller text-slate-500">
+                                      Chưa có lý do đồng ý.
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="rounded-lg border border-red-200 dark:border-red-900/40 bg-red-50/70 dark:bg-red-900/15 p-4 space-y-3">
+                                  <div className="font-bold text-red-700 dark:text-red-300">
+                                    Không đồng ý
+                                  </div>
+                                  {disagreeVotes.length ? (
+                                    <div className="space-y-3">
+                                      {disagreeVotes.map((vote) => (
+                                        <div
+                                          key={vote.id}
+                                          className="rounded-lg bg-white dark:bg-slate-900/70 border border-red-100 dark:border-red-900/40 p-3"
+                                        >
+                                          <div className="font-semibold text-slate-900 dark:text-white text-smaller">
+                                            {vote.user?.fullName ||
+                                              `User ${vote.userId}`}
+                                          </div>
+                                          <p className="text-smaller text-slate-600 dark:text-slate-300 mt-1">
+                                            {vote.comment ||
+                                              "Không có lý do được nhập."}
+                                          </p>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <p className="text-smaller text-slate-500">
+                                      Chưa có lý do không đồng ý.
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  ) : (
+                    <p className="text-smaller text-slate-500">
+                      Chưa có milestone nào để hiển thị bình chọn.
+                    </p>
+                  )}
+                </div>
               </div>
             )}
           </div>
