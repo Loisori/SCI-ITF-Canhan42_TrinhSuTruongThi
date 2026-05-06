@@ -10,6 +10,8 @@ import { ReceiptText } from "lucide-react";
 export default function TransactionsView() {
   const [filterType, setFilterType] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const {
     data: transactions = [],
@@ -26,6 +28,19 @@ export default function TransactionsView() {
       ).data;
     },
   });
+
+  // Pagination logic
+  const totalPages = Math.ceil(transactions.length / itemsPerPage);
+  const paginatedTransactions = transactions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Reset to first page when filters change
+  const handleFilterChange = (setter: any, value: string) => {
+    setter(value);
+    setCurrentPage(1);
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -45,7 +60,7 @@ export default function TransactionsView() {
           <div className="flex items-center gap-2">
             <select
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
+              onChange={(e) => handleFilterChange(setFilterType, e.target.value)}
               className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2 text-smaller font-semibold outline-none focus:border-primary transition-colors"
             >
               <option value="">Tất cả loại giao dịch</option>
@@ -62,7 +77,7 @@ export default function TransactionsView() {
 
             <select
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              onChange={(e) => handleFilterChange(setFilterStatus, e.target.value)}
               className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2 text-smaller font-semibold outline-none focus:border-primary transition-colors"
             >
               <option value="">Tất cả trạng thái</option>
@@ -102,7 +117,7 @@ export default function TransactionsView() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {transactions.map((t) => {
+                {paginatedTransactions.map((t) => {
                   const isPositive = [
                     "deposit",
                     "interest_receive",
@@ -188,6 +203,36 @@ export default function TransactionsView() {
             </table>
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {transactions.length > 0 && (
+          <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/30 dark:bg-white/5">
+            <p className="text-smaller text-slate-600 dark:text-slate-400">
+              Hiển thị {(currentPage - 1) * itemsPerPage + 1} đến{" "}
+              {Math.min(currentPage * itemsPerPage, transactions.length)} trong{" "}
+              {transactions.length} giao dịch
+            </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-smaller font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors"
+              >
+                ← Trước
+              </button>
+              <span className="text-smaller font-semibold text-slate-600 dark:text-slate-400 px-2">
+                Trang {currentPage} / {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-smaller font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors"
+              >
+                Sau →
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
