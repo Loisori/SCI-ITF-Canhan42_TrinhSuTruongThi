@@ -10,7 +10,7 @@ export default function Hero() {
             <span className="inline-flex items-center px-3 py-1 rounded-full text-smallest font-bold bg-primary/10 text-primary dark:bg-white/10 dark:text-slate-100 w-fit">
               Nền tảng đầu tư hàng đầu Việt Nam
             </span>
-            <h2 className="text-h4 lg:text-[7.2rem] font-black leading-[1.1] text-primary dark:text-slate-100">
+            <h2 className="text-h4 lg:text-[7.2rem] font-black leading-right text-primary dark:text-slate-100">
               Đầu tư thông minh, <br />
               <span className="opacity-60">Kiến tạo tương lai</span>
             </h2>
@@ -21,14 +21,14 @@ export default function Hero() {
             <div className="flex flex-wrap gap-4 pt-4">
               <Link
                 href="/projects"
-                className="block px-8 py-4 bg-primary text-white font-bold rounded-xl shadow-xl hover:translate-y-[-2px] transition-all"
+                className="block px-8 py-4 bg-primary text-white font-bold rounded-xl shadow-xl hover:translate-y-[-.2rem] transition-all"
               >
                 Khám phá dự án
               </Link>
             </div>
           </div>
           <div className="relative">
-            <div className="aspect-square rounded-3xl bg-gradient-to-br from-primary/20 to-sky-500/20 dark:from-slate-800 dark:to-primary/20 border border-primary/10 shadow-2xl relative overflow-hidden">
+            <div className="aspect-square rounded-3xl bg-linear-to-br from-primary/20 to-sky-500/20 dark:from-slate-800 dark:to-primary/20 border border-primary/10 shadow-2xl relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(255,255,255,0.2),transparent_45%)]" />
               <div className="absolute bottom-6 left-6 right-6 bg-white/90 dark:bg-primary/90 backdrop-blur p-6 rounded-5 shadow-xl flex items-center justify-between">
                 <div>
