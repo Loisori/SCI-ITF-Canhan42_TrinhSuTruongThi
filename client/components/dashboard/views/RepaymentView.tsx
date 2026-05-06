@@ -35,6 +35,9 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
     totalDebt: number;
   } | null>(null);
   const [debtAmount, setDebtAmount] = useState<number>(0);
+  const [showPayAllModal, setShowPayAllModal] = useState(false);
+  const [showPayAllSchedulesModal, setShowPayAllSchedulesModal] =
+    useState(false);
 
   const { data: schedules = [], refetch: refetchSchedules } = useQuery({
     queryKey: ["owner-repayment-schedules"],
@@ -92,6 +95,47 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
     }
   };
 
+  const handlePayAllDebt = async () => {
+    if (debtProjects.length === 0) return;
+    try {
+      setIsRepaying(true);
+      for (const project of debtProjects) {
+        await api.post("/api/wallets/repay", {
+          projectId: project.id,
+          amount: Number(project.totalDebt),
+        });
+      }
+      toast.success("Thanh toán tất cả nợ thành công!");
+      setShowPayAllModal(false);
+      refetchDebt();
+      window.dispatchEvent(new CustomEvent("profile-update"));
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Lỗi thanh toán");
+    } finally {
+      setIsRepaying(false);
+    }
+  };
+
+  const handlePayAllSchedules = async () => {
+    if (schedules.length === 0) return;
+    try {
+      setIsRepaying(true);
+      for (const schedule of schedules) {
+        await api.post("/api/wallets/repay-milestone-interest", {
+          scheduleId: schedule.representativeScheduleId,
+        });
+      }
+      toast.success("Thanh toán tất cả kỳ hạn lãi thành công!");
+      setShowPayAllSchedulesModal(false);
+      refetchSchedules();
+      window.dispatchEvent(new CustomEvent("profile-update"));
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Lỗi thanh toán");
+    } finally {
+      setIsRepaying(false);
+    }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <div className="flex justify-between items-center mb-10">
@@ -106,11 +150,22 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
       </div>
 
       <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="size-3 rounded-full bg-red-500 animate-pulse"></div>
-          <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
-            Dư nợ dự án cần tất toán
-          </h2>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="size-3 rounded-full bg-red-500 animate-pulse"></div>
+            <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+              Dư nợ dự án cần tất toán
+            </h2>
+          </div>
+          {debtProjects.length > 0 && (
+            <button
+              onClick={() => setShowPayAllModal(true)}
+              className="px-6 py-3 bg-red-600 text-white font-black rounded-5 hover:bg-red-700 hover:shadow-xl hover:shadow-red-600/20 transition-all flex items-center gap-2"
+            >
+              <CircleDollarSign className="size-5" />
+              Thanh toán tất cả nợ
+            </button>
+          )}
         </div>
 
         {debtProjects.map((dp: any) => (
@@ -166,10 +221,19 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
 
       <div className="h-px bg-slate-200 dark:bg-slate-800 my-10" />
 
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
           Kỳ hạn lãi cũ (Legacy)
         </h2>
+        {schedules.length > 0 && (
+          <button
+            onClick={() => setShowPayAllSchedulesModal(true)}
+            className="px-6 py-3 bg-primary text-white font-black rounded-5 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/20 transition-all flex items-center gap-2"
+          >
+            <Calendar className="size-5" />
+            Thanh toán tất cả kỳ hạn
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-6">
@@ -395,6 +459,199 @@ export default function RepaymentView({ profile }: { profile: UserProfile }) {
                   >
                     <Landmark className="w-5 h-5" />
                     {isRepaying ? "Đang xử lý..." : "Xác nhận trả"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirmation Modal - Pay All Debt */}
+      <AnimatePresence>
+        {showPayAllModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden"
+            >
+              <div className="p-8 space-y-8">
+                <div className="flex justify-between items-start">
+                  <div className="size-16 bg-red-100 text-red-600 rounded-5 flex items-center justify-center">
+                    <Landmark className="size-8" />
+                  </div>
+                  <button
+                    onClick={() => setShowPayAllModal(false)}
+                    className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all"
+                  >
+                    <X />
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-3xl font-black text-red-600">
+                    Thanh toán tất cả nợ
+                  </h3>
+                  <p className="text-slate-500 font-medium">
+                    Bạn sắp thanh toán toàn bộ nợ từ {debtProjects.length} dự
+                    án.
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-6 space-y-4 max-h-64 overflow-y-auto">
+                  {debtProjects.map((dp: any) => (
+                    <div
+                      key={dp.id}
+                      className="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0"
+                    >
+                      <span className="text-smaller font-bold text-slate-600 dark:text-slate-400">
+                        {dp.title}
+                      </span>
+                      <span className="text-smaller font-black text-red-600 dark:text-red-400">
+                        {formatVnd(Number(dp.totalDebt))}
+                      </span>
+                    </div>
+                  ))}
+                  <div className="h-px bg-slate-200 dark:bg-slate-700 my-2" />
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                      Tổng cần thanh toán
+                    </span>
+                    <span className="text-2xl font-black text-red-600 dark:text-red-400">
+                      {formatVnd(
+                        debtProjects.reduce(
+                          (sum: number, dp: any) =>
+                            sum + Number(dp.totalDebt),
+                          0,
+                        ),
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-5">
+                  <Info className="w-5 h-5 text-amber-600 shrink-0" />
+                  <p className="text-[11px] text-amber-800 dark:text-amber-400 font-bold leading-relaxed">
+                    Hệ thống sẽ tự động xử lý thanh toán cho từng dự án và
+                    phân phối tiền về ví Investors.
+                  </p>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setShowPayAllModal(false)}
+                    className="flex-1 py-4 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-black rounded-5 hover:bg-slate-50 transition-all"
+                  >
+                    Hủy bỏ
+                  </button>
+                  <button
+                    disabled={isRepaying}
+                    onClick={handlePayAllDebt}
+                    className="flex-1 py-4 bg-red-600 text-white font-black rounded-5 shadow-xl shadow-red-500/20 hover:shadow-2xl transition-all flex items-center justify-center gap-2"
+                  >
+                    <Landmark className="w-5 h-5" />
+                    {isRepaying ? "Đang xử lý..." : "Xác nhận trả tất cả"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirmation Modal - Pay All Schedules */}
+      <AnimatePresence>
+        {showPayAllSchedulesModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden"
+            >
+              <div className="p-8 space-y-8">
+                <div className="flex justify-between items-start">
+                  <div className="size-16 bg-primary/10 text-primary rounded-5 flex items-center justify-center">
+                    <Calendar className="size-8" />
+                  </div>
+                  <button
+                    onClick={() => setShowPayAllSchedulesModal(false)}
+                    className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-all"
+                  >
+                    <X />
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-3xl font-black text-primary">
+                    Thanh toán tất cả kỳ hạn lãi
+                  </h3>
+                  <p className="text-slate-500 font-medium">
+                    Bạn sắp thanh toán lãi kỳ hạn cho {schedules.length} kỳ
+                    hạn.
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-6 space-y-4 max-h-64 overflow-y-auto">
+                  {schedules.map((s) => (
+                    <div
+                      key={`${s.projectId}_${s.dueDate}`}
+                      className="flex justify-between items-start pb-3 border-b border-slate-200 dark:border-slate-700 last:border-b-0 last:pb-0"
+                    >
+                      <div>
+                        <p className="text-smaller font-bold text-slate-900 dark:text-white">
+                          {s.projectTitle}
+                        </p>
+                        <p className="text-[11px] text-slate-500 mt-1">
+                          Kỳ hạn:{" "}
+                          {new Date(s.dueDate).toLocaleDateString("vi-VN")}
+                        </p>
+                      </div>
+                      <span className="text-smaller font-black text-primary">
+                        {formatVnd(s.totalAmount)}
+                      </span>
+                    </div>
+                  ))}
+                  <div className="h-px bg-slate-200 dark:bg-slate-700 my-2" />
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                      Tổng cần thanh toán
+                    </span>
+                    <span className="text-2xl font-black text-primary">
+                      {formatVnd(
+                        schedules.reduce(
+                          (sum: number, s: any) => sum + s.totalAmount,
+                          0,
+                        ),
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-4 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-5">
+                  <Info className="w-5 h-5 text-sky-600 shrink-0" />
+                  <p className="text-[11px] text-sky-800 dark:text-sky-400 font-bold leading-relaxed">
+                    Hệ thống sẽ xử lý thanh toán lãi kỳ hạn cho tất cả nhà đầu
+                    tư.
+                  </p>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setShowPayAllSchedulesModal(false)}
+                    className="flex-1 py-4 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white font-black rounded-5 hover:bg-slate-50 transition-all"
+                  >
+                    Hủy bỏ
+                  </button>
+                  <button
+                    disabled={isRepaying}
+                    onClick={handlePayAllSchedules}
+                    className="flex-1 py-4 bg-primary text-white font-black rounded-5 shadow-xl shadow-primary/20 hover:shadow-2xl transition-all flex items-center justify-center gap-2"
+                  >
+                    <Calendar className="w-5 h-5" />
+                    {isRepaying ? "Đang xử lý..." : "Xác nhận trả tất cả"}
                   </button>
                 </div>
               </div>
