@@ -33,7 +33,7 @@ export default function TransactionsView() {
   const totalPages = Math.ceil(transactions.length / itemsPerPage);
   const paginatedTransactions = transactions.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   // Reset to first page when filters change
@@ -60,7 +60,9 @@ export default function TransactionsView() {
           <div className="flex items-center gap-2">
             <select
               value={filterType}
-              onChange={(e) => handleFilterChange(setFilterType, e.target.value)}
+              onChange={(e) =>
+                handleFilterChange(setFilterType, e.target.value)
+              }
               className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2 text-smaller font-semibold outline-none focus:border-primary transition-colors"
             >
               <option value="">Tất cả loại giao dịch</option>
@@ -77,7 +79,9 @@ export default function TransactionsView() {
 
             <select
               value={filterStatus}
-              onChange={(e) => handleFilterChange(setFilterStatus, e.target.value)}
+              onChange={(e) =>
+                handleFilterChange(setFilterStatus, e.target.value)
+              }
               className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2 text-smaller font-semibold outline-none focus:border-primary transition-colors"
             >
               <option value="">Tất cả trạng thái</option>
@@ -224,7 +228,9 @@ export default function TransactionsView() {
                 Trang {currentPage} / {totalPages}
               </span>
               <button
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                onClick={() =>
+                  setCurrentPage(Math.min(totalPages, currentPage + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-smaller font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors"
               >

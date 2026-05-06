@@ -50,7 +50,7 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
   const totalPages = Math.ceil(transactions.length / itemsPerPage);
   const paginatedTransactions = transactions.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   // Reset to first page when filters change
@@ -58,6 +58,15 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
     setter(value);
     setCurrentPage(1);
   };
+
+  // Calculate total deposits and withdrawals
+  const totalDeposits = transactions
+    .filter((t) => t.type === "deposit" && t.status === "success")
+    .reduce((sum, t) => sum + Number(t.amount), 0);
+
+  const totalWithdrawals = transactions
+    .filter((t) => t.type === "withdrawal" && t.status === "success")
+    .reduce((sum, t) => sum + Number(t.amount), 0);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -128,7 +137,7 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
                   Tổng nạp
                 </p>
                 <p className="text-base font-bold text-green-400">
-                  +{formatVnd(15000000)}
+                  +{formatVnd(totalDeposits)}
                 </p>
               </div>
               <div className="px-6 py-4 rounded-5 bg-white/5 border border-white/10 backdrop-blur-md">
@@ -136,7 +145,7 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
                   Tổng rút
                 </p>
                 <p className="text-base font-bold text-red-400">
-                  -{formatVnd(2000000)}
+                  -{formatVnd(totalWithdrawals)}
                 </p>
               </div>
             </div>
@@ -155,7 +164,9 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
             <div className="flex items-center gap-2">
               <select
                 value={filterType}
-                onChange={(e) => handleFilterChange(setFilterType, e.target.value)}
+                onChange={(e) =>
+                  handleFilterChange(setFilterType, e.target.value)
+                }
                 className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-smaller outline-none focus:ring-2 ring-primary/20"
               >
                 <option value="">Tất cả loại</option>
@@ -292,8 +303,8 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
             <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/30 dark:bg-white/5">
               <p className="text-smaller text-slate-600 dark:text-slate-400">
                 Hiển thị {(currentPage - 1) * itemsPerPage + 1} đến{" "}
-                {Math.min(currentPage * itemsPerPage, transactions.length)} trong{" "}
-                {transactions.length} giao dịch
+                {Math.min(currentPage * itemsPerPage, transactions.length)}{" "}
+                trong {transactions.length} giao dịch
               </p>
               <div className="flex items-center gap-3">
                 <button
@@ -307,7 +318,9 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
                   Trang {currentPage} / {totalPages}
                 </span>
                 <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  onClick={() =>
+                    setCurrentPage(Math.min(totalPages, currentPage + 1))
+                  }
                   disabled={currentPage === totalPages}
                   className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-smaller font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors"
                 >
