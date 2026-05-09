@@ -121,12 +121,12 @@ export default function Home() {
               </span>
               <div className="space-y-4">
                 <h1 className="text-h3 lg:text-[6.4rem] font-black leading-tight text-slate-950 dark:text-white">
-                  Transparent Investment via Milestones
+                  Đầu tư minh bạch qua các mốc quan trọng
                 </h1>
                 <p className="max-w-2xl text-body text-slate-600 dark:text-slate-400 leading-relaxed">
-                  InvestPro connects investors and project owners through
-                  milestone-based funding, investor voting, and AI-assisted risk
-                  insight so capital moves with evidence.
+                  InvestPro kết nối nhà đầu tư và chủ dự án thông qua cấp vốn
+                  dựa trên cột mốc, bỏ phiếu của nhà đầu tư và rủi ro được hỗ
+                  trợ bởi AI cái nhìn sâu sắc để vốn di chuyển với bằng chứng.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
@@ -135,20 +135,20 @@ export default function Home() {
                   className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-small font-bold text-white shadow-lg shadow-primary/20 transition hover:-translate-y-0.5"
                 >
                   <LineChart className="size-4" />
-                  Explore Projects
+                  Khám phá dự án
                 </Link>
                 <Link
                   href="/projects/create"
                   className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 dark:border-slate-700 px-6 py-3 text-small font-bold text-slate-900 dark:text-white transition hover:border-primary hover:text-primary"
                 >
                   <Rocket className="size-4" />
-                  Start Raising Capital
+                  Bắt đầu huy động vốn
                 </Link>
               </div>
             </div>
 
             <div className="lg:pl-6">
-              <div className="aspect-[4/3] bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col justify-between shadow-sm">
+              <div className="aspect-4/3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col justify-between shadow-sm">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-smallest uppercase tracking-wide text-slate-500 font-bold">
@@ -199,9 +199,7 @@ export default function Home() {
                 <p className="text-h6 font-black text-slate-950 dark:text-white">
                   {item.value}
                 </p>
-                <p className="text-smaller text-slate-500 mt-1">
-                  {item.label}
-                </p>
+                <p className="text-smaller text-slate-500 mt-1">{item.label}</p>
               </div>
             ))}
           </div>
@@ -249,9 +247,7 @@ export default function Home() {
                 <Bot className="size-4" />
                 Core technology advantage
               </span>
-              <h2 className="text-h4 font-black mt-5">
-                InvestPro AI Insight
-              </h2>
+              <h2 className="text-h4 font-black mt-5">InvestPro AI Insight</h2>
               <p className="text-slate-300 mt-4 leading-relaxed">
                 Our AI layer helps investors review risk signals, milestone
                 quality, owner history, and project fundamentals before they
@@ -287,21 +283,20 @@ export default function Home() {
               <div className="max-w-2xl">
                 <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-smallest font-bold uppercase tracking-wide text-primary">
                   <Newspaper className="size-4" />
-                  Latest Insights
+                  Thông tin chi tiết mới nhất
                 </span>
                 <h2 className="text-h4 font-black text-slate-950 dark:text-white mt-4">
                   InvestPro Blog
                 </h2>
                 <p className="text-slate-600 dark:text-slate-400 mt-3">
-                  Practical notes on milestone investing, risk review, and
-                  transparent capital raising.
+                  Những lưu ý thực tế về đầu tư quan trọng, đánh giá rủi ro và huy động vốn minh bạch.
                 </p>
               </div>
               <Link
                 href="/blogs"
                 className="inline-flex items-center gap-2 text-primary font-bold text-smaller"
               >
-                View all posts
+                Xem tất cả bài viết
                 <ArrowRight className="size-4" />
               </Link>
             </div>
@@ -342,9 +337,7 @@ export default function Home() {
                         <span>{post.category}</span>
                         <span className="inline-flex items-center gap-1">
                           <Calendar className="size-3" />
-                          {new Date(post.createdAt).toLocaleDateString(
-                            "vi-VN",
-                          )}
+                          {new Date(post.createdAt).toLocaleDateString("vi-VN")}
                         </span>
                       </div>
                       <h3 className="text-body font-black text-slate-950 dark:text-white mt-3 line-clamp-2">

@@ -40,7 +40,7 @@ export default function BlogDetailPage() {
         ) : post ? (
           <>
             <section className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
-              <div className="wrapper wrapper--md py-10 lg:py-14">
+              <div className="wrapper wrapper--lg">
                 <Link
                   href="/blogs"
                   className="inline-flex items-center gap-2 text-smaller font-bold text-primary mb-6"
@@ -58,7 +58,7 @@ export default function BlogDetailPage() {
                     {new Date(post.createdAt).toLocaleDateString("vi-VN")}
                   </span>
                 </div>
-                <h1 className="text-h3 font-black text-slate-950 dark:text-white mt-4">
+                <h1 className="text-h3 font-semibold text-slate-950 dark:text-white mt-4">
                   {post.title}
                 </h1>
                 {post.author && (
@@ -74,12 +74,12 @@ export default function BlogDetailPage() {
                 <img
                   src={post.thumbnailUrl}
                   alt={post.title}
-                  className="w-full max-h-[520px] rounded-xl object-cover border border-slate-200 dark:border-slate-800"
+                  className="w-full max-h-208 rounded-xl object-cover border border-slate-200 dark:border-slate-800"
                 />
               </div>
             )}
 
-            <article className="wrapper wrapper--md pb-16">
+            <article className="wrapper wrapper--lg	 pb-16">
               <div className="prose prose-slate dark:prose-invert max-w-none bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 md:p-8 investpro-blog-content">
                 <MarkdownPreview
                   source={post.content}

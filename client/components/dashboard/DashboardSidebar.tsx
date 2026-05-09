@@ -1,6 +1,7 @@
 "use client";
 
 // Services
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -22,6 +23,7 @@ import {
   UserCircle,
   Newspaper,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface DashboardSidebarProps {
   user: UserProfile | null;
@@ -37,7 +39,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
   } = useDashboard();
   const pathname = usePathname();
   const router = useRouter();
-
+  const t = useTranslations();
   const handleLogout = () => {
     Cookies.remove("access_token", { path: "/" });
     window.dispatchEvent(new Event("auth-changed"));
@@ -49,30 +51,58 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
   const isAdminPath = pathname.includes("/admin-dashboard");
 
   const adminLinks = [
-    { name: "Hệ thống", view: "system-overview", icon: LayoutDashboard },
-    { name: "Duyệt dự án", view: "project-approvals", icon: ClipboardCheck },
-    { name: "Duyệt KYC", view: "kyc-audit", icon: UserCircle },
-    { name: "Duyệt Rút tiền", view: "withdrawal-audit", icon: Wallet },
-    { name: "Giải ngân", view: "disbursements", icon: Banknote },
-    { name: "Blog", view: "blog-management", icon: Newspaper },
-    { name: "Người dùng", view: "user-management", icon: Users },
+    {
+      name: t("Admin.system-overview"),
+      view: "system-overview",
+      icon: LayoutDashboard,
+    },
+    {
+      name: t("Admin.project-approvals"),
+      view: "project-approvals",
+      icon: ClipboardCheck,
+    },
+    { name: t("Admin.kyc-audit"), view: "kyc-audit", icon: UserCircle },
+    {
+      name: t("Admin.withdrawal-audit"),
+      view: "withdrawal-audit",
+      icon: Wallet,
+    },
+    { name: t("Admin.disbursements"), view: "disbursements", icon: Banknote },
+    {
+      name: t("Admin.blog-management"),
+      view: "blog-management",
+      icon: Newspaper,
+    },
+    { name: t("Admin.user-management"), view: "user-management", icon: Users },
   ];
 
   const userLinks = [
-    { name: "Tổng quan", view: "overview", icon: LayoutGrid },
-    { name: "Hồ sơ của tôi", view: "profile", icon: UserCircle },
-    { name: "Xác minh danh tính", view: "kyc", icon: ClipboardCheck },
-    { name: "Ví của tôi", view: "wallet", icon: Wallet },
-    { name: "Nhật ký giao dịch", view: "transactions", icon: ReceiptText },
-    { name: "Đầu tư của tôi", view: "portfolio", icon: TrendingUp },
-    { name: "Thống kê", view: "analytics", icon: BarChart3 },
+    { name: t("Dashboard.Overview"), view: "overview", icon: LayoutGrid },
+    { name: t("Dashboard.My profile"), view: "profile", icon: UserCircle },
+    { name: t("Dashboard.Verify identity"), view: "kyc", icon: ClipboardCheck },
+    { name: t("Dashboard.My wallet"), view: "wallet", icon: Wallet },
+    {
+      name: t("Dashboard.Transaction log"),
+      view: "transactions",
+      icon: ReceiptText,
+    },
+    { name: t("Dashboard.My investment"), view: "portfolio", icon: TrendingUp },
+    { name: t("Dashboard.Statisticals"), view: "analytics", icon: BarChart3 },
     ...(role === "owner"
       ? [
-          { name: "Dự án của tôi", view: "my-projects", icon: Rocket },
-          { name: "Thanh toán lãi", view: "repayments", icon: Banknote },
+          {
+            name: t("Dashboard.My projects"),
+            view: "my-projects",
+            icon: Rocket,
+          },
+          {
+            name: t("Dashboard.Repayments"),
+            view: "repayments",
+            icon: Banknote,
+          },
         ]
       : []),
-    { name: "Cài đặt", view: "settings", icon: Settings },
+    { name: t("Dashboard.Settings"), view: "settings", icon: Settings },
   ];
 
   const links = isAdminPath ? adminLinks : userLinks;
@@ -150,12 +180,20 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
         {!isSidebarCollapsed && user && (
           <div className="p-4 border-t border-slate-100 dark:border-slate-800/50">
             <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 dark:bg-white/5">
-              <div className="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-smaller overflow-hidden shrink-0">
+              <div className="relative size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-smaller overflow-hidden shrink-0">
                 {user.avatarUrl ? (
-                  <img
-                    src={user.avatarUrl}
-                    alt=""
-                    className="w-full h-full object-cover"
+                  // <img
+                  //   src={user.avatarUrl}
+                  //   alt=""
+                  //   className="w-full h-full object-cover"
+                  // />
+                  <Image
+                    src={user.avatarUrl || "/images/default-avatar.png"}
+                    // alt={user.name || "User Avatar"}
+                    alt={"User Avatar"}
+                    fill
+                    sizes="(max-width: 768px) 50px, 100px"
+                    className="object-cover"
                   />
                 ) : (
                   user.fullName?.charAt(0).toUpperCase()

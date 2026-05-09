@@ -3,11 +3,35 @@
     "users": "Users",
     "usersDesc": "Manage accounts, permissions, and approve withdrawals.",
     "pendingWithdrawals": "Pending Withdrawals",
-    "userList": "User List"
+    "userList": "User List",
+    "system-overview": "System Overview",
+    "project-approvals": "Project Approvals",
+    "kyc-audit": "KYC Audits",
+    "withdrawal-audit": "Withdrawal Audits",
+    "disbursements": "Disbursements",
+    "blog-management": "Blog Management",
+    "user-management": "User Management"
   },
   "Navigation": {
     "language": "Language",
     "english": "English",
     "vietnamese": "Vietnamese"
+  },
+  "Dashboard": {
+    "Overview": "Overview",
+    "My profile": "My Profile",
+    "Verify identity": "Verify Identity",
+    "My wallet": "My Wallet",
+    "Transaction log": "Transaction Log",
+    "My investment": "My Investment",
+    "Statisticals": "Statisticals",
+    "Settings": "Settings",
+    "My projects": "My Projects",
+    "Repayments": "Repayments"
+  },
+  "Blog": {
+    "Blog Management": "Blog Management",
+    "subtitle": "Create, publish, and manage InvestPro market insights.",
+    "newPost": "New Post"
   }
 }

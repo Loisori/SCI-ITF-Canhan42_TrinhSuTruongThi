@@ -18,6 +18,16 @@ const nextConfig: NextConfig = {
         protocol: "http",
         hostname: "googleusercontent.com", // Thêm cái này vì các ảnh demo trước đó của bạn dùng domain này
       },
+      {
+        protocol: 'https',
+        hostname: 'ui-avatars.com',    // Thêm domain này cho Avatar mặc định
+        pathname: '/api/**',           // Cụ thể hóa đường dẫn API của họ
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com', // Thêm chính xác dòng này
+        pathname: '/**',                // Cho phép tất cả các đường dẫn sau domain
+      },
     ],
   },
 };

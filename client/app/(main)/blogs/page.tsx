@@ -41,7 +41,7 @@ export default function BlogListingPage() {
                 <Newspaper className="size-4" />
                 InvestPro Blog
               </span>
-              <h1 className="text-h3 font-black text-slate-950 dark:text-white mt-4">
+              <h1 className="text-h3 font-semibold text-slate-950 dark:text-white mt-4">
                 Investment insights, risk thinking, and milestone strategy
               </h1>
               <p className="text-slate-600 dark:text-slate-400 mt-3">

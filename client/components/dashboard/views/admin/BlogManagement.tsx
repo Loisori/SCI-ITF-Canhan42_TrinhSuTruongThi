@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -16,6 +17,7 @@ import api from "@/lib/axios";
 import MarkdownField from "@/components/client/MarkdownField";
 import MediaLibraryModal from "@/components/client/MediaLibraryModal";
 import { BlogListResponse, BlogPost, BlogStatus } from "@/types/blog";
+import { useTranslations } from "next-intl";
 
 const emptyForm = {
   title: "",
@@ -33,6 +35,7 @@ export default function BlogManagement() {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isMediaOpen, setIsMediaOpen] = useState(false);
+  const t = useTranslations();
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["admin-blogs", query],
@@ -122,10 +125,10 @@ export default function BlogManagement() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
           <h1 className="text-h3 font-bold text-slate-900 dark:text-white">
-            Blog Management
+            {t("Blog.Blog Management")}
           </h1>
           <p className="text-slate-600 dark:text-slate-400 text-body mt-1">
-            Create, publish, and manage InvestPro market insights.
+            {t("Blog.subtitle")}
           </p>
         </div>
         <button
@@ -134,7 +137,7 @@ export default function BlogManagement() {
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-smaller font-bold text-white"
         >
           <Plus className="size-4" />
-          New Blog Post
+          {t("Blog.newPost")}
         </button>
       </div>
 
@@ -152,7 +155,7 @@ export default function BlogManagement() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left">
+          <table className="w-full min-w-304 text-left">
             <thead className="bg-slate-50 dark:bg-slate-800/60 text-[11px] uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-bold">Post</th>
@@ -165,7 +168,10 @@ export default function BlogManagement() {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-slate-500">
+                  <td
+                    colSpan={5}
+                    className="px-4 py-10 text-center text-slate-500"
+                  >
                     Loading blog posts...
                   </td>
                 </tr>
@@ -174,12 +180,19 @@ export default function BlogManagement() {
                   <tr key={post.id}>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="size-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
+                        <div className="relative size-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
                           {post.thumbnailUrl ? (
-                            <img
+                            // <img
+                            //   src={post.thumbnailUrl}
+                            //   alt=""
+                            //   className="h-full w-full object-cover"
+                            // />
+                            <Image
                               src={post.thumbnailUrl}
-                              alt=""
-                              className="h-full w-full object-cover"
+                              alt={post.title || "Blog thumbnail"}
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              className="object-cover transition-transform duration-500 hover:scale-105"
                             />
                           ) : (
                             <Newspaper className="m-3 size-6 text-slate-400" />
@@ -236,7 +249,10 @@ export default function BlogManagement() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-slate-500">
+                  <td
+                    colSpan={5}
+                    className="px-4 py-10 text-center text-slate-500"
+                  >
                     No blog posts found.
                   </td>
                 </tr>
@@ -270,11 +286,16 @@ export default function BlogManagement() {
             <form onSubmit={handleSubmit} className="p-5 space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <label className="space-y-2">
-                  <span className="block text-smaller font-semibold">Title</span>
+                  <span className="block text-smaller font-semibold">
+                    Title
+                  </span>
                   <input
                     value={form.title}
                     onChange={(event) =>
-                      setForm((prev) => ({ ...prev, title: event.target.value }))
+                      setForm((prev) => ({
+                        ...prev,
+                        title: event.target.value,
+                      }))
                     }
                     required
                     className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent px-3 py-2 outline-none focus:ring-1 ring-primary"
@@ -325,7 +346,9 @@ export default function BlogManagement() {
                   </div>
                 </label>
                 <label className="space-y-2">
-                  <span className="block text-smaller font-semibold">Status</span>
+                  <span className="block text-smaller font-semibold">
+                    Status
+                  </span>
                   <select
                     value={form.status}
                     onChange={(event) =>

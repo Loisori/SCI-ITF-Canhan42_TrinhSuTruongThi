@@ -1,7 +1,7 @@
 "use client";
-
+import Image from "next/image";
 import Link from "next/link";
-import { Timer, MapPin } from "lucide-react";
+import { Timer } from "lucide-react";
 import type { Project } from "@/types/project";
 import { useState, useEffect } from "react";
 
@@ -101,10 +101,18 @@ export default function ProjectCard({
 
       <div className="relative aspect-16/10 overflow-hidden bg-slate-200 dark:bg-slate-800 z-10 pointer-events-none rounded-t-3">
         {project.thumbnailUrl ? (
-          <img
+          // <img
+          //   src={project.thumbnailUrl}
+          //   alt={project.title}
+          //   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          // />
+          <Image
             src={project.thumbnailUrl}
             alt={project.title}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            priority={false}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-slate-400 text-smaller">
@@ -130,10 +138,18 @@ export default function ProjectCard({
             className="hover:opacity-80 transition-opacity"
           >
             {project.owner?.avatarUrl ? (
-              <img
-                src={project.owner.avatarUrl}
+              // <img
+              //   src={project.owner.avatarUrl}
+              //   alt={ownerName}
+              //   className="size-11 rounded-full object-cover border border-slate-200 dark:border-slate-700 mb-2"
+              // />
+              <Image
+                src={project.owner.avatarUrl} // Thêm ảnh mặc định nếu URL null
                 alt={ownerName}
-                className="size-11 rounded-full object-cover border border-slate-200 dark:border-slate-700 mb-2"
+                width={44} // Tương ứng với size-11 (11 * 4px)
+                height={44} // Tương ứng với size-11
+                className="rounded-full object-cover border border-slate-200 dark:border-slate-700 mb-2"
+                unoptimized={false} // Next.js sẽ tự optimize ảnh này
               />
             ) : (
               <div className="size-11 rounded-full bg-primary/10 text-primary dark:text-slate-100 border border-primary/20 flex items-center justify-center text-[11px] font-bold mb-2">

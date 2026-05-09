@@ -3,11 +3,35 @@
     "users": "Người dùng",
     "usersDesc": "Quản lý tài khoản, quyền hạn và phê duyệt rút tiền.",
     "pendingWithdrawals": "Yêu cầu rút tiền chờ duyệt",
-    "userList": "Danh sách người dùng"
+    "userList": "Danh sách người dùng",
+    "system-overview": "Tổng quan hệ thống",
+    "project-approvals": "Phê duyệt dự án",
+    "kyc-audit": "Kiểm tra KYC",
+    "withdrawal-audit": "Kiểm tra rút tiền",
+    "disbursements": "Giải ngân",
+    "blog-management": "Quản lý Blog",
+    "user-management": "Quản lý người dùng"
   },
   "Navigation": {
     "language": "Ngôn ngữ",
     "english": "Tiếng Anh",
     "vietnamese": "Tiếng Việt"
+  },
+  "Dashboard": {
+    "Overview": "Tổng quan",
+    "My profile": "Hồ sơ của tôi",
+    "Verify identity": "Xác minh danh tính",
+    "My wallet": "Ví của tôi",
+    "Transaction log": "Lịch sử giao dịch",
+    "My investment": "Đầu tư của tôi",
+    "Statisticals": "Thống kê",
+    "Settings": "Cài đặt",
+    "My projects": "Dự án của tôi",
+    "Repayments": "Thanh toán lãi"
+  },
+    "Blog": {
+    "Blog Management": "Quản lý Blog",
+    "subtitle": "Tạo, xuất bản và quản lý những hiểu biết về thị trường của InvestPro.",
+    "newPost": "Bài viết mới"
   }
 }

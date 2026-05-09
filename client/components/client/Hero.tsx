@@ -1,6 +1,6 @@
 //services
 import Link from "next/link";
-import { PlayCircle, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 export default function Hero() {
   return (
     <section className="relative py-20 lg:py-32 overflow-hidden bg-background-light dark:bg-background-dark">
