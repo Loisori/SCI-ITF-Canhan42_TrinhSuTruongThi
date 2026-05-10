@@ -1,4 +1,10 @@
--- Schema reference (updated from current TypeORM entities in server/src/modules/\*\*/entities)
+-- Schema reference updated from the current TypeORM entities in server/src/modules/\*\*/entities.
+-- Key domain notes:
+-- - users store balance, KYC, notification settings, favorites/blacklists, and account freeze state.
+-- - projects support slug-based lookup, milestones, disputes, comments, voting, and escrow-style disbursement.
+-- - transactions track parent/child splits for platform fee and payout flows.
+-- - chat_history stores AI conversation context per user.
+-- - notifications are per-user and read/unread.
 
 -- 1. Table: users
 CREATE TABLE users (
@@ -242,3 +248,10 @@ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- Core enum snapshot
+-- users.role: investor | owner | admin
+-- projects.status: pending | funding | active | pending_admin_review | completed | overdue | failed
+-- project_milestones.status: pending | uploading_proof | voting | admin_review | disbursed | completed | rejected | disputed
+-- transactions.type: deposit | withdrawal | invest | interest_receive | refund | disbursement | repayment | repay_interest | repay_principal | system_fee | system_log
+-- notifications.type: PROJECT_UPDATE | INVESTMENT_RECEIVED | PAYMENT_SUCCESS | SYSTEM

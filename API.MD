@@ -32,6 +32,8 @@ This document details the available API endpoints for the InvestPro platform.
 | `GET`   | `/`                                        | List all users.                                | JWT + Admin   |
 | `PATCH` | `/:id/role`                                | Update user role (e.g., Owner, Investor).      | JWT + Admin   |
 
+Public profile routes also support `GET /slug/:slug/public` for slug lookups and `GET /:identifier/public` for either ID or slug-based access.
+
 ---
 
 ## 🆔 KYC (`/users/kyc`)
@@ -50,27 +52,33 @@ This document details the available API endpoints for the InvestPro platform.
 
 ## 🏗️ Projects (`/projects`)
 
-| Method   | Endpoint                        | Description                                           | Auth Required  |
-| :------- | :------------------------------ | :---------------------------------------------------- | :------------- |
-| `GET`    | `/`                             | List funding projects (with search/category filters). | Optional       |
-| `GET`    | `/suggestions`                  | Get project search suggestions.                       | No             |
-| `GET`    | `/slug/:slug`                   | Get project details by URL slug.                      | No             |
-| `GET`    | `/owner`                        | Get projects owned by the current user.               | JWT + Owner    |
-| `GET`    | `/user/:userId/created`         | List projects created by a specific user.             | No             |
-| `GET`    | `/user/:userId/invested`        | List projects invested by a specific user.            | No             |
-| `GET`    | `/:id`                          | Get project details by ID.                            | No             |
-| `POST`   | `/`                             | Create a new project.                                 | JWT + Owner    |
-| `PUT`    | `/:id`                          | Update project details.                               | JWT + Owner    |
-| `DELETE` | `/:id`                          | Delete a project.                                     | JWT + Owner    |
-| `PUT`    | `/:id/stop-funding`             | Stop the funding phase manually.                      | JWT + Owner    |
-| `POST`   | `/invest`                       | Invest in a specific project (alt endpoint).          | JWT + Investor |
-| `PATCH`  | `/:id/milestones/:mId/proof`    | Submit proof for a milestone.                         | JWT + Owner    |
-| `PUT`    | `/:id/milestones`               | Bulk update project milestones.                       | JWT + Owner    |
-| `POST`   | `/milestones/:mId/start-voting` | Start voting for a milestone.                         | JWT + Owner    |
-| `POST`   | `/milestones/:mId/vote`         | Submit a vote for a milestone.                        | JWT + Investor |
-| `POST`   | `/milestones/:mId/response`     | Owner response to milestone discussions.              | JWT + Owner    |
-| `GET`    | `/milestones/:mId/discussions`  | List discussions for a milestone.                     | No             |
-| `POST`   | `/:id/disputes`                 | Create a dispute for a project.                       | JWT + Investor |
+| Method   | Endpoint                         | Description                                           | Auth Required  |
+| :------- | :------------------------------- | :---------------------------------------------------- | :------------- |
+| `GET`    | `/`                              | List funding projects (with search/category filters). | Optional       |
+| `GET`    | `/suggestions`                   | Get project search suggestions.                       | No             |
+| `GET`    | `/stats/homepage`                | Get summary metrics for the homepage.                 | No             |
+| `GET`    | `/slug/:slug`                    | Get project details by URL slug.                      | No             |
+| `GET`    | `/owner`                         | Get projects owned by the current user.               | JWT + Owner    |
+| `GET`    | `/user/:userIdentifier/created`  | List projects created by a specific user.             | No             |
+| `GET`    | `/user/slug/:slug/created`       | List projects created by a user using slug lookup.    | No             |
+| `GET`    | `/user/:userIdentifier/invested` | List projects invested by a specific user.            | No             |
+| `GET`    | `/user/slug/:slug/invested`      | List projects invested by a user using slug lookup.   | No             |
+| `GET`    | `/:id`                           | Get project details by ID.                            | No             |
+| `POST`   | `/`                              | Create a new project.                                 | JWT + Owner    |
+| `PUT`    | `/:id`                           | Update project details.                               | JWT + Owner    |
+| `DELETE` | `/:id`                           | Delete a project.                                     | JWT + Owner    |
+| `PUT`    | `/:id/stop-funding`              | Stop the funding phase manually.                      | JWT + Owner    |
+| `POST`   | `/invest`                        | Invest in a specific project (alt endpoint).          | JWT + Investor |
+| `PATCH`  | `/:id/milestones/:mId/proof`     | Submit proof for a milestone.                         | JWT + Owner    |
+| `PUT`    | `/:id/milestones`                | Bulk update project milestones.                       | JWT + Owner    |
+| `POST`   | `/milestones/:mId/start-voting`  | Start voting for a milestone.                         | JWT + Owner    |
+| `POST`   | `/milestones/:mId/vote`          | Submit a vote for a milestone.                        | JWT + Investor |
+| `POST`   | `/milestones/:mId/response`      | Owner response to milestone discussions.              | JWT + Owner    |
+| `GET`    | `/milestones/:mId/discussions`   | List discussions for a milestone.                     | No             |
+| `GET`    | `/milestones/:mId/votes`         | List milestone votes.                                 | No             |
+| `GET`    | `/:id/comments`                  | List project comments.                                | No             |
+| `POST`   | `/:id/comments`                  | Add a project comment.                                | JWT + Investor |
+| `POST`   | `/:id/disputes`                  | Create a dispute for a project.                       | JWT + Investor |
 
 ### 📌 Milestone Disbursement Flow (Summary)
 
@@ -78,6 +86,8 @@ This document details the available API endpoints for the InvestPro platform.
 - Admin releases Stage 1 via `PATCH /admin/projects/:id/approve-disbursement` (platform fee is credited to Admin first, then owner receives net).
 - For later stages: owner submits proof `PATCH /projects/:id/milestones/:mId/proof` -> Admin finalizes `POST /admin/projects/:id/milestones/:mId/finalize` -> investors vote `POST /projects/milestones/:mId/vote`.
 - If YES vote weight >= 50% of total raised, the next milestone is disbursed.
+
+The controller also exposes `GET /projects/stats/homepage` for landing-page metrics and `GET /projects/milestones/:mId/votes` for vote breakdowns used in project detail views.
 
 ---
 
@@ -124,17 +134,17 @@ This document details the available API endpoints for the InvestPro platform.
 
 ## 💳 Wallets (`/wallets`)
 
-| Method | Endpoint                         | Description                           | Auth Required |
-| :----- | :------------------------------- | :------------------------------------ | :------------ |
-| `POST` | `/deposit`                       | Request a fund deposit.               | JWT           |
-| `POST` | `/withdraw`                      | Request a fund withdrawal.            | JWT           |
-| `GET`  | `/history`                       | View wallet transaction history.      | JWT           |
-| `GET`  | `/repayments/schedules`          | View owner repayment schedules.       | JWT + Owner   |
-| `POST` | `/repay`                         | Repay project debt.                   | JWT + Owner   |
-| `POST` | `/repay-milestone-interest`      | Repay specific milestone interest.    | JWT + Owner   |
-| `GET`  | `/admin/pending-transactions`    | List all pending wallet transactions. | JWT + Admin   |
-| `POST` | `/admin/approve-transaction/:id` | Approve a pending transaction.        | JWT + Admin   |
-| `POST` | `/admin/reject-transaction/:id`  | Reject a pending transaction.         | JWT + Admin   |
+| Method | Endpoint                         | Description                           | Auth Required       |
+| :----- | :------------------------------- | :------------------------------------ | :------------------ |
+| `POST` | `/deposit`                       | Request a fund deposit.               | JWT + AccountStatus |
+| `POST` | `/withdraw`                      | Request a fund withdrawal.            | JWT + AccountStatus |
+| `GET`  | `/history`                       | View wallet transaction history.      | JWT                 |
+| `GET`  | `/repayments/schedules`          | View owner repayment schedules.       | JWT + Owner         |
+| `POST` | `/repay`                         | Repay project debt.                   | JWT + Owner         |
+| `POST` | `/repay-milestone-interest`      | Repay specific milestone interest.    | JWT + Owner         |
+| `GET`  | `/admin/pending-transactions`    | List all pending wallet transactions. | JWT + Admin         |
+| `POST` | `/admin/approve-transaction/:id` | Approve a pending transaction.        | JWT + Admin         |
+| `POST` | `/admin/reject-transaction/:id`  | Reject a pending transaction.         | JWT + Admin         |
 
 ---
 
@@ -148,6 +158,8 @@ This document details the available API endpoints for the InvestPro platform.
 | `POST`  | `/withdraw`                   | Request a fund withdrawal (Legacy).      | JWT           |
 | `GET`   | `/admin/pending-withdrawals`  | List pending withdrawals (Legacy).       | JWT + Admin   |
 | `PATCH` | `/admin/withdraw/:id/:action` | Approve/Reject withdrawal (Legacy).      | JWT + Admin   |
+
+The current controller only exposes `GET /transactions` for the authenticated user's ledger, with optional `type` and `status` query filters.
 
 ### Payments (`/payment`)
 
@@ -197,3 +209,22 @@ This document details the available API endpoints for the InvestPro platform.
 | :----- | :---------- | :------------------------------------ | :------------ |
 | `GET`  | `/overview` | Get platform-wide statistics.         | JWT + Admin   |
 | `GET`  | `/users`    | Get paginated user list with filters. | JWT + Admin   |
+
+## 📰 Blogs (`/blogs`)
+
+### Public (`/blogs`)
+
+| Method | Endpoint | Description                   | Auth Required |
+| :----- | :------- | :---------------------------- | :------------ |
+| `GET`  | `/`      | List published blogs.         | No            |
+| `GET`  | `/:slug` | Get a published blog by slug. | No            |
+
+### Admin (`/admin/blogs`)
+
+| Method   | Endpoint | Description              | Auth Required |
+| :------- | :------- | :----------------------- | :------------ |
+| `GET`    | `/`      | List admin blog records. | JWT + Admin   |
+| `GET`    | `/:id`   | Get a single blog by ID. | JWT + Admin   |
+| `POST`   | `/`      | Create a blog post.      | JWT + Admin   |
+| `PATCH`  | `/:id`   | Update a blog post.      | JWT + Admin   |
+| `DELETE` | `/:id`   | Delete a blog post.      | JWT + Admin   |

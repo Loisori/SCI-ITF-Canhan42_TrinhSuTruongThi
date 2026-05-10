@@ -2,10 +2,11 @@
 
 ## Tổng quan
 
-- Tổng số use case giao diện: 25
+- Tổng số use case giao diện: 28
 - Investor-only: 4
 - Owner-only: 6
 - Dùng chung Investor và Owner: 15
+- Blog/public/admin: 3
 - Phạm vi: chỉ các thao tác thực tế trên frontend (client/app, client/components).
 
 ## Danh mục use case
@@ -37,6 +38,9 @@
 | UI-023 | Dừng huy động vốn sớm                      | Owner                            |
 | UI-024 | Theo dõi danh sách dự án của tôi           | Owner                            |
 | UI-025 | Thanh toán nợ dự án (repay)                | Owner                            |
+| UI-026 | Xem danh sách blog công khai               | Investor, Owner, Guest           |
+| UI-027 | Xem chi tiết bài blog                      | Investor, Owner, Guest           |
+| UI-028 | Quản lý bài viết blog                      | Admin                            |
 
 ## Chi tiết use case (mẫu giao diện)
 
@@ -324,7 +328,7 @@ Luồng thay thế:
 Các yêu cầu cụ thể:
 
 - API: POST /api/wallets/deposit, POST /api/payment/create-url, POST /api/payment/create-momo-url
-- Frontend: FintechModals, client/app/(main)/dashboard/deposit/page.tsx
+- Frontend: client/components/dashboard/modals/FintechModals.tsx, client/app/(main)/dashboard/deposit/page.tsx, client/app/(main)/dashboard/deposit/success/page.tsx
 
 Điều kiện trước:
 
@@ -398,7 +402,7 @@ Luồng thay thế:
 Các yêu cầu cụ thể:
 
 - API: GET /api/wallets/history, GET /api/transactions
-- Frontend: Overview, WalletView
+- Frontend: client/components/dashboard/views/Overview.tsx, client/components/dashboard/views/WalletView.tsx, client/components/dashboard/views/TransactionsView.tsx
 
 Điều kiện trước:
 
@@ -435,7 +439,7 @@ Luồng thay thế:
 Các yêu cầu cụ thể:
 
 - API: GET /api/notifications, PATCH /api/notifications/:id/read, PATCH /api/notifications/read-all
-- Frontend: NotificationProvider
+- Frontend: client/providers/NotificationProvider.tsx
 
 Điều kiện trước:
 
@@ -545,8 +549,8 @@ Luồng thay thế:
 
 Các yêu cầu cụ thể:
 
-- API: GET /api/projects, GET /api/projects/suggestions, GET /api/project-categories
-- Frontend: HeaderSearch, client/app/(main)/projects/page.tsx
+- API: GET /api/projects, GET /api/projects/suggestions, GET /api/projects/stats/homepage, GET /api/project-categories
+- Frontend: client/components/client/HeaderSearch.tsx, client/app/(main)/projects/page.tsx
 
 Điều kiện trước:
 
@@ -582,8 +586,8 @@ Luồng thay thế:
 
 Các yêu cầu cụ thể:
 
-- API: GET /api/projects/:identifier, GET /api/users/:identifier/public, GET /api/users/slug/:slug/public, GET /api/projects/user/:userIdentifier/created, GET /api/projects/user/:userIdentifier/invested
-- Frontend: project detail page, public profile page
+- API: GET /api/projects/:identifier, GET /api/users/:identifier/public, GET /api/users/slug/:slug/public, GET /api/projects/user/:userIdentifier/created, GET /api/projects/user/slug/:slug/created, GET /api/projects/user/:userIdentifier/invested, GET /api/projects/user/slug/:slug/invested
+- Frontend: client/app/(main)/projects/[slug]/page.tsx, client/app/(main)/profile/[slug]/page.tsx
 
 Điều kiện trước:
 
@@ -657,7 +661,7 @@ Luồng thay thế:
 Các yêu cầu cụ thể:
 
 - API: GET /api/investments/my-investments, GET /api/investments/analytics, GET /api/projects/user/:userIdentifier/invested
-- Frontend: MyPortfolio, Overview, AnalyticsView
+- Frontend: client/components/dashboard/views/MyPortfolio.tsx, client/components/dashboard/views/Overview.tsx, client/components/dashboard/views/AnalyticsView.tsx
 
 Điều kiện trước:
 
@@ -730,8 +734,8 @@ Luồng thay thế:
 
 Các yêu cầu cụ thể:
 
-- API: GET /api/projects/milestones/:mId/discussions, POST /api/projects/milestones/:mId/vote
-- Frontend: client/components/client/ProjectMilestones.tsx
+- API: GET /api/projects/milestones/:mId/discussions, GET /api/projects/milestones/:mId/votes, POST /api/projects/milestones/:mId/vote
+- Frontend: client/components/client/ProjectMilestones.tsx, client/app/(main)/projects/[slug]/page.tsx
 
 Điều kiện trước:
 
@@ -768,7 +772,7 @@ Luồng thay thế:
 Các yêu cầu cụ thể:
 
 - API: POST /api/projects, GET /api/project-categories
-- Frontend: client/app/(main)/projects/create/page.tsx, MyProjects
+- Frontend: client/app/(main)/projects/create/page.tsx, client/components/dashboard/views/MyProjects.tsx
 
 Điều kiện trước:
 
@@ -842,7 +846,7 @@ Luồng thay thế:
 Các yêu cầu cụ thể:
 
 - API: PUT /api/projects/:id/milestones, PATCH /api/projects/:id/milestones/:mId/proof, POST /api/projects/milestones/:mId/start-voting, POST /api/projects/milestones/:mId/response, GET /api/projects/milestones/:mId/discussions
-- Frontend: my-projects/[id]/page.tsx, ProjectMilestones.tsx, MyProjects.tsx
+- Frontend: client/app/(main)/dashboard/my-projects/[id]/page.tsx, client/components/client/ProjectMilestones.tsx, client/components/dashboard/views/MyProjects.tsx
 
 Điều kiện trước:
 
@@ -879,7 +883,7 @@ Luồng thay thế:
 Các yêu cầu cụ thể:
 
 - API: PUT /api/projects/:id/stop-funding
-- Frontend: MyProjects.tsx, my-projects/[id]/edit/page.tsx
+- Frontend: client/components/dashboard/views/MyProjects.tsx, client/app/(main)/dashboard/my-projects/[id]/edit/page.tsx
 
 Điều kiện trước:
 
@@ -916,7 +920,7 @@ Luồng thay thế:
 Các yêu cầu cụ thể:
 
 - API: GET /api/projects/owner
-- Frontend: client/components/dashboard/views/MyProjects.tsx
+- Frontend: client/components/dashboard/views/MyProjects.tsx, client/app/(main)/dashboard/my-projects/[id]/page.tsx
 
 Điều kiện trước:
 
@@ -963,9 +967,121 @@ Các yêu cầu cụ thể:
 
 - Nợ dự án giảm theo khoản thanh toán đã thực hiện.
 
+---
+
+### 2.2.26. Use case Xem danh sách blog công khai
+
+Mục đích: Cho phép người dùng xem danh sách bài viết blog đã xuất bản để theo dõi tin tức và nội dung phân tích.
+
+Tác nhân, mô tả chung:
+
+- Tác nhân: Investor, Owner, Guest.
+- Mô tả chung: Người dùng mở trang blog và duyệt danh sách bài viết theo từ khóa.
+
+Luồng sự kiện chính
+Bảng 26. Luồng sự kiện chính use case Xem danh sách blog công khai
+
+| Hành động của tác nhân       | Phản ứng của hệ thống                           |
+| ---------------------------- | ----------------------------------------------- |
+| 1. Người dùng mở trang Blog. | 2. Hệ thống tải danh sách bài viết đã xuất bản. |
+| -                            | 3. Người dùng nhập từ khóa tìm kiếm nếu cần.    |
+| -                            | 4. Giao diện hiển thị các bài viết phù hợp.     |
+
+Luồng thay thế:
+
+- 1. Không có bài viết hoặc từ khóa không khớp -> hiển thị trạng thái rỗng.
+
+Các yêu cầu cụ thể:
+
+- API: GET /api/blogs
+- Frontend: client/app/(main)/blogs/page.tsx
+
+Điều kiện trước:
+
+- Không bắt buộc đăng nhập.
+
+Điều kiện sau:
+
+- Người dùng xem được danh sách bài blog công khai.
+
+---
+
+### 2.2.27. Use case Xem chi tiết bài blog
+
+Mục đích: Cho phép người dùng đọc đầy đủ nội dung của một bài blog theo slug.
+
+Tác nhân, mô tả chung:
+
+- Tác nhân: Investor, Owner, Guest.
+- Mô tả chung: Người dùng chọn một bài viết từ danh sách blog và xem nội dung chi tiết.
+
+Luồng sự kiện chính
+Bảng 27. Luồng sự kiện chính use case Xem chi tiết bài blog
+
+| Hành động của tác nhân           | Phản ứng của hệ thống                                   |
+| -------------------------------- | ------------------------------------------------------- |
+| 1. Người dùng chọn một bài blog. | 2. Hệ thống tải bài viết theo slug.                     |
+| -                                | 3. Hệ thống hiển thị tiêu đề, ảnh đại diện và nội dung. |
+| -                                | 4. Người dùng đọc nội dung bài viết.                    |
+
+Luồng thay thế:
+
+- 1. Blog không tồn tại hoặc chưa xuất bản -> hiển thị trạng thái không tìm thấy.
+
+Các yêu cầu cụ thể:
+
+- API: GET /api/blogs/:slug
+- Frontend: client/app/(main)/blogs/[slug]/page.tsx
+
+Điều kiện trước:
+
+- Không bắt buộc đăng nhập.
+
+Điều kiện sau:
+
+- Người dùng xem được nội dung chi tiết của bài viết.
+
+---
+
+### 2.2.28. Use case Quản lý bài viết blog
+
+Mục đích: Cho phép Admin tạo, cập nhật, tìm kiếm và xóa bài viết blog trong khu vực quản trị.
+
+Tác nhân, mô tả chung:
+
+- Tác nhân: Admin.
+- Mô tả chung: Admin mở trang quản lý blog, soạn nội dung và xuất bản bài viết.
+
+Luồng sự kiện chính
+Bảng 28. Luồng sự kiện chính use case Quản lý bài viết blog
+
+| Hành động của tác nhân          | Phản ứng của hệ thống                             |
+| ------------------------------- | ------------------------------------------------- |
+| 1. Admin mở trang quản lý blog. | 2. Hệ thống tải danh sách bài viết và trạng thái. |
+| -                               | 3. Admin tạo mới, chỉnh sửa hoặc xóa bài viết.    |
+| -                               | 4. Hệ thống lưu thay đổi và cập nhật danh sách.   |
+
+Luồng thay thế:
+
+- 1. Dữ liệu không hợp lệ hoặc không có quyền admin -> từ chối thao tác.
+
+Các yêu cầu cụ thể:
+
+- API: GET /api/admin/blogs, GET /api/admin/blogs/:id, POST /api/admin/blogs, PATCH /api/admin/blogs/:id, DELETE /api/admin/blogs/:id
+- Frontend: client/components/dashboard/views/admin/BlogManagement.tsx
+
+Điều kiện trước:
+
+- Admin đã đăng nhập.
+
+Điều kiện sau:
+
+- Bài viết blog được tạo, cập nhật hoặc xóa thành công.
+
 ## Sequence Diagrams (As Code)
 
 ### Diagram UI-001: Đăng ký tài khoản
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -981,6 +1097,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-002: Đăng nhập hệ thống
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -995,6 +1112,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-003: Xem hồ sơ cá nhân
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1009,6 +1127,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-004: Cập nhật hồ sơ
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1023,6 +1142,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-005: Đổi mật khẩu
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1037,6 +1157,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-006: Cài đặt thông báo
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1050,6 +1171,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-007: Nộp KYC
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1064,6 +1186,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-008: Nạp tiền (VNPAY)
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1082,6 +1205,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-009: Rút tiền
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1096,6 +1220,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-010: Xem lịch sử giao dịch
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1110,6 +1235,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-011: Quản lý thông báo
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1123,6 +1249,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-012: AI Chatbox
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1140,6 +1267,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-013: Thư viện Media
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1155,6 +1283,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-014: Tìm kiếm dự án
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1169,6 +1298,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-015: Xem chi tiết dự án
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1183,6 +1313,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-016: Đầu tư dự án (Sequence)
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1200,6 +1331,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-017: Theo dõi Portfolio
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1214,6 +1346,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-018: Tạo khiếu nại
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1227,6 +1360,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-019: Voting Milestone
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1241,6 +1375,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-020: Tạo dự án mới
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1255,6 +1390,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-021: Cập nhật dự án
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1268,6 +1404,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-022: Quản lý Milestones
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1281,6 +1418,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-023: Dừng huy động sớm
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1294,6 +1432,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-024: Danh sách dự án của tôi
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -1307,6 +1446,7 @@ sequenceDiagram
 ```
 
 ### Diagram UI-025: repay (Thanh toán)
+
 ```mermaid
 sequenceDiagram
     autonumber
