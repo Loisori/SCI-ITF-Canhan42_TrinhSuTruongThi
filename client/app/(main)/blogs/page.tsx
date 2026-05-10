@@ -35,8 +35,8 @@ export default function BlogListingPage() {
       <Navbar />
       <main>
         <section className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
-          <div className="wrapper wrapper--lg py-12 lg:py-16">
-            <div className="max-w-2xl">
+          <div className="wrapper wrapper--lg">
+            <div className="">
               <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-smallest font-bold uppercase tracking-wide text-primary">
                 <Newspaper className="size-4" />
                 InvestPro Blog

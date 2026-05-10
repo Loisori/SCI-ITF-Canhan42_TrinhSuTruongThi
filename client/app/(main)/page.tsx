@@ -148,7 +148,7 @@ export default function Home() {
             </div>
 
             <div className="lg:pl-6">
-              <div className="aspect-4/3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col justify-between shadow-sm">
+              {/* <div className="aspect-4/3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col justify-between shadow-sm">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-smallest uppercase tracking-wide text-slate-500 font-bold">
@@ -183,7 +183,7 @@ export default function Home() {
                     ),
                   )}
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </section>

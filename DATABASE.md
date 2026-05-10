@@ -1,12 +1,54 @@
--- Schema reference updated from the current TypeORM entities in server/src/modules/\*\*/entities.
--- Key domain notes:
--- - users store balance, KYC, notification settings, favorites/blacklists, and account freeze state.
--- - projects support slug-based lookup, milestones, disputes, comments, voting, and escrow-style disbursement.
--- - transactions track parent/child splits for platform fee and payout flows.
--- - chat_history stores AI conversation context per user.
--- - notifications are per-user and read/unread.
+# DATABASE.md — Tổng quan thiết kế cơ sở dữ liệu
 
--- 1. Table: users
+Mục đích: tài liệu tóm tắt schema chính cho nền tảng gọi vốn/đầu tư (InvestPro). Bao gồm sơ đồ ER, danh sách thực thể cốt lõi, lưu đồ dòng tiền và phần tham chiếu SQL DDL (dưới đây).
+
+Last updated: 2026-05-10
+
+Tóm tắt nhanh:
+
+- Mô hình chính: Users (investor/owner/admin), Projects (cùng Milestones), Investments, Wallet/Transactions, KYC, Notifications, Disputes, Chat History.
+- Tiền được giữ trong escrow theo giai đoạn (milestone). Transactions lưu parent-child để tách phí nền tảng và thanh toán tới investor/owner.
+
+Thực thể cốt lõi (core entities):
+
+- `users`: thông tin tài khoản, role, balance, trạng thái KYC, is_frozen.
+- `projects`: metadata, mục tiêu gọi vốn, trạng thái, liên kết `owner_id`.
+- `project_milestones`: milestone + evidence + trạng thái voting/admin review.
+- `investments`: mối quan hệ investor ↔ project, số tiền và trạng thái.
+- `transactions`: ledger cho mọi luồng tiền (deposit, invest, disbursement, refund, repayment, fee).
+- `kycs`: ảnh CMND/CCCD và trạng thái xét duyệt.
+- `notifications`: per-user notifications, read/unread.
+- `project_disputes`: khiếu nại/đóng băng dự án.
+- `chat_history`: lưu context AI per-user.
+
+ER diagram (mermaid) — khái quát:
+
+```mermaid
+erDiagram
+	USERS ||--o{ PROJECTS : owns
+	PROJECTS ||--o{ PROJECT_MILESTONES : has
+	PROJECTS ||--o{ PROJECT_MEDIA : media
+	PROJECTS ||--o{ INVESTMENTS : receives
+	USERS ||--o{ INVESTMENTS : invests
+	INVESTMENTS ||--o{ PAYMENT_SCHEDULES : schedule
+	USERS ||--o{ TRANSACTIONS : makes
+	TRANSACTIONS ||--o{ TRANSACTIONS : parent_child
+	PROJECT_MILESTONES ||--o{ MILESTONE_VOTES : votes
+	PROJECT_MILESTONES ||--o{ MILESTONE_DISCUSSIONS : discussions
+	USERS ||--o{ NOTIFICATIONS : receives
+	USERS ||--o{ KYCS : has
+	PROJECTS ||--o{ PROJECT_DISPUTES : disputes
+```
+
+Ghi chú kiến trúc & vận hành:
+
+- Escrow/milestone: tiền investor được ghi nhận trong ledger (`transactions`) và chỉ disburse theo milestone khi thỏa điều kiện (admin review hoặc capital-weighted vote).
+- KYC & AccountStatusGuard: nhiều endpoint yêu cầu KYC `APPROVED` và `is_frozen = false`.
+- Audit: mọi thay đổi tiền tệ cần tạo transaction record; giữ `parent_transaction_id` để truy vết split (ví dụ platform fee).
+- Index cần thiết: users(email), users(slug), projects(slug), projects(owner_id), investments(user_id, project_id), transactions(user_id, created_at).
+
+Phần tham chiếu SQL DDL (bắt đầu ngay sau đây) — trích xuất từ TypeORM entities.
+
 CREATE TABLE users (
 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 email VARCHAR(150) NOT NULL UNIQUE,
@@ -27,7 +69,6 @@ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- 2. Table: project_categories
 CREATE TABLE project_categories (
 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 name VARCHAR(100) NOT NULL,
@@ -37,7 +78,6 @@ icon_url VARCHAR(255) NULL,
 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. Table: projects
 CREATE TABLE projects (
 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 owner_id BIGINT UNSIGNED NOT NULL,
@@ -66,7 +106,6 @@ FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
 FOREIGN KEY (category_id) REFERENCES project_categories(id)
 );
 
--- 4. Table: project_media
 CREATE TABLE project_media (
 id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 project_id BIGINT UNSIGNED NOT NULL,
@@ -77,7 +116,6 @@ sort_order INT DEFAULT 0,
 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 
--- 5. Table: project_milestones
 CREATE TABLE project_milestones (
 id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 project_id BIGINT UNSIGNED NOT NULL,
@@ -105,7 +143,6 @@ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 
--- 6. Table: milestone_discussions
 CREATE TABLE milestone_discussions (
 id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 milestone_id INT UNSIGNED NOT NULL,
@@ -116,7 +153,6 @@ FOREIGN KEY (milestone_id) REFERENCES project_milestones(id) ON DELETE CASCADE,
 FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- 7. Table: milestone_votes
 CREATE TABLE milestone_votes (
 id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 milestone_id INT UNSIGNED NOT NULL,
@@ -129,7 +165,6 @@ FOREIGN KEY (milestone_id) REFERENCES project_milestones(id) ON DELETE CASCADE,
 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- 8. Table: investments
 CREATE TABLE investments (
 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 user_id BIGINT UNSIGNED NOT NULL,
@@ -141,7 +176,6 @@ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
 FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
 
--- 9. Table: payment_schedules
 CREATE TABLE payment_schedules (
 id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 investment_id BIGINT UNSIGNED NOT NULL,
@@ -152,7 +186,6 @@ paid_at TIMESTAMP NULL,
 FOREIGN KEY (investment_id) REFERENCES investments(id) ON DELETE CASCADE
 );
 
--- 10. Table: transactions
 CREATE TABLE transactions (
 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 user_id BIGINT UNSIGNED NOT NULL,
@@ -169,7 +202,6 @@ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
 FOREIGN KEY (parent_transaction_id) REFERENCES transactions(id) ON DELETE SET NULL
 );
 
--- 11. Table: project_disputes
 CREATE TABLE project_disputes (
 id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 project_id BIGINT UNSIGNED NOT NULL,
@@ -182,7 +214,6 @@ FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- 12. Table: user_favorite_categories
 CREATE TABLE user_favorite_categories (
 user_id BIGINT UNSIGNED NOT NULL,
 category_id BIGINT UNSIGNED NOT NULL,
@@ -191,7 +222,6 @@ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
 FOREIGN KEY (category_id) REFERENCES project_categories(id) ON DELETE CASCADE
 );
 
--- 13. Table: user_blacklist_categories
 CREATE TABLE user_blacklist_categories (
 user_id BIGINT UNSIGNED NOT NULL,
 category_id BIGINT UNSIGNED NOT NULL,
@@ -200,7 +230,6 @@ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
 FOREIGN KEY (category_id) REFERENCES project_categories(id) ON DELETE CASCADE
 );
 
--- 14. Table: notifications
 CREATE TABLE notifications (
 id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 user_id BIGINT UNSIGNED NOT NULL,
@@ -211,7 +240,6 @@ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- 15. Table: chat_history
 CREATE TABLE chat_history (
 id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 user_id BIGINT UNSIGNED NOT NULL,
@@ -223,7 +251,6 @@ INDEX idx_chat_history_user_created_at (user_id, created_at),
 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- 16. Table: user_media
 CREATE TABLE user_media (
 id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 user_id BIGINT UNSIGNED NOT NULL,
@@ -235,7 +262,6 @@ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- 17. Table: kycs
 CREATE TABLE kycs (
 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 user_id BIGINT UNSIGNED NOT NULL,
@@ -249,9 +275,41 @@ updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Core enum snapshot
--- users.role: investor | owner | admin
--- projects.status: pending | funding | active | pending_admin_review | completed | overdue | failed
--- project_milestones.status: pending | uploading_proof | voting | admin_review | disbursed | completed | rejected | disputed
--- transactions.type: deposit | withdrawal | invest | interest_receive | refund | disbursement | repayment | repay_interest | repay_principal | system_fee | system_log
--- notifications.type: PROJECT_UPDATE | INVESTMENT_RECEIVED | PAYMENT_SUCCESS | SYSTEM
+CREATE TABLE blogs (
+id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+author_id BIGINT UNSIGNED NULL,
+title VARCHAR(255) NOT NULL,
+slug VARCHAR(255) NOT NULL UNIQUE,
+summary TEXT NULL,
+content LONGTEXT NULL,
+status ENUM('draft','published','archived') DEFAULT 'published',
+featured_image VARCHAR(255) NULL,
+tags JSON NULL,
+published_at TIMESTAMP NULL,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE project_comments (
+id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+project_id BIGINT UNSIGNED NOT NULL,
+user_id BIGINT UNSIGNED NOT NULL,
+content TEXT NOT NULL,
+parent_comment_id BIGINT UNSIGNED NULL,
+is_hidden TINYINT(1) DEFAULT 0,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+FOREIGN KEY (parent_comment_id) REFERENCES project_comments(id) ON DELETE SET NULL
+);
+
+CREATE TABLE milestone_vote_snapshots (
+id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+milestone_id BIGINT UNSIGNED NOT NULL,
+snapshot_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+total_raised DECIMAL(15,2) DEFAULT 0.00,
+snapshot_json JSON NULL,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+FOREIGN KEY (milestone_id) REFERENCES project_milestones(id) ON DELETE CASCADE
+);
