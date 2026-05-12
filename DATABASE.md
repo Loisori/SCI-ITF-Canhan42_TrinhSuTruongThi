@@ -40,6 +40,382 @@ erDiagram
 	PROJECTS ||--o{ PROJECT_DISPUTES : disputes
 ```
 
+DBML diagram (dbdiagram.io) — khái quát entity chính:
+
+```dbml
+Project investpro {
+  database_type: "MySQL"
+  Note: "InvestPro crowdfunding and micro-investment schema"
+}
+
+Enum user_role {
+  investor
+  owner
+  admin
+}
+
+Enum project_risk_level {
+  low
+  medium
+  high
+}
+
+Enum project_status {
+  pending
+  funding
+  active
+  pending_admin_review
+  completed
+  overdue
+  failed
+}
+
+Enum media_type {
+  image
+  video
+}
+
+Enum milestone_status {
+  pending
+  uploading_proof
+  voting
+  admin_review
+  disbursed
+  completed
+  rejected
+  disputed
+}
+
+Enum investment_status {
+  active
+  completed
+  withdrawn
+}
+
+Enum schedule_status {
+  unpaid
+  paid
+  overdue
+}
+
+Enum transaction_type {
+  deposit
+  withdrawal
+  invest
+  interest_receive
+  refund
+  disbursement
+  repayment
+  repay_interest
+  repay_principal
+  system_fee
+  system_log
+}
+
+Enum transaction_status {
+  pending
+  success
+  failed
+}
+
+Enum dispute_status {
+  open
+  resolved
+  refunded
+}
+
+Enum notification_type {
+  PROJECT_UPDATE
+  INVESTMENT_RECEIVED
+  PAYMENT_SUCCESS
+  SYSTEM
+}
+
+Enum chat_role {
+  user
+  model
+  system
+}
+
+Enum kyc_status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+Enum blog_status {
+  draft
+  published
+  archived
+}
+
+Table users {
+  id bigint [pk, increment]
+  email varchar(150) [not null, unique]
+  password varchar(255) [not null]
+  full_name varchar(100) [not null]
+  role user_role [default: "investor"]
+  balance decimal(15,2) [default: 0.00]
+  avatar_url varchar(255)
+  is_verified boolean [default: false]
+  bio text
+  cover_photo_url varchar(255)
+  social_links json
+  notification_settings json
+  is_frozen boolean [default: false]
+  slug varchar(150) [unique]
+  address varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table project_categories {
+  id bigint [pk, increment]
+  name varchar(100) [not null]
+  slug varchar(100) [not null, unique]
+  description text
+  icon_url varchar(255)
+  created_at timestamp
+}
+
+Table projects {
+  id bigint [pk, increment]
+  owner_id bigint [not null]
+  category_id bigint [not null]
+  title varchar(255) [not null]
+  slug varchar(255) [not null, unique]
+  address varchar(255)
+  short_description text
+  content longtext
+  goal_amount decimal(15,2) [not null]
+  current_amount decimal(15,2) [default: 0.00]
+  min_investment decimal(15,2) [not null]
+  interest_rate decimal(5,2) [not null]
+  commission_rate decimal(5,2)
+  duration_months int [not null]
+  risk_level project_risk_level [default: "medium"]
+  status project_status [default: "pending"]
+  start_date date
+  end_date date
+  is_frozen boolean [default: false]
+  allow_overfunding boolean [default: false]
+  total_debt decimal(15,2) [default: 0.00]
+  owner_tier int [default: 1]
+  created_at timestamp
+}
+
+Table project_media {
+  id int [pk, increment]
+  project_id bigint [not null]
+  url varchar(255) [not null]
+  type media_type [default: "image"]
+  is_thumbnail boolean [default: false]
+  sort_order int [default: 0]
+}
+
+Table project_milestones {
+  id int [pk, increment]
+  project_id bigint [not null]
+  title varchar(255) [not null]
+  content text
+  percentage int [not null]
+  stage int [not null]
+  status milestone_status [default: "pending"]
+  evidence_urls text
+  disbursement_date timestamp
+  voting_ends_at timestamp
+  rejection_reason text
+  interval_days int [default: 0]
+  next_disbursement_date timestamp
+  created_at timestamp
+}
+
+Table milestone_discussions {
+  id int [pk, increment]
+  milestone_id int [not null]
+  sender_id bigint [not null]
+  content text [not null]
+  created_at timestamp
+}
+
+Table milestone_votes {
+  id int [pk, increment]
+  milestone_id int [not null]
+  user_id bigint [not null]
+  is_approve boolean [not null]
+  comment text
+  investor_capital decimal(15,2) [default: 0.00]
+  created_at timestamp
+}
+
+Table milestone_vote_snapshots {
+  id bigint [pk, increment]
+  milestone_id int [not null]
+  snapshot_at timestamp
+  total_raised decimal(15,2) [default: 0.00]
+  snapshot_json json
+  created_at timestamp
+}
+
+Table investments {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  project_id bigint [not null]
+  amount decimal(15,2) [not null]
+  status investment_status [default: "active"]
+  invested_at timestamp
+}
+
+Table payment_schedules {
+  id int [pk, increment]
+  investment_id bigint [not null]
+  due_date date [not null]
+  amount decimal(15,2) [not null]
+  status schedule_status [default: "unpaid"]
+  paid_at timestamp
+}
+
+Table transactions {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  amount decimal(15,2) [not null]
+  type transaction_type [not null]
+  status transaction_status [default: "success"]
+  description varchar(255)
+  reference_id int
+  parent_transaction_id bigint
+  bank_name varchar(100)
+  account_number varchar(50)
+  created_at timestamp
+}
+
+Table project_disputes {
+  id int [pk, increment]
+  project_id bigint [not null]
+  user_id bigint [not null]
+  reason text [not null]
+  evidence_url text
+  status dispute_status [default: "open"]
+  created_at timestamp
+}
+
+Table user_favorite_categories {
+  user_id bigint [not null]
+  category_id bigint [not null]
+
+  indexes {
+    (user_id, category_id) [pk]
+  }
+}
+
+Table user_blacklist_categories {
+  user_id bigint [not null]
+  category_id bigint [not null]
+
+  indexes {
+    (user_id, category_id) [pk]
+  }
+}
+
+Table notifications {
+  id int [pk, increment]
+  user_id bigint [not null]
+  message text [not null]
+  type notification_type [default: "SYSTEM"]
+  is_read boolean [default: false]
+  created_at timestamp
+}
+
+Table chat_history {
+  id int [pk, increment]
+  user_id bigint [not null]
+  role chat_role [not null]
+  message text [not null]
+  project_context json
+  created_at timestamp
+
+  indexes {
+    (user_id, created_at) [name: "idx_chat_history_user_created_at"]
+  }
+}
+
+Table user_media {
+  id int [pk, increment]
+  user_id bigint [not null]
+  url varchar(1024) [not null]
+  public_id varchar(255) [not null]
+  file_name varchar(255)
+  file_size int
+  created_at timestamp
+}
+
+Table kycs {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  id_card_number varchar(50) [not null]
+  front_image_url varchar(255) [not null]
+  back_image_url varchar(255) [not null]
+  status kyc_status [default: "PENDING"]
+  rejection_reason text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table blogs {
+  id bigint [pk, increment]
+  author_id bigint
+  title varchar(255) [not null]
+  slug varchar(255) [not null, unique]
+  summary text
+  content longtext
+  status blog_status [default: "published"]
+  featured_image varchar(255)
+  tags json
+  published_at timestamp
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table project_comments {
+  id bigint [pk, increment]
+  project_id bigint [not null]
+  user_id bigint [not null]
+  content text [not null]
+  parent_comment_id bigint
+  is_hidden boolean [default: false]
+  created_at timestamp
+}
+
+Ref: projects.owner_id > users.id [delete: cascade]
+Ref: projects.category_id > project_categories.id
+Ref: project_media.project_id > projects.id [delete: cascade]
+Ref: project_milestones.project_id > projects.id [delete: cascade]
+Ref: milestone_discussions.milestone_id > project_milestones.id [delete: cascade]
+Ref: milestone_discussions.sender_id > users.id [delete: cascade]
+Ref: milestone_votes.milestone_id > project_milestones.id [delete: cascade]
+Ref: milestone_votes.user_id > users.id [delete: cascade]
+Ref: milestone_vote_snapshots.milestone_id > project_milestones.id [delete: cascade]
+Ref: investments.user_id > users.id [delete: cascade]
+Ref: investments.project_id > projects.id [delete: cascade]
+Ref: payment_schedules.investment_id > investments.id [delete: cascade]
+Ref: transactions.user_id > users.id [delete: cascade]
+Ref: transactions.parent_transaction_id > transactions.id [delete: set null]
+Ref: project_disputes.project_id > projects.id [delete: cascade]
+Ref: project_disputes.user_id > users.id [delete: cascade]
+Ref: user_favorite_categories.user_id > users.id [delete: cascade]
+Ref: user_favorite_categories.category_id > project_categories.id [delete: cascade]
+Ref: user_blacklist_categories.user_id > users.id [delete: cascade]
+Ref: user_blacklist_categories.category_id > project_categories.id [delete: cascade]
+Ref: notifications.user_id > users.id [delete: cascade]
+Ref: chat_history.user_id > users.id [delete: cascade]
+Ref: user_media.user_id > users.id [delete: cascade]
+Ref: kycs.user_id > users.id [delete: cascade]
+Ref: blogs.author_id > users.id [delete: set null]
+Ref: project_comments.project_id > projects.id [delete: cascade]
+Ref: project_comments.user_id > users.id [delete: cascade]
+Ref: project_comments.parent_comment_id > project_comments.id [delete: set null]
+```
+
 Ghi chú kiến trúc & vận hành:
 
 - Escrow/milestone: tiền investor được ghi nhận trong ledger (`transactions`) và chỉ disburse theo milestone khi thỏa điều kiện (admin review hoặc capital-weighted vote).
