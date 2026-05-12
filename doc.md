@@ -1537,4 +1537,55 @@ sequenceDiagram
     S->>D: Trừ ví O, Cộng ví Investors, Cập nhật Payment Schedule = Paid
     D-->>S: Giao dịch tài chính hoàn tất
     S-->>O: Thông báo đã trả nợ kỳ hạn thành công
-```                     
+```
+
+### Diagram UI-026: Xem danh sách blog công khai
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as Người dùng (Investor/Owner/Guest)
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>S: Mở trang Blog hoặc nhập từ khóa tìm kiếm
+    S->>D: Truy vấn danh sách blog đã xuất bản theo page/search
+    D-->>S: Trả về danh sách bài viết và metadata phân trang
+    Note over S: Chỉ trả về bài viết status = published
+    S-->>U: Hiển thị danh sách blog công khai
+```
+
+### Diagram UI-027: Xem chi tiết bài blog
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as Người dùng (Investor/Owner/Guest)
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    U->>S: Chọn bài viết và truy cập /blogs/:slug
+    S->>D: Tìm bài blog theo slug và trạng thái published
+    D-->>S: Trả về tiêu đề, thumbnail, category và content
+    Note over S: Nếu không tồn tại, trả về lỗi không tìm thấy
+    S-->>U: Hiển thị nội dung chi tiết bài blog
+```
+
+### Diagram UI-028: Quản lý bài viết blog
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Admin
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    A->>S: Mở trang quản lý Blog trong Admin Dashboard
+    S->>D: Truy vấn danh sách bài viết theo page/search
+    D-->>S: Trả về danh sách bài viết và trạng thái
+    A->>S: Tạo mới, cập nhật hoặc xóa bài viết
+    Note over S: Xác thực JWT và kiểm tra quyền ADMIN
+    S->>D: Lưu thay đổi vào bảng blogs
+    D-->>S: Cập nhật thành công
+    S-->>A: Làm mới danh sách và hiển thị thông báo kết quả
+```
