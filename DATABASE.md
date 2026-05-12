@@ -416,6 +416,269 @@ Ref: project_comments.user_id > users.id [delete: cascade]
 Ref: project_comments.parent_comment_id > project_comments.id [delete: set null]
 ```
 
+Mô hình quan hệ — dạng lược đồ quan hệ:
+
+```text
+users(
+  id PK,
+  email UNIQUE,
+  password,
+  full_name,
+  role,
+  balance,
+  avatar_url,
+  is_verified,
+  bio,
+  cover_photo_url,
+  social_links,
+  notification_settings,
+  is_frozen,
+  slug UNIQUE,
+  address,
+  created_at,
+  updated_at
+)
+
+project_categories(
+  id PK,
+  name,
+  slug UNIQUE,
+  description,
+  icon_url,
+  created_at
+)
+
+projects(
+  id PK,
+  owner_id FK -> users.id,
+  category_id FK -> project_categories.id,
+  title,
+  slug UNIQUE,
+  address,
+  short_description,
+  content,
+  goal_amount,
+  current_amount,
+  min_investment,
+  interest_rate,
+  commission_rate,
+  duration_months,
+  risk_level,
+  status,
+  start_date,
+  end_date,
+  is_frozen,
+  allow_overfunding,
+  total_debt,
+  owner_tier,
+  created_at
+)
+
+project_media(
+  id PK,
+  project_id FK -> projects.id,
+  url,
+  type,
+  is_thumbnail,
+  sort_order
+)
+
+project_milestones(
+  id PK,
+  project_id FK -> projects.id,
+  title,
+  content,
+  percentage,
+  stage,
+  status,
+  evidence_urls,
+  disbursement_date,
+  voting_ends_at,
+  rejection_reason,
+  interval_days,
+  next_disbursement_date,
+  created_at
+)
+
+milestone_discussions(
+  id PK,
+  milestone_id FK -> project_milestones.id,
+  sender_id FK -> users.id,
+  content,
+  created_at
+)
+
+milestone_votes(
+  id PK,
+  milestone_id FK -> project_milestones.id,
+  user_id FK -> users.id,
+  is_approve,
+  comment,
+  investor_capital,
+  created_at
+)
+
+milestone_vote_snapshots(
+  id PK,
+  milestone_id FK -> project_milestones.id,
+  snapshot_at,
+  total_raised,
+  snapshot_json,
+  created_at
+)
+
+investments(
+  id PK,
+  user_id FK -> users.id,
+  project_id FK -> projects.id,
+  amount,
+  status,
+  invested_at
+)
+
+payment_schedules(
+  id PK,
+  investment_id FK -> investments.id,
+  due_date,
+  amount,
+  status,
+  paid_at
+)
+
+transactions(
+  id PK,
+  user_id FK -> users.id,
+  amount,
+  type,
+  status,
+  description,
+  reference_id,
+  parent_transaction_id FK -> transactions.id,
+  bank_name,
+  account_number,
+  created_at
+)
+
+project_disputes(
+  id PK,
+  project_id FK -> projects.id,
+  user_id FK -> users.id,
+  reason,
+  evidence_url,
+  status,
+  created_at
+)
+
+user_favorite_categories(
+  user_id PK, FK -> users.id,
+  category_id PK, FK -> project_categories.id
+)
+
+user_blacklist_categories(
+  user_id PK, FK -> users.id,
+  category_id PK, FK -> project_categories.id
+)
+
+notifications(
+  id PK,
+  user_id FK -> users.id,
+  message,
+  type,
+  is_read,
+  created_at
+)
+
+chat_history(
+  id PK,
+  user_id FK -> users.id,
+  role,
+  message,
+  project_context,
+  created_at
+)
+
+user_media(
+  id PK,
+  user_id FK -> users.id,
+  url,
+  public_id,
+  file_name,
+  file_size,
+  created_at
+)
+
+kycs(
+  id PK,
+  user_id FK -> users.id,
+  id_card_number,
+  front_image_url,
+  back_image_url,
+  status,
+  rejection_reason,
+  created_at,
+  updated_at
+)
+
+blogs(
+  id PK,
+  author_id FK -> users.id,
+  title,
+  slug UNIQUE,
+  summary,
+  content,
+  status,
+  featured_image,
+  tags,
+  published_at,
+  created_at,
+  updated_at
+)
+
+project_comments(
+  id PK,
+  project_id FK -> projects.id,
+  user_id FK -> users.id,
+  content,
+  parent_comment_id FK -> project_comments.id,
+  is_hidden,
+  created_at
+)
+```
+
+Mô hình quan hệ — tóm tắt liên kết:
+
+```text
+users 1--N projects
+project_categories 1--N projects
+projects 1--N project_media
+projects 1--N project_milestones
+project_milestones 1--N milestone_discussions
+project_milestones 1--N milestone_votes
+project_milestones 1--N milestone_vote_snapshots
+
+users 1--N investments
+projects 1--N investments
+investments 1--N payment_schedules
+
+users 1--N transactions
+transactions 1--N transactions
+
+projects 1--N project_disputes
+users 1--N project_disputes
+projects 1--N project_comments
+users 1--N project_comments
+project_comments 1--N project_comments
+
+users 1--N kycs
+users 1--N notifications
+users 1--N chat_history
+users 1--N user_media
+users 1--N blogs
+
+users N--N project_categories through user_favorite_categories
+users N--N project_categories through user_blacklist_categories
+```
+
 Ghi chú kiến trúc & vận hành:
 
 - Escrow/milestone: tiền investor được ghi nhận trong ledger (`transactions`) và chỉ disburse theo milestone khi thỏa điều kiện (admin review hoặc capital-weighted vote).
