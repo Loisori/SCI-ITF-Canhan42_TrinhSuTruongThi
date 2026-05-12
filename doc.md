@@ -1589,3 +1589,716 @@ sequenceDiagram
     D-->>S: Cập nhật thành công
     S-->>A: Làm mới danh sách và hiển thị thông báo kết quả
 ```
+
+## PlantUML Activity Diagrams (PlantText)
+
+### PlantUML UI-001: Đăng ký tài khoản
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-001 - Đăng ký tài khoản
+|Người dùng|
+start
+:Mở màn hình đăng ký;
+:Nhập thông tin tài khoản;
+:Gửi yêu cầu đăng ký;
+|Hệ thống|
+:Kiểm tra dữ liệu và email;
+if (Hợp lệ?) then (Có)
+  :Hash mật khẩu;
+  :Tạo tài khoản mới;
+  |Người dùng|
+  :Nhận thông báo đăng ký thành công;
+  stop
+else (Không)
+  |Người dùng|
+  :Nhận lỗi và nhập lại thông tin;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-002: Đăng nhập hệ thống
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-002 - Đăng nhập hệ thống
+|Người dùng|
+start
+:Yêu cầu đăng nhập vào hệ thống;
+:Nhập email và mật khẩu;
+|Hệ thống|
+:Xác thực thông tin đăng nhập;
+if (Hợp lệ?) then (Có)
+  :Cấp token và tải hồ sơ người dùng;
+  |Người dùng|
+  :Truy cập dashboard tương ứng;
+  stop
+else (Không)
+  |Người dùng|
+  :Nhận lỗi và đăng nhập lại;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-003: Xem hồ sơ cá nhân và thông tin tài khoản
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-003 - Xem hồ sơ cá nhân
+|Người dùng|
+start
+:Truy cập dashboard hoặc trang profile;
+|Hệ thống|
+:Kiểm tra đăng nhập;
+if (Đã đăng nhập?) then (Có)
+  :Tải hồ sơ, vai trò và số dư ví;
+  |Người dùng|
+  :Xem thông tin tài khoản;
+  stop
+else (Không)
+  |Người dùng|
+  :Được yêu cầu đăng nhập lại;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-004: Cập nhật hồ sơ và ảnh đại diện
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-004 - Cập nhật hồ sơ và ảnh đại diện
+|Người dùng|
+start
+:Mở màn hình cài đặt;
+:Chỉnh sửa hồ sơ hoặc chọn ảnh đại diện;
+:Gửi yêu cầu cập nhật;
+|Hệ thống|
+:Kiểm tra dữ liệu và file ảnh;
+if (Hợp lệ?) then (Có)
+  :Cập nhật hồ sơ người dùng;
+  |Người dùng|
+  :Nhận kết quả cập nhật;
+  stop
+else (Không)
+  |Người dùng|
+  :Nhận lỗi và sửa lại;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-005: Đổi mật khẩu tài khoản
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-005 - Đổi mật khẩu tài khoản
+|Người dùng|
+start
+:Mở chức năng đổi mật khẩu;
+:Nhập mật khẩu cũ và mật khẩu mới;
+|Hệ thống|
+:Xác thực mật khẩu cũ;
+:Kiểm tra điều kiện mật khẩu mới;
+if (Hợp lệ?) then (Có)
+  :Hash và lưu mật khẩu mới;
+  |Người dùng|
+  :Nhận thông báo đổi mật khẩu thành công;
+  stop
+else (Không)
+  |Người dùng|
+  :Nhận lỗi và nhập lại;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-006: Cài đặt thông báo và sở thích danh mục
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-006 - Cài đặt thông báo và sở thích danh mục
+|Người dùng|
+start
+:Mở phần thông báo và sở thích;
+:Thay đổi tùy chọn cá nhân;
+|Hệ thống|
+:Kiểm tra dữ liệu tùy chọn;
+if (Hợp lệ?) then (Có)
+  :Lưu cấu hình người dùng;
+  |Người dùng|
+  :Thấy trạng thái mới được đồng bộ;
+  stop
+else (Không)
+  |Người dùng|
+  :Nhận lỗi và sửa lại;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-007: Nộp KYC và theo dõi trạng thái xác minh
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-007 - Nộp KYC và theo dõi trạng thái
+|Người dùng|
+start
+:Mở màn hình KYC;
+:Nhập thông tin và tải ảnh giấy tờ;
+:Gửi hồ sơ xác minh;
+|Hệ thống|
+:Kiểm tra dữ liệu KYC;
+if (Hợp lệ?) then (Có)
+  :Lưu hồ sơ với trạng thái chờ duyệt;
+  |Người dùng|
+  :Theo dõi trạng thái xác minh;
+  stop
+else (Không)
+  |Người dùng|
+  :Nhận lỗi và bổ sung hồ sơ;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-008: Nạp tiền vào ví
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-008 - Nạp tiền vào ví
+|Người dùng|
+start
+:Mở màn hình nạp tiền;
+:Nhập số tiền và chọn VNPAY/MoMo;
+:Xác nhận thanh toán;
+|Hệ thống|
+:Tạo giao dịch nạp tiền;
+:Chuyển đến cổng thanh toán;
+:Nhận kết quả thanh toán;
+if (Thanh toán thành công?) then (Có)
+  :Cộng số dư ví và cập nhật giao dịch;
+  |Người dùng|
+  :Nhận thông báo nạp tiền thành công;
+  stop
+else (Không)
+  :Cập nhật giao dịch thất bại;
+  |Người dùng|
+  :Nhận thông báo thanh toán thất bại;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-009: Rút tiền khỏi ví
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-009 - Rút tiền khỏi ví
+|Người dùng|
+start
+:Mở màn hình rút tiền;
+:Nhập số tiền và thông tin ngân hàng;
+:Gửi yêu cầu rút tiền;
+|Hệ thống|
+:Kiểm tra số dư khả dụng;
+if (Đủ số dư?) then (Có)
+  :Tạo yêu cầu rút tiền chờ duyệt;
+  |Người dùng|
+  :Nhận thông báo yêu cầu đã được gửi;
+  stop
+else (Không)
+  |Người dùng|
+  :Nhận lỗi số dư không đủ;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-010: Xem lịch sử giao dịch cá nhân
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-010 - Xem lịch sử giao dịch cá nhân
+|Người dùng|
+start
+:Mở mục lịch sử giao dịch;
+:Chọn bộ lọc nếu cần;
+|Hệ thống|
+:Tải danh sách giao dịch cá nhân;
+if (Có dữ liệu?) then (Có)
+  |Người dùng|
+  :Xem bảng lịch sử giao dịch;
+  stop
+else (Không)
+  |Người dùng|
+  :Xem trạng thái không có giao dịch;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-011: Quản lý thông báo trong ứng dụng
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-011 - Quản lý thông báo trong ứng dụng
+|Người dùng|
+start
+:Mở danh sách thông báo;
+|Hệ thống|
+:Tải thông báo và số lượng chưa đọc;
+|Người dùng|
+:Chọn đọc hoặc đánh dấu đã đọc;
+|Hệ thống|
+:Cập nhật trạng thái thông báo;
+|Người dùng|
+:Nhận danh sách thông báo mới;
+stop
+@enduml
+```
+
+### PlantUML UI-012: Sử dụng AI Chatbox hỗ trợ phân tích
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-012 - Sử dụng AI Chatbox
+|Người dùng|
+start
+:Mở AI Chatbox;
+:Nhập câu hỏi cần hỗ trợ;
+|Hệ thống|
+:Lấy dữ liệu ngữ cảnh;
+:Gửi prompt đến AI service;
+if (Có phản hồi?) then (Có)
+  :Lưu lịch sử chat;
+  |Người dùng|
+  :Nhận câu trả lời từ AI;
+  stop
+else (Không)
+  |Người dùng|
+  :Nhận thông báo không thể xử lý;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-013: Quản lý thư viện media trên giao diện
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-013 - Quản lý thư viện media
+|Người dùng|
+start
+:Mở thư viện media;
+:Chọn upload hoặc xóa file;
+|Hệ thống|
+:Kiểm tra thao tác và dữ liệu media;
+if (Hợp lệ?) then (Có)
+  :Upload/xóa file và cập nhật metadata;
+  |Người dùng|
+  :Nhận danh sách media mới;
+  stop
+else (Không)
+  |Người dùng|
+  :Nhận lỗi thao tác media;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-014: Tìm kiếm và xem danh sách dự án
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-014 - Tìm kiếm và xem danh sách dự án
+|Người dùng|
+start
+:Mở trang danh sách dự án;
+:Nhập từ khóa hoặc chọn danh mục;
+|Hệ thống|
+:Truy vấn dự án theo điều kiện lọc;
+if (Có kết quả?) then (Có)
+  |Người dùng|
+  :Xem danh sách dự án phù hợp;
+  stop
+else (Không)
+  |Người dùng|
+  :Xem trạng thái không có kết quả;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-015: Xem chi tiết dự án và hồ sơ công khai
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-015 - Xem chi tiết dự án và hồ sơ công khai
+|Người dùng|
+start
+:Chọn một dự án;
+|Hệ thống|
+:Tải chi tiết dự án, media, milestones và owner;
+if (Tồn tại?) then (Có)
+  |Người dùng|
+  :Xem chi tiết dự án và hồ sơ công khai;
+  stop
+else (Không)
+  |Người dùng|
+  :Nhận thông báo không tìm thấy;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-016: Đầu tư vào dự án
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-016 - Đầu tư vào dự án
+|Nhà đầu tư|
+start
+:Mở chi tiết dự án;
+:Nhập số tiền đầu tư;
+:Xác nhận đầu tư;
+|Hệ thống|
+:Kiểm tra KYC, số dư và trạng thái dự án;
+if (Đủ điều kiện?) then (Có)
+  :Tạo khoản đầu tư và giao dịch;
+  :Cập nhật số vốn dự án;
+  |Nhà đầu tư|
+  :Nhận thông báo đầu tư thành công;
+  stop
+else (Không)
+  |Nhà đầu tư|
+  :Nhận lỗi và điều chỉnh lại;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-017: Theo dõi danh mục đầu tư và chỉ số cá nhân
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-017 - Theo dõi danh mục đầu tư
+|Nhà đầu tư|
+start
+:Mở mục danh mục đầu tư;
+|Hệ thống|
+:Tải các khoản đầu tư và chỉ số cá nhân;
+if (Có khoản đầu tư?) then (Có)
+  |Nhà đầu tư|
+  :Xem portfolio, lợi nhuận và biểu đồ;
+  stop
+else (Không)
+  |Nhà đầu tư|
+  :Xem trạng thái chưa có khoản đầu tư;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-018: Tạo khiếu nại dự án
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-018 - Tạo khiếu nại dự án
+|Nhà đầu tư|
+start
+:Mở chức năng khiếu nại dự án;
+:Nhập lý do và minh chứng;
+:Gửi khiếu nại;
+|Hệ thống|
+:Kiểm tra quyền khiếu nại;
+if (Đủ điều kiện?) then (Có)
+  :Tạo dispute trạng thái mở;
+  :Cập nhật danh sách tranh chấp;
+  |Nhà đầu tư|
+  :Nhận thông báo đã gửi khiếu nại;
+  stop
+else (Không)
+  |Nhà đầu tư|
+  :Nhận lỗi không thể khiếu nại;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-019: Tham gia voting milestone và xem thảo luận
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-019 - Voting milestone và xem thảo luận
+|Nhà đầu tư|
+start
+:Mở milestone đang voting;
+:Xem bằng chứng và thảo luận;
+:Gửi phiếu biểu quyết;
+|Hệ thống|
+:Kiểm tra quyền vote và trạng thái milestone;
+if (Hợp lệ?) then (Có)
+  :Lưu phiếu vote và cập nhật kết quả;
+  |Nhà đầu tư|
+  :Nhận kết quả biểu quyết hiện tại;
+  stop
+else (Không)
+  |Nhà đầu tư|
+  :Nhận lỗi không thể voting;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-020: Tạo dự án mới
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-020 - Tạo dự án mới
+|Chủ dự án|
+start
+:Mở màn hình tạo dự án;
+:Nhập thông tin dự án và milestones;
+:Gửi dự án để xét duyệt;
+|Hệ thống|
+:Kiểm tra vai trò và dữ liệu dự án;
+if (Hợp lệ?) then (Có)
+  :Lưu dự án trạng thái chờ duyệt;
+  |Chủ dự án|
+  :Nhận thông báo dự án đã được gửi;
+  stop
+else (Không)
+  |Chủ dự án|
+  :Nhận lỗi và sửa lại;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-021: Cập nhật thông tin dự án
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-021 - Cập nhật thông tin dự án
+|Chủ dự án|
+start
+:Mở trang chỉnh sửa dự án;
+:Cập nhật thông tin, nội dung hoặc media;
+:Gửi yêu cầu lưu;
+|Hệ thống|
+:Kiểm tra quyền sở hữu và dữ liệu;
+if (Hợp lệ?) then (Có)
+  :Cập nhật thông tin dự án;
+  |Chủ dự án|
+  :Nhận kết quả cập nhật;
+  stop
+else (Không)
+  |Chủ dự án|
+  :Nhận lỗi và sửa lại;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-022: Quản lý milestones của dự án
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-022 - Quản lý milestones của dự án
+|Chủ dự án|
+start
+:Mở mục milestones của dự án;
+:Cập nhật kế hoạch hoặc nộp bằng chứng;
+|Hệ thống|
+:Kiểm tra quyền và trạng thái milestone;
+if (Hợp lệ?) then (Có)
+  :Lưu milestone hoặc evidence URL;
+  :Cập nhật trạng thái xử lý;
+  |Chủ dự án|
+  :Nhận kết quả cập nhật milestone;
+  stop
+else (Không)
+  |Chủ dự án|
+  :Nhận lỗi và sửa lại;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-023: Dừng huy động vốn sớm
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-023 - Dừng huy động vốn sớm
+|Chủ dự án|
+start
+:Mở dự án đang huy động vốn;
+:Chọn dừng huy động sớm;
+:Xác nhận thao tác;
+|Hệ thống|
+:Kiểm tra quyền và điều kiện dừng;
+if (Đủ điều kiện?) then (Có)
+  :Cập nhật trạng thái dự án;
+  |Chủ dự án|
+  :Nhận thông báo dừng huy động thành công;
+  stop
+else (Không)
+  |Chủ dự án|
+  :Nhận lỗi không thể dừng huy động;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-024: Theo dõi danh sách dự án của tôi
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-024 - Theo dõi danh sách dự án của tôi
+|Chủ dự án|
+start
+:Mở mục dự án của tôi;
+|Hệ thống|
+:Tải danh sách dự án theo owner;
+if (Có dự án?) then (Có)
+  |Chủ dự án|
+  :Xem danh sách và trạng thái dự án;
+  stop
+else (Không)
+  |Chủ dự án|
+  :Xem trạng thái chưa có dự án;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-025: Thanh toán nợ dự án
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-025 - Thanh toán nợ dự án
+|Chủ dự án|
+start
+:Mở mục repayment;
+:Chọn kỳ hạn thanh toán;
+:Xác nhận thanh toán;
+|Hệ thống|
+:Kiểm tra lịch trả nợ và số dư ví;
+if (Đủ điều kiện?) then (Có)
+  :Trừ ví chủ dự án;
+  :Phân bổ tiền cho nhà đầu tư và hệ thống;
+  :Cập nhật lịch trả nợ;
+  |Chủ dự án|
+  :Nhận thông báo thanh toán thành công;
+  stop
+else (Không)
+  |Chủ dự án|
+  :Nhận lỗi không thể thanh toán;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-026: Xem danh sách blog công khai
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-026 - Xem danh sách blog công khai
+|Người dùng/Khách|
+start
+:Mở trang blog;
+:Nhập từ khóa nếu cần;
+|Hệ thống|
+:Tải danh sách blog đã xuất bản;
+if (Có bài viết?) then (Có)
+  |Người dùng/Khách|
+  :Xem danh sách blog;
+  stop
+else (Không)
+  |Người dùng/Khách|
+  :Xem trạng thái không có bài viết;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-027: Xem chi tiết bài blog
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-027 - Xem chi tiết bài blog
+|Người dùng/Khách|
+start
+:Chọn một bài blog;
+|Hệ thống|
+:Tải bài viết theo slug;
+if (Tồn tại?) then (Có)
+  |Người dùng/Khách|
+  :Xem nội dung chi tiết bài viết;
+  stop
+else (Không)
+  |Người dùng/Khách|
+  :Nhận thông báo không tìm thấy;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-028: Quản lý bài viết blog
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-028 - Quản lý bài viết blog
+|Người quản trị|
+start
+:Mở trang quản lý blog;
+|Hệ thống|
+:Kiểm tra đăng nhập và quyền admin;
+:Tải danh sách bài viết;
+|Người quản trị|
+:Chọn tạo mới/chỉnh sửa/xóa bài viết;
+|Hệ thống|
+:Kiểm tra dữ liệu bài viết;
+if (Hợp lệ?) then (Có)
+  :Lưu thay đổi và cập nhật danh sách;
+  |Người quản trị|
+  :Nhận kết quả cập nhật;
+  stop
+else (Không)
+  |Người quản trị|
+  :Nhận lỗi và sửa lại;
+  stop
+endif
+@enduml
+```
