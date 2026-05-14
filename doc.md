@@ -2590,3 +2590,111 @@ else (Không hoặc có rủi ro)
 endif
 @enduml
 ```
+
+```mermaid
+classDiagram
+direction LR
+    class User {
+	    +Long id
+	    +String email
+	    +String fullName
+	    +UserRole role
+	    +Decimal balance
+	    +Boolean isVerified
+	    +Boolean isFrozen
+	    +DateTime createdAt
+	    +DateTime updatedAt
+	    +register(email, password, role) User
+	    +login(email, password) AuthToken
+	    +updateProfile(profileData) User
+	    +submitKyc(kycData) Kyc
+	    +freezeAccount(reason) User
+	    +adjustBalance(amount) Decimal
+    }
+
+    class Project {
+	    +Long id
+	    +Long ownerId
+	    +String title
+	    +String slug
+	    +Decimal goalAmount
+	    +Decimal currentAmount
+	    +Decimal minInvestment
+	    +Decimal interestRate
+	    +Integer durationMonths
+	    +ProjectStatus status
+	    +Boolean isFrozen
+	    +Decimal totalDebt
+	    +DateTime createdAt
+	    +create(ownerId, projectData) Project
+	    +update(projectData) Project
+	    +submitForReview() Project
+	    +approve() Project
+	    +reject(reason) Project
+	    +startFunding() Project
+	    +freeze(reason) Project
+	    +terminate(reason) Project
+	    +calculateFundingProgress() Decimal
+	    +calculateTotalDebt() Decimal
+    }
+
+    class ProjectMilestone {
+	    +Integer id
+	    +Long projectId
+	    +String title
+	    +Integer percentage
+	    +Integer stage
+	    +MilestoneStatus status
+	    +String evidenceUrls
+	    +DateTime disbursementDate
+	    +DateTime votingEndsAt
+	    +create(projectId, data) ProjectMilestone
+	    +update(data) ProjectMilestone
+	    +uploadProof(evidenceUrls) ProjectMilestone
+	    +startVoting() ProjectMilestone
+	    +rejectByAdmin(reason) ProjectMilestone
+	    +disburseFunds() ProjectMilestone
+	    +markDisputed() ProjectMilestone
+    }
+
+    class Investment {
+	    +Long id
+	    +Long userId
+	    +Long projectId
+	    +Decimal amount
+	    +InvestmentStatus status
+	    +DateTime investedAt
+	    +createInvestment(userId, projectId, amount) Investment
+	    +withdraw() Investment
+	    +complete() Investment
+	    +calculateOwnershipRate() Decimal
+    }
+
+    class Transaction {
+	    +Long id
+	    +Long userId
+	    +Decimal amount
+	    +TransactionType type
+	    +TransactionStatus status
+	    +String description
+	    +Integer referenceId
+	    +Long parentTransactionId
+	    +DateTime createdAt
+	    +createDeposit(userId, amount) Transaction
+	    +createWithdrawal(userId, amount) Transaction
+	    +approve() Transaction
+	    +reject(reason) Transaction
+	    +markSuccess() Transaction
+	    +markFailed(reason) Transaction
+	    +createDisbursement(userId, amount, referenceId) Transaction
+    }
+
+    User "1" -- "0..*" Project : owns
+    Project "1" -- "0..*" ProjectMilestone : has
+    User "1" -- "0..*" Investment : invests
+    Project "1" -- "0..*" Investment : receives
+    User "1" -- "0..*" Transaction : makes
+    Investment "1" -- "0..*" Transaction : records
+    ProjectMilestone "0..1" -- "0..*" Transaction : disburses
+    Transaction "0..1" -- "0..*" Transaction : parent_child
+```
