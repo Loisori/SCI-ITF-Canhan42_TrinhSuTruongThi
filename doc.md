@@ -1,12 +1,12 @@
-# Use Case Giao Diện Cho Investor Và Owner
+# Use Case Giao Diện Cho Investor, Owner Và Admin
 
 ## Tổng quan
 
-- Tổng số use case giao diện: 28
+- Tổng số use case giao diện: 31
 - Investor-only: 4
 - Owner-only: 6
 - Dùng chung Investor và Owner: 15
-- Blog/public/admin: 3
+- Blog/public/admin: 6
 - Phạm vi: chỉ các thao tác thực tế trên frontend (client/app, client/components).
 
 ## Danh mục use case
@@ -41,6 +41,9 @@
 | UI-026 | Xem danh sách blog công khai               | Investor, Owner, Guest           |
 | UI-027 | Xem chi tiết bài blog                      | Investor, Owner, Guest           |
 | UI-028 | Quản lý bài viết blog                      | Admin                            |
+| UI-029 | Duyệt hoặc từ chối dự án, hồ sơ, KYC, milestones và bằng chứng | Admin |
+| UI-030 | Quản lý người dùng, trạng thái tài khoản và quyền truy cập | Admin |
+| UI-031 | Phân phối giải ngân theo milestone và đóng băng khi cần | Admin |
 
 ## Chi tiết use case (mẫu giao diện)
 
@@ -1078,6 +1081,125 @@ Các yêu cầu cụ thể:
 
 - Bài viết blog được tạo, cập nhật hoặc xóa thành công.
 
+---
+
+### 2.2.29. Use case Duyệt hoặc từ chối dự án, hồ sơ, KYC, milestones và bằng chứng
+
+Mục đích: Cho phép Admin kiểm duyệt các hồ sơ quan trọng trước khi dự án hoặc người dùng được mở khóa chức năng trên hệ thống.
+
+Tác nhân, mô tả chung:
+
+- Tác nhân: Admin.
+- Mô tả chung: Admin mở các màn hình kiểm duyệt, xem chi tiết dự án/hồ sơ/KYC/milestone/bằng chứng và chọn duyệt hoặc từ chối kèm lý do.
+
+Luồng sự kiện chính
+Bảng 29. Luồng sự kiện chính use case Duyệt hoặc từ chối dự án, hồ sơ, KYC, milestones và bằng chứng
+
+| Hành động của tác nhân                                      | Phản ứng của hệ thống                                         |
+| ----------------------------------------------------------- | ------------------------------------------------------------- |
+| 1. Admin mở màn hình duyệt dự án, KYC hoặc milestone.       | 2. Hệ thống tải danh sách yêu cầu đang chờ kiểm duyệt.        |
+| 3. Admin chọn một yêu cầu để xem chi tiết hồ sơ/bằng chứng. | 4. Hệ thống hiển thị dữ liệu chi tiết và trạng thái hiện tại. |
+| 5. Admin chọn duyệt hoặc từ chối và nhập lý do nếu cần.     | 6. Hệ thống cập nhật trạng thái, lưu lịch sử và thông báo.    |
+
+Luồng thay thế:
+
+- 1. Thiếu quyền Admin hoặc yêu cầu không còn ở trạng thái chờ duyệt -> hệ thống từ chối thao tác.
+- 2. Từ chối nhưng thiếu lý do -> yêu cầu Admin nhập lý do trước khi gửi.
+
+Các yêu cầu cụ thể:
+
+- API: GET /api/admin/projects/pending, PATCH /api/admin/projects/:id/approve, PATCH /api/admin/projects/:id/reject
+- API: GET /api/users/kyc/pending, PATCH /api/users/kyc/:id/approve, PATCH /api/users/kyc/:id/reject, GET /api/users/kyc/image/:id/:type
+- API: GET /api/admin/projects/milestones/pending, PATCH /api/admin/projects/:id/milestones/:mId/reject, POST /api/admin/projects/milestones/:mId/feedback
+- Frontend: client/components/dashboard/views/admin/ProjectApprovals.tsx, client/components/dashboard/views/admin/KycAudit.tsx, client/components/dashboard/views/admin/Disbursements.tsx
+
+Điều kiện trước:
+
+- Admin đã đăng nhập và có quyền truy cập khu vực kiểm duyệt.
+
+Điều kiện sau:
+
+- Trạng thái dự án, KYC, milestone hoặc bằng chứng được cập nhật theo quyết định của Admin.
+
+---
+
+### 2.2.30. Use case Quản lý người dùng, trạng thái tài khoản và quyền truy cập
+
+Mục đích: Cho phép Admin theo dõi người dùng, phân quyền, kiểm soát trạng thái tài khoản và xử lý các yêu cầu tài chính liên quan.
+
+Tác nhân, mô tả chung:
+
+- Tác nhân: Admin.
+- Mô tả chung: Admin mở màn hình quản lý người dùng để lọc theo vai trò, xem thông tin tài khoản, cập nhật quyền truy cập hoặc xử lý trạng thái tài khoản khi cần.
+
+Luồng sự kiện chính
+Bảng 30. Luồng sự kiện chính use case Quản lý người dùng, trạng thái tài khoản và quyền truy cập
+
+| Hành động của tác nhân                                  | Phản ứng của hệ thống                                      |
+| ------------------------------------------------------- | ---------------------------------------------------------- |
+| 1. Admin mở màn hình quản lý người dùng.                | 2. Hệ thống tải danh sách người dùng theo vai trò/bộ lọc.  |
+| 3. Admin xem chi tiết số dư, vai trò và hoạt động chính. | 4. Hệ thống hiển thị dữ liệu tài khoản và giao dịch chờ.   |
+| 5. Admin cập nhật vai trò, quyền truy cập hoặc trạng thái tài khoản. | 6. Hệ thống lưu thay đổi và làm mới danh sách. |
+
+Luồng thay thế:
+
+- 1. Admin chọn vai trò không hợp lệ hoặc thao tác lên tài khoản không tồn tại -> hệ thống báo lỗi.
+- 2. Không đủ quyền Admin -> hệ thống chặn truy cập màn hình quản trị.
+
+Các yêu cầu cụ thể:
+
+- API: GET /api/admin/dashboard/users, GET /api/users, PATCH /api/users/:id/role
+- API: GET /api/wallets/admin/pending-transactions, POST /api/wallets/admin/approve-transaction/:id, POST /api/wallets/admin/reject-transaction/:id
+- Frontend: client/components/dashboard/views/admin/UserManagement.tsx
+
+Điều kiện trước:
+
+- Admin đã đăng nhập.
+
+Điều kiện sau:
+
+- Thông tin người dùng, quyền truy cập hoặc trạng thái xử lý liên quan được cập nhật.
+
+---
+
+### 2.2.31. Use case Phân phối giải ngân theo milestone và đóng băng khi cần
+
+Mục đích: Cho phép Admin kiểm soát dòng tiền giải ngân theo từng milestone, chỉ giải ngân khi bằng chứng hợp lệ và đóng băng dự án/tài khoản khi có rủi ro.
+
+Tác nhân, mô tả chung:
+
+- Tác nhân: Admin.
+- Mô tả chung: Admin xem danh sách milestone chờ xử lý, kiểm tra bằng chứng, phê duyệt giải ngân hoặc từ chối/đóng băng khi phát hiện tranh chấp hay rủi ro.
+
+Luồng sự kiện chính
+Bảng 31. Luồng sự kiện chính use case Phân phối giải ngân theo milestone và đóng băng khi cần
+
+| Hành động của tác nhân                                     | Phản ứng của hệ thống                                           |
+| ---------------------------------------------------------- | --------------------------------------------------------------- |
+| 1. Admin mở màn hình duyệt giải ngân milestone.            | 2. Hệ thống tải danh sách milestone đang chờ Admin xử lý.       |
+| 3. Admin xem bằng chứng, số tiền và thông tin dự án.       | 4. Hệ thống hiển thị trạng thái milestone và dữ liệu liên quan. |
+| 5. Admin duyệt giải ngân hoặc từ chối yêu cầu bổ sung.     | 6. Hệ thống phân phối tiền, cập nhật giao dịch và milestone.    |
+| 7. Admin đóng băng dự án/tài khoản khi có tranh chấp.      | 8. Hệ thống khóa thao tác rủi ro và ghi nhận lý do đóng băng.   |
+
+Luồng thay thế:
+
+- 1. Milestone không ở trạng thái ADMIN_REVIEW hoặc thiếu bằng chứng -> không cho giải ngân.
+- 2. Dự án có tranh chấp mở hoặc tín hiệu rủi ro -> Admin đóng băng và chuyển sang xử lý tranh chấp.
+
+Các yêu cầu cụ thể:
+
+- API: GET /api/admin/projects/milestones/pending, POST /api/admin/projects/:id/milestones/:mId/finalize, PATCH /api/admin/projects/:id/milestones/:mId/reject
+- API: GET /api/admin/projects/milestones/disputed, GET /api/admin/projects/disputes, POST /api/admin/projects/:id/disputes/resolve, POST /api/admin/projects/:id/terminate
+- Frontend: client/components/dashboard/views/admin/Disbursements.tsx, client/app/(admin)/admin-dashboard/disputes/page.tsx
+
+Điều kiện trước:
+
+- Admin đã đăng nhập, milestone hoặc dự án đang ở trạng thái cần xử lý.
+
+Điều kiện sau:
+
+- Khoản giải ngân được phân phối đúng milestone hoặc bị tạm dừng/đóng băng để xử lý rủi ro.
+
 ## Sequence Diagrams (As Code)
 
 ### Diagram UI-001: Đăng ký tài khoản
@@ -1588,6 +1710,71 @@ sequenceDiagram
     S->>D: Lưu thay đổi vào bảng blogs
     D-->>S: Cập nhật thành công
     S-->>A: Làm mới danh sách và hiển thị thông báo kết quả
+```
+
+### Diagram UI-029: Duyệt hoặc từ chối dự án, hồ sơ, KYC, milestones và bằng chứng
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Admin
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    A->>S: Mở màn hình kiểm duyệt dự án/KYC/milestone
+    S->>D: Truy vấn danh sách yêu cầu chờ duyệt
+    D-->>S: Trả về hồ sơ, trạng thái và bằng chứng
+    S-->>A: Hiển thị danh sách cần kiểm duyệt
+    A->>S: Xem chi tiết và chọn duyệt/từ chối
+    Note over S: Xác thực JWT, kiểm tra quyền ADMIN và trạng thái hiện tại
+    S->>D: Cập nhật trạng thái, lý do từ chối hoặc phản hồi Admin
+    D-->>S: Lưu kết quả kiểm duyệt
+    S-->>A: Hiển thị thông báo kết quả và làm mới danh sách
+```
+
+### Diagram UI-030: Quản lý người dùng, trạng thái tài khoản và quyền truy cập
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Admin
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+
+    A->>S: Mở màn hình quản lý người dùng
+    S->>D: Truy vấn người dùng theo vai trò/bộ lọc
+    D-->>S: Trả về danh sách người dùng và thông tin tài khoản
+    S-->>A: Hiển thị danh sách, số dư và trạng thái liên quan
+    A->>S: Cập nhật quyền truy cập/trạng thái hoặc xử lý giao dịch chờ
+    Note over S: Kiểm tra quyền ADMIN và dữ liệu thao tác
+    S->>D: Lưu thay đổi tài khoản, vai trò hoặc giao dịch
+    D-->>S: Cập nhật thành công
+    S-->>A: Làm mới danh sách và hiển thị kết quả
+```
+
+### Diagram UI-031: Phân phối giải ngân theo milestone và đóng băng khi cần
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Admin
+    participant S as Server (NestJS)
+    participant D as Database (TiDB)
+    participant W as Wallet Service
+
+    A->>S: Mở màn hình duyệt giải ngân milestone
+    S->>D: Lấy milestone chờ duyệt và dự án có tranh chấp
+    D-->>S: Trả về trạng thái, bằng chứng và số tiền
+    S-->>A: Hiển thị danh sách cần xử lý
+    A->>S: Duyệt giải ngân hoặc từ chối/đóng băng
+    alt Duyệt giải ngân
+        S->>W: Phân phối tiền cho Owner theo milestone
+        W->>D: Ghi giao dịch disbursement và cập nhật số dư
+        S->>D: Cập nhật milestone thành disbursed
+    else Từ chối hoặc đóng băng
+        S->>D: Cập nhật milestone/dự án, lưu lý do và khóa thao tác rủi ro
+    end
+    S-->>A: Trả kết quả xử lý
 ```
 
 ## PlantUML Activity Diagrams (PlantText)
@@ -2298,6 +2485,107 @@ if (Hợp lệ?) then (Có)
 else (Không)
   |Người quản trị|
   :Nhận lỗi và sửa lại;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-029: Duyệt hoặc từ chối dự án, hồ sơ, KYC, milestones và bằng chứng
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-029 - Duyệt hoặc từ chối dự án, hồ sơ, KYC, milestones và bằng chứng
+|Người quản trị|
+start
+:Mở màn hình kiểm duyệt;
+:Chọn nhóm yêu cầu dự án/KYC/milestone;
+|Hệ thống|
+:Kiểm tra đăng nhập và quyền admin;
+:Tải danh sách yêu cầu chờ duyệt;
+|Người quản trị|
+:Xem chi tiết hồ sơ và bằng chứng;
+:Chọn duyệt hoặc từ chối;
+if (Từ chối?) then (Có)
+  :Nhập lý do từ chối;
+endif
+|Hệ thống|
+:Kiểm tra trạng thái yêu cầu;
+if (Hợp lệ?) then (Có)
+  :Cập nhật trạng thái và lưu lịch sử xử lý;
+  :Gửi thông báo cho người liên quan;
+  |Người quản trị|
+  :Nhận kết quả kiểm duyệt;
+  stop
+else (Không)
+  |Người quản trị|
+  :Nhận thông báo lỗi;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-030: Quản lý người dùng, trạng thái tài khoản và quyền truy cập
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-030 - Quản lý người dùng, trạng thái tài khoản và quyền truy cập
+|Người quản trị|
+start
+:Mở màn hình quản lý người dùng;
+:Chọn vai trò hoặc bộ lọc;
+|Hệ thống|
+:Kiểm tra quyền admin;
+:Tải danh sách người dùng và giao dịch chờ xử lý;
+|Người quản trị|
+:Xem thông tin tài khoản;
+:Cập nhật quyền truy cập hoặc trạng thái tài khoản;
+|Hệ thống|
+:Kiểm tra dữ liệu thao tác;
+if (Hợp lệ?) then (Có)
+  :Lưu thay đổi tài khoản/quyền truy cập;
+  :Làm mới danh sách người dùng;
+  |Người quản trị|
+  :Nhận thông báo cập nhật thành công;
+  stop
+else (Không)
+  |Người quản trị|
+  :Nhận lỗi và điều chỉnh thao tác;
+  stop
+endif
+@enduml
+```
+
+### PlantUML UI-031: Phân phối giải ngân theo milestone và đóng băng khi cần
+
+```plantuml
+@startuml
+skinparam shadowing false
+title UI-031 - Phân phối giải ngân theo milestone và đóng băng khi cần
+|Người quản trị|
+start
+:Mở màn hình duyệt giải ngân milestone;
+|Hệ thống|
+:Kiểm tra quyền admin;
+:Tải milestone chờ duyệt và dự án có tranh chấp;
+|Người quản trị|
+:Xem bằng chứng, số tiền và trạng thái dự án;
+if (Bằng chứng hợp lệ?) then (Có)
+  :Duyệt giải ngân milestone;
+  |Hệ thống|
+  :Phân phối tiền cho Owner;
+  :Ghi giao dịch và cập nhật milestone;
+  |Người quản trị|
+  :Nhận thông báo giải ngân thành công;
+  stop
+else (Không hoặc có rủi ro)
+  :Từ chối hoặc yêu cầu đóng băng;
+  |Hệ thống|
+  :Lưu lý do từ chối/đóng băng;
+  :Khóa thao tác rủi ro của dự án hoặc tài khoản;
+  |Người quản trị|
+  :Nhận thông báo đã tạm dừng xử lý;
   stop
 endif
 @enduml

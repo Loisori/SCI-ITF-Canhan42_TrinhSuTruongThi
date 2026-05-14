@@ -150,6 +150,12 @@ Enum blog_status {
 }
 
 Table users {
+  updateProfile method
+  changePassword method
+  updateAvatar method
+  toggleCategoryPreference method
+  freezeAccount method
+  canInvest method
   id bigint [pk, increment]
   email varchar(150) [not null, unique]
   password varchar(255) [not null]
@@ -170,6 +176,8 @@ Table users {
 }
 
 Table project_categories {
+  listCategories method
+  updateInfo method
   id bigint [pk, increment]
   name varchar(100) [not null]
   slug varchar(100) [not null, unique]
@@ -179,6 +187,15 @@ Table project_categories {
 }
 
 Table projects {
+  createProject method
+  updateProject method
+  deleteProject method
+  approveProject method
+  rejectProject method
+  stopFunding method
+  invest method
+  createDispute method
+  terminateProject method
   id bigint [pk, increment]
   owner_id bigint [not null]
   category_id bigint [not null]
@@ -205,6 +222,10 @@ Table projects {
 }
 
 Table project_media {
+  attachToProject method
+  markAsThumbnail method
+  updateSortOrder method
+  removeMedia method
   id int [pk, increment]
   project_id bigint [not null]
   url varchar(255) [not null]
@@ -214,6 +235,13 @@ Table project_media {
 }
 
 Table project_milestones {
+  createOrUpdateMilestones method
+  submitProof method
+  startVoting method
+  finalizeMilestone method
+  rejectMilestone method
+  disburseMilestoneFunds method
+  resetVote method
   id int [pk, increment]
   project_id bigint [not null]
   title varchar(255) [not null]
@@ -231,6 +259,10 @@ Table project_milestones {
 }
 
 Table milestone_discussions {
+  getMilestoneDiscussions method
+  adminMilestoneFeedback method
+  ownerMilestoneResponse method
+  postMessage method
   id int [pk, increment]
   milestone_id int [not null]
   sender_id bigint [not null]
@@ -239,6 +271,10 @@ Table milestone_discussions {
 }
 
 Table milestone_votes {
+  castVote method
+  getMilestoneVotes method
+  calculateApproveWeight method
+  closeVotingWindow method
   id int [pk, increment]
   milestone_id int [not null]
   user_id bigint [not null]
@@ -249,6 +285,9 @@ Table milestone_votes {
 }
 
 Table milestone_vote_snapshots {
+  captureSnapshot method
+  getInvestorWeight method
+  getSnapshotResult method
   id bigint [pk, increment]
   milestone_id int [not null]
   snapshot_at timestamp
@@ -258,6 +297,11 @@ Table milestone_vote_snapshots {
 }
 
 Table investments {
+  invest method
+  getMyInvestments method
+  getAnalytics method
+  getPublicInvestedProjects method
+  handleProjectTimeout method
   id bigint [pk, increment]
   user_id bigint [not null]
   project_id bigint [not null]
@@ -267,6 +311,11 @@ Table investments {
 }
 
 Table payment_schedules {
+  createSchedules method
+  getOwnerSchedules method
+  markPaid method
+  markOverdue method
+  calculateDueAmount method
   id int [pk, increment]
   investment_id bigint [not null]
   due_date date [not null]
@@ -276,6 +325,14 @@ Table payment_schedules {
 }
 
 Table transactions {
+  getMyTransactions method
+  createDeposit method
+  createWithdrawRequest method
+  approveWithdraw method
+  rejectWithdraw method
+  createChildTransaction method
+  markSuccess method
+  markFailed method
   id bigint [pk, increment]
   user_id bigint [not null]
   amount decimal(15,2) [not null]
@@ -290,6 +347,11 @@ Table transactions {
 }
 
 Table project_disputes {
+  createDispute method
+  getFrozenProjects method
+  resolveDisputes method
+  refundDispute method
+  dismissDispute method
   id int [pk, increment]
   project_id bigint [not null]
   user_id bigint [not null]
@@ -300,6 +362,8 @@ Table project_disputes {
 }
 
 Table user_favorite_categories {
+  toggleFavoriteCategory method
+  listFavoriteCategories method
   user_id bigint [not null]
   category_id bigint [not null]
 
@@ -309,6 +373,8 @@ Table user_favorite_categories {
 }
 
 Table user_blacklist_categories {
+  toggleBlacklistCategory method
+  listBlacklistCategories method
   user_id bigint [not null]
   category_id bigint [not null]
 
@@ -318,6 +384,12 @@ Table user_blacklist_categories {
 }
 
 Table notifications {
+  createSpecialNotification method
+  createBatchNotifications method
+  getUserNotifications method
+  markAsRead method
+  markAllAsRead method
+  getUnreadCount method
   id int [pk, increment]
   user_id bigint [not null]
   message text [not null]
@@ -327,6 +399,11 @@ Table notifications {
 }
 
 Table chat_history {
+  chat method
+  getHistory method
+  clearHistory method
+  generateGeminiReply method
+  buildUserFinancialContext method
   id int [pk, increment]
   user_id bigint [not null]
   role chat_role [not null]
@@ -340,6 +417,11 @@ Table chat_history {
 }
 
 Table user_media {
+  saveMediaRecord method
+  getUserMedia method
+  deleteUserMedia method
+  uploadImage method
+  deleteImage method
   id int [pk, increment]
   user_id bigint [not null]
   url varchar(1024) [not null]
@@ -350,6 +432,12 @@ Table user_media {
 }
 
 Table kycs {
+  submitKyc method
+  getKycStatus method
+  getPendingKycs method
+  approveKyc method
+  rejectKyc method
+  getKycImage method
   id bigint [pk, increment]
   user_id bigint [not null]
   id_card_number varchar(50) [not null]
@@ -362,6 +450,14 @@ Table kycs {
 }
 
 Table blogs {
+  getPublishedBlogs method
+  getPublishedBlogBySlug method
+  getAdminBlogs method
+  createBlog method
+  updateBlog method
+  deleteBlog method
+  publish method
+  archive method
   id bigint [pk, increment]
   author_id bigint
   title varchar(255) [not null]
@@ -377,6 +473,11 @@ Table blogs {
 }
 
 Table project_comments {
+  getProjectComments method
+  createProjectComment method
+  replyComment method
+  hideComment method
+  showComment method
   id bigint [pk, increment]
   project_id bigint [not null]
   user_id bigint [not null]
@@ -678,6 +779,273 @@ users 1--N blogs
 users N--N project_categories through user_favorite_categories
 users N--N project_categories through user_blacklist_categories
 ```
+
+Mô hình vật lý — danh sách bảng và cột:
+
+### `users`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | BIGINT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| email | VARCHAR(150) | No | UNIQUE | - |
+| password | VARCHAR(255) | No | - | - |
+| full_name | VARCHAR(100) | No | - | - |
+| role | ENUM('investor','owner','admin') | No | DEFAULT 'investor' | - |
+| balance | DECIMAL(15,2) | No | DEFAULT 0.00 | - |
+| avatar_url | VARCHAR(255) | Yes | - | - |
+| is_verified | TINYINT(1) | No | DEFAULT 0 | - |
+| bio | TEXT | Yes | - | - |
+| cover_photo_url | VARCHAR(255) | Yes | - | - |
+| social_links | JSON | Yes | - | - |
+| notification_settings | JSON | Yes | - | - |
+| is_frozen | TINYINT(1) | No | DEFAULT 0 | - |
+| slug | VARCHAR(150) | Yes | UNIQUE | - |
+| address | VARCHAR(255) | Yes | - | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+| updated_at | TIMESTAMP | No | ON UPDATE CURRENT_TIMESTAMP | - |
+
+### `project_categories`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | BIGINT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| name | VARCHAR(100) | No | - | - |
+| slug | VARCHAR(100) | No | UNIQUE | - |
+| description | TEXT | Yes | - | - |
+| icon_url | VARCHAR(255) | Yes | - | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+
+### `projects`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | BIGINT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| owner_id | BIGINT UNSIGNED | No | FK, INDEX | users.id |
+| category_id | BIGINT UNSIGNED | No | FK, INDEX | project_categories.id |
+| title | VARCHAR(255) | No | - | - |
+| slug | VARCHAR(255) | No | UNIQUE, INDEX | - |
+| address | VARCHAR(255) | Yes | - | - |
+| short_description | TEXT | Yes | - | - |
+| content | LONGTEXT | Yes | - | - |
+| goal_amount | DECIMAL(15,2) | No | - | - |
+| current_amount | DECIMAL(15,2) | No | DEFAULT 0.00 | - |
+| min_investment | DECIMAL(15,2) | No | - | - |
+| interest_rate | DECIMAL(5,2) | No | - | - |
+| commission_rate | DECIMAL(5,2) | Yes | - | - |
+| duration_months | INT | No | - | - |
+| risk_level | ENUM('low','medium','high') | No | DEFAULT 'medium' | - |
+| status | ENUM('pending','funding','active','pending_admin_review','completed','overdue','failed') | No | DEFAULT 'pending', INDEX | - |
+| start_date | DATE | Yes | - | - |
+| end_date | DATE | Yes | - | - |
+| is_frozen | TINYINT(1) | No | DEFAULT 0, INDEX | - |
+| allow_overfunding | TINYINT(1) | No | DEFAULT 0 | - |
+| total_debt | DECIMAL(15,2) | No | DEFAULT 0.00 | - |
+| owner_tier | INT | No | DEFAULT 1 | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+
+### `project_media`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | INT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| project_id | BIGINT UNSIGNED | No | FK | projects.id |
+| url | VARCHAR(255) | No | - | - |
+| type | ENUM('image','video') | No | DEFAULT 'image' | - |
+| is_thumbnail | TINYINT(1) | No | DEFAULT 0 | - |
+| sort_order | INT | No | DEFAULT 0 | - |
+
+### `project_milestones`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | INT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| project_id | BIGINT UNSIGNED | No | FK | projects.id |
+| title | VARCHAR(255) | No | - | - |
+| content | TEXT | Yes | - | - |
+| percentage | INT | No | - | - |
+| stage | INT | No | - | - |
+| status | ENUM('pending','uploading_proof','voting','admin_review','disbursed','completed','rejected','disputed') | No | DEFAULT 'pending' | - |
+| evidence_urls | TEXT | Yes | - | - |
+| disbursement_date | TIMESTAMP | Yes | - | - |
+| voting_ends_at | TIMESTAMP | Yes | - | - |
+| rejection_reason | TEXT | Yes | - | - |
+| interval_days | INT | No | DEFAULT 0 | - |
+| next_disbursement_date | TIMESTAMP | Yes | - | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+
+### `milestone_discussions`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | INT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| milestone_id | INT UNSIGNED | No | FK | project_milestones.id |
+| sender_id | BIGINT UNSIGNED | No | FK | users.id |
+| content | TEXT | No | - | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+
+### `milestone_votes`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | INT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| milestone_id | INT UNSIGNED | No | FK | project_milestones.id |
+| user_id | BIGINT UNSIGNED | No | FK | users.id |
+| is_approve | TINYINT(1) | No | - | - |
+| comment | TEXT | Yes | - | - |
+| investor_capital | DECIMAL(15,2) | No | DEFAULT 0.00 | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+
+### `milestone_vote_snapshots`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | BIGINT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| milestone_id | BIGINT UNSIGNED | No | FK | project_milestones.id |
+| snapshot_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+| total_raised | DECIMAL(15,2) | No | DEFAULT 0.00 | - |
+| snapshot_json | JSON | Yes | - | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+
+### `investments`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | BIGINT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| user_id | BIGINT UNSIGNED | No | FK, INDEX | users.id |
+| project_id | BIGINT UNSIGNED | No | FK, INDEX | projects.id |
+| amount | DECIMAL(15,2) | No | - | - |
+| status | ENUM('active','completed','withdrawn') | No | DEFAULT 'active' | - |
+| invested_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+
+### `payment_schedules`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | INT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| investment_id | BIGINT UNSIGNED | No | FK | investments.id |
+| due_date | DATE | No | - | - |
+| amount | DECIMAL(15,2) | No | - | - |
+| status | ENUM('unpaid','paid','overdue') | No | DEFAULT 'unpaid' | - |
+| paid_at | TIMESTAMP | Yes | - | - |
+
+### `transactions`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | BIGINT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| user_id | BIGINT UNSIGNED | No | FK, INDEX | users.id |
+| amount | DECIMAL(15,2) | No | - | - |
+| type | ENUM('deposit','withdrawal','invest','interest_receive','refund','disbursement','repayment','repay_interest','repay_principal','system_fee','system_log') | No | - | - |
+| status | ENUM('pending','success','failed') | No | DEFAULT 'success' | - |
+| description | VARCHAR(255) | Yes | - | - |
+| reference_id | INT | Yes | - | - |
+| parent_transaction_id | BIGINT UNSIGNED | Yes | FK | transactions.id |
+| bank_name | VARCHAR(100) | Yes | - | - |
+| account_number | VARCHAR(50) | Yes | - | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP, INDEX | - |
+
+### `project_disputes`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | INT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| project_id | BIGINT UNSIGNED | No | FK, INDEX | projects.id |
+| user_id | BIGINT UNSIGNED | No | FK | users.id |
+| reason | TEXT | No | - | - |
+| evidence_url | TEXT | Yes | - | - |
+| status | ENUM('open','resolved','refunded') | No | DEFAULT 'open', INDEX | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+
+### `user_favorite_categories`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| user_id | BIGINT UNSIGNED | No | PK, FK | users.id |
+| category_id | BIGINT UNSIGNED | No | PK, FK | project_categories.id |
+
+### `user_blacklist_categories`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| user_id | BIGINT UNSIGNED | No | PK, FK | users.id |
+| category_id | BIGINT UNSIGNED | No | PK, FK | project_categories.id |
+
+### `notifications`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | INT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| user_id | BIGINT UNSIGNED | No | FK | users.id |
+| message | TEXT | No | - | - |
+| type | ENUM('PROJECT_UPDATE','INVESTMENT_RECEIVED','PAYMENT_SUCCESS','SYSTEM') | No | DEFAULT 'SYSTEM' | - |
+| is_read | TINYINT(1) | No | DEFAULT 0 | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+
+### `chat_history`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | INT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| user_id | BIGINT UNSIGNED | No | FK, INDEX | users.id |
+| role | ENUM('user','model','system') | No | - | - |
+| message | TEXT | No | - | - |
+| project_context | JSON | Yes | - | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP, INDEX | - |
+
+### `user_media`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | INT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| user_id | BIGINT UNSIGNED | No | FK | users.id |
+| url | VARCHAR(1024) | No | - | - |
+| public_id | VARCHAR(255) | No | - | - |
+| file_name | VARCHAR(255) | Yes | - | - |
+| file_size | INT | Yes | - | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+
+### `kycs`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | BIGINT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| user_id | BIGINT UNSIGNED | No | FK | users.id |
+| id_card_number | VARCHAR(50) | No | - | - |
+| front_image_url | VARCHAR(255) | No | - | - |
+| back_image_url | VARCHAR(255) | No | - | - |
+| status | ENUM('PENDING','APPROVED','REJECTED') | No | DEFAULT 'PENDING' | - |
+| rejection_reason | TEXT | Yes | - | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+| updated_at | TIMESTAMP | No | ON UPDATE CURRENT_TIMESTAMP | - |
+
+### `blogs`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | BIGINT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| author_id | BIGINT UNSIGNED | Yes | FK | users.id |
+| title | VARCHAR(255) | No | - | - |
+| slug | VARCHAR(255) | No | UNIQUE | - |
+| summary | TEXT | Yes | - | - |
+| content | LONGTEXT | Yes | - | - |
+| status | ENUM('draft','published','archived') | No | DEFAULT 'published' | - |
+| featured_image | VARCHAR(255) | Yes | - | - |
+| tags | JSON | Yes | - | - |
+| published_at | TIMESTAMP | Yes | - | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
+| updated_at | TIMESTAMP | No | ON UPDATE CURRENT_TIMESTAMP | - |
+
+### `project_comments`
+
+| Column | Type | Null | Extra | Link to |
+| --- | --- | --- | --- | --- |
+| id | BIGINT UNSIGNED | No | PK, AUTO_INCREMENT | - |
+| project_id | BIGINT UNSIGNED | No | FK | projects.id |
+| user_id | BIGINT UNSIGNED | No | FK | users.id |
+| content | TEXT | No | - | - |
+| parent_comment_id | BIGINT UNSIGNED | Yes | FK | project_comments.id |
+| is_hidden | TINYINT(1) | No | DEFAULT 0 | - |
+| created_at | TIMESTAMP | No | DEFAULT CURRENT_TIMESTAMP | - |
 
 Ghi chú kiến trúc & vận hành:
 
