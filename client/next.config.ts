@@ -28,6 +28,18 @@ const nextConfig: NextConfig = {
         hostname: 'res.cloudinary.com', // Thêm chính xác dòng này
         pathname: '/**',                // Cho phép tất cả các đường dẫn sau domain
       },
+{
+        protocol: 'https',
+        hostname: 'i.kickstarter.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'storage.ghost.io',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

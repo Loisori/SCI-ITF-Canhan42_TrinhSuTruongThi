@@ -1795,12 +1795,10 @@ start
 if (Hợp lệ?) then (Có)
   :Hash mật khẩu;
   :Tạo tài khoản mới;
-  |Người dùng|
-  :Nhận thông báo đăng ký thành công;
+  :Hiển thị thông báo đăng ký thành công;
   stop
 else (Không)
-  |Người dùng|
-  :Nhận lỗi và nhập lại thông tin;
+  :Hiển thị lỗi và yêu cầu nhập lại thông tin;
   stop
 endif
 @enduml
@@ -1820,12 +1818,10 @@ start
 :Xác thực thông tin đăng nhập;
 if (Hợp lệ?) then (Có)
   :Cấp token và tải hồ sơ người dùng;
-  |Người dùng|
-  :Truy cập dashboard tương ứng;
+  :Chuyển đến dashboard tương ứng;
   stop
 else (Không)
-  |Người dùng|
-  :Nhận lỗi và đăng nhập lại;
+  :Hiển thị lỗi và yêu cầu đăng nhập lại;
   stop
 endif
 @enduml
@@ -1848,8 +1844,8 @@ if (Đã đăng nhập?) then (Có)
   :Xem thông tin tài khoản;
   stop
 else (Không)
-  |Người dùng|
-  :Được yêu cầu đăng nhập lại;
+  |Hệ thống|
+  :Hiển thị yêu cầu đăng nhập lại;
   stop
 endif
 @enduml
@@ -1870,12 +1866,10 @@ start
 :Kiểm tra dữ liệu và file ảnh;
 if (Hợp lệ?) then (Có)
   :Cập nhật hồ sơ người dùng;
-  |Người dùng|
-  :Nhận kết quả cập nhật;
+  :Hiển thị kết quả cập nhật;
   stop
 else (Không)
-  |Người dùng|
-  :Nhận lỗi và sửa lại;
+  :Hiển thị lỗi và yêu cầu sửa lại;
   stop
 endif
 @enduml
@@ -1896,12 +1890,10 @@ start
 :Kiểm tra điều kiện mật khẩu mới;
 if (Hợp lệ?) then (Có)
   :Hash và lưu mật khẩu mới;
-  |Người dùng|
-  :Nhận thông báo đổi mật khẩu thành công;
+  :Hiển thị thông báo đổi mật khẩu thành công;
   stop
 else (Không)
-  |Người dùng|
-  :Nhận lỗi và nhập lại;
+  :Hiển thị lỗi và yêu cầu nhập lại;
   stop
 endif
 @enduml
@@ -1921,12 +1913,10 @@ start
 :Kiểm tra dữ liệu tùy chọn;
 if (Hợp lệ?) then (Có)
   :Lưu cấu hình người dùng;
-  |Người dùng|
-  :Thấy trạng thái mới được đồng bộ;
+  :Đồng bộ và hiển thị trạng thái mới;
   stop
 else (Không)
-  |Người dùng|
-  :Nhận lỗi và sửa lại;
+  :Hiển thị lỗi và yêu cầu sửa lại;
   stop
 endif
 @enduml
@@ -1947,12 +1937,10 @@ start
 :Kiểm tra dữ liệu KYC;
 if (Hợp lệ?) then (Có)
   :Lưu hồ sơ với trạng thái chờ duyệt;
-  |Người dùng|
-  :Theo dõi trạng thái xác minh;
+  :Hiển thị trạng thái xác minh;
   stop
 else (Không)
-  |Người dùng|
-  :Nhận lỗi và bổ sung hồ sơ;
+  :Hiển thị lỗi và yêu cầu bổ sung hồ sơ;
   stop
 endif
 @enduml
@@ -1975,13 +1963,11 @@ start
 :Nhận kết quả thanh toán;
 if (Thanh toán thành công?) then (Có)
   :Cộng số dư ví và cập nhật giao dịch;
-  |Người dùng|
-  :Nhận thông báo nạp tiền thành công;
+  :Hiển thị thông báo nạp tiền thành công;
   stop
 else (Không)
   :Cập nhật giao dịch thất bại;
-  |Người dùng|
-  :Nhận thông báo thanh toán thất bại;
+  :Hiển thị thông báo thanh toán thất bại;
   stop
 endif
 @enduml
@@ -2002,12 +1988,10 @@ start
 :Kiểm tra số dư khả dụng;
 if (Đủ số dư?) then (Có)
   :Tạo yêu cầu rút tiền chờ duyệt;
-  |Người dùng|
-  :Nhận thông báo yêu cầu đã được gửi;
+  :Hiển thị thông báo yêu cầu đã được gửi;
   stop
 else (Không)
-  |Người dùng|
-  :Nhận lỗi số dư không đủ;
+  :Hiển thị lỗi số dư không đủ;
   stop
 endif
 @enduml
@@ -2052,8 +2036,7 @@ start
 :Chọn đọc hoặc đánh dấu đã đọc;
 |Hệ thống|
 :Cập nhật trạng thái thông báo;
-|Người dùng|
-:Nhận danh sách thông báo mới;
+:Hiển thị danh sách thông báo mới;
 stop
 @enduml
 ```
@@ -2073,12 +2056,10 @@ start
 :Gửi prompt đến AI service;
 if (Có phản hồi?) then (Có)
   :Lưu lịch sử chat;
-  |Người dùng|
-  :Nhận câu trả lời từ AI;
+  :Hiển thị câu trả lời từ AI;
   stop
 else (Không)
-  |Người dùng|
-  :Nhận thông báo không thể xử lý;
+  :Hiển thị thông báo không thể xử lý;
   stop
 endif
 @enduml
@@ -2098,12 +2079,10 @@ start
 :Kiểm tra thao tác và dữ liệu media;
 if (Hợp lệ?) then (Có)
   :Upload/xóa file và cập nhật metadata;
-  |Người dùng|
-  :Nhận danh sách media mới;
+  :Hiển thị danh sách media mới;
   stop
 else (Không)
-  |Người dùng|
-  :Nhận lỗi thao tác media;
+  :Hiển thị lỗi thao tác media;
   stop
 endif
 @enduml
@@ -2149,8 +2128,8 @@ if (Tồn tại?) then (Có)
   :Xem chi tiết dự án và hồ sơ công khai;
   stop
 else (Không)
-  |Người dùng|
-  :Nhận thông báo không tìm thấy;
+  |Hệ thống|
+  :Hiển thị thông báo không tìm thấy;
   stop
 endif
 @enduml
@@ -2172,12 +2151,10 @@ start
 if (Đủ điều kiện?) then (Có)
   :Tạo khoản đầu tư và giao dịch;
   :Cập nhật số vốn dự án;
-  |Nhà đầu tư|
-  :Nhận thông báo đầu tư thành công;
+  :Hiển thị thông báo đầu tư thành công;
   stop
 else (Không)
-  |Nhà đầu tư|
-  :Nhận lỗi và điều chỉnh lại;
+  :Hiển thị lỗi và yêu cầu điều chỉnh lại;
   stop
 endif
 @enduml
@@ -2222,12 +2199,10 @@ start
 if (Đủ điều kiện?) then (Có)
   :Tạo dispute trạng thái mở;
   :Cập nhật danh sách tranh chấp;
-  |Nhà đầu tư|
-  :Nhận thông báo đã gửi khiếu nại;
+  :Hiển thị thông báo đã gửi khiếu nại;
   stop
 else (Không)
-  |Nhà đầu tư|
-  :Nhận lỗi không thể khiếu nại;
+  :Hiển thị lỗi không thể khiếu nại;
   stop
 endif
 @enduml
@@ -2248,12 +2223,10 @@ start
 :Kiểm tra quyền vote và trạng thái milestone;
 if (Hợp lệ?) then (Có)
   :Lưu phiếu vote và cập nhật kết quả;
-  |Nhà đầu tư|
-  :Nhận kết quả biểu quyết hiện tại;
+  :Hiển thị kết quả biểu quyết hiện tại;
   stop
 else (Không)
-  |Nhà đầu tư|
-  :Nhận lỗi không thể voting;
+  :Hiển thị lỗi không thể voting;
   stop
 endif
 @enduml
@@ -2274,12 +2247,10 @@ start
 :Kiểm tra vai trò và dữ liệu dự án;
 if (Hợp lệ?) then (Có)
   :Lưu dự án trạng thái chờ duyệt;
-  |Chủ dự án|
-  :Nhận thông báo dự án đã được gửi;
+  :Hiển thị thông báo dự án đã được gửi;
   stop
 else (Không)
-  |Chủ dự án|
-  :Nhận lỗi và sửa lại;
+  :Hiển thị lỗi và yêu cầu sửa lại;
   stop
 endif
 @enduml
@@ -2300,12 +2271,10 @@ start
 :Kiểm tra quyền sở hữu và dữ liệu;
 if (Hợp lệ?) then (Có)
   :Cập nhật thông tin dự án;
-  |Chủ dự án|
-  :Nhận kết quả cập nhật;
+  :Hiển thị kết quả cập nhật;
   stop
 else (Không)
-  |Chủ dự án|
-  :Nhận lỗi và sửa lại;
+  :Hiển thị lỗi và yêu cầu sửa lại;
   stop
 endif
 @enduml
@@ -2326,12 +2295,10 @@ start
 if (Hợp lệ?) then (Có)
   :Lưu milestone hoặc evidence URL;
   :Cập nhật trạng thái xử lý;
-  |Chủ dự án|
-  :Nhận kết quả cập nhật milestone;
+  :Hiển thị kết quả cập nhật milestone;
   stop
 else (Không)
-  |Chủ dự án|
-  :Nhận lỗi và sửa lại;
+  :Hiển thị lỗi và yêu cầu sửa lại;
   stop
 endif
 @enduml
@@ -2352,12 +2319,10 @@ start
 :Kiểm tra quyền và điều kiện dừng;
 if (Đủ điều kiện?) then (Có)
   :Cập nhật trạng thái dự án;
-  |Chủ dự án|
-  :Nhận thông báo dừng huy động thành công;
+  :Hiển thị thông báo dừng huy động thành công;
   stop
 else (Không)
-  |Chủ dự án|
-  :Nhận lỗi không thể dừng huy động;
+  :Hiển thị lỗi không thể dừng huy động;
   stop
 endif
 @enduml
@@ -2403,12 +2368,10 @@ if (Đủ điều kiện?) then (Có)
   :Trừ ví chủ dự án;
   :Phân bổ tiền cho nhà đầu tư và hệ thống;
   :Cập nhật lịch trả nợ;
-  |Chủ dự án|
-  :Nhận thông báo thanh toán thành công;
+  :Hiển thị thông báo thanh toán thành công;
   stop
 else (Không)
-  |Chủ dự án|
-  :Nhận lỗi không thể thanh toán;
+  :Hiển thị lỗi không thể thanh toán;
   stop
 endif
 @enduml
@@ -2454,8 +2417,8 @@ if (Tồn tại?) then (Có)
   :Xem nội dung chi tiết bài viết;
   stop
 else (Không)
-  |Người dùng/Khách|
-  :Nhận thông báo không tìm thấy;
+  |Hệ thống|
+  :Hiển thị thông báo không tìm thấy;
   stop
 endif
 @enduml
@@ -2479,12 +2442,10 @@ start
 :Kiểm tra dữ liệu bài viết;
 if (Hợp lệ?) then (Có)
   :Lưu thay đổi và cập nhật danh sách;
-  |Người quản trị|
-  :Nhận kết quả cập nhật;
+  :Hiển thị kết quả cập nhật;
   stop
 else (Không)
-  |Người quản trị|
-  :Nhận lỗi và sửa lại;
+  :Hiển thị lỗi và yêu cầu sửa lại;
   stop
 endif
 @enduml
@@ -2514,12 +2475,10 @@ endif
 if (Hợp lệ?) then (Có)
   :Cập nhật trạng thái và lưu lịch sử xử lý;
   :Gửi thông báo cho người liên quan;
-  |Người quản trị|
-  :Nhận kết quả kiểm duyệt;
+  :Hiển thị kết quả kiểm duyệt;
   stop
 else (Không)
-  |Người quản trị|
-  :Nhận thông báo lỗi;
+  :Hiển thị thông báo lỗi;
   stop
 endif
 @enduml
@@ -2546,12 +2505,10 @@ start
 if (Hợp lệ?) then (Có)
   :Lưu thay đổi tài khoản/quyền truy cập;
   :Làm mới danh sách người dùng;
-  |Người quản trị|
-  :Nhận thông báo cập nhật thành công;
+  :Hiển thị thông báo cập nhật thành công;
   stop
 else (Không)
-  |Người quản trị|
-  :Nhận lỗi và điều chỉnh thao tác;
+  :Hiển thị lỗi và yêu cầu điều chỉnh thao tác;
   stop
 endif
 @enduml
@@ -2576,16 +2533,14 @@ if (Bằng chứng hợp lệ?) then (Có)
   |Hệ thống|
   :Phân phối tiền cho Owner;
   :Ghi giao dịch và cập nhật milestone;
-  |Người quản trị|
-  :Nhận thông báo giải ngân thành công;
+  :Hiển thị thông báo giải ngân thành công;
   stop
 else (Không hoặc có rủi ro)
   :Từ chối hoặc yêu cầu đóng băng;
   |Hệ thống|
   :Lưu lý do từ chối/đóng băng;
   :Khóa thao tác rủi ro của dự án hoặc tài khoản;
-  |Người quản trị|
-  :Nhận thông báo đã tạm dừng xử lý;
+  :Hiển thị thông báo đã tạm dừng xử lý;
   stop
 endif
 @enduml
