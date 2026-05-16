@@ -267,6 +267,57 @@ export class ProjectsService {
     return projects.map((project) => this.serializeProject(project));
   }
 
+  async getAdminProjects(filters?: {
+    search?: string;
+    status?: ProjectStatus | 'all';
+    page?: number;
+    pageSize?: number;
+  }) {
+    const page =
+      Number.isFinite(filters?.page) && Number(filters?.page) > 0
+        ? Number(filters?.page)
+        : 1;
+    const pageSize =
+      Number.isFinite(filters?.pageSize) && Number(filters?.pageSize) > 0
+        ? Math.min(Number(filters?.pageSize), 100)
+        : 20;
+
+    const qb = this.projectsRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.media', 'media')
+      .leftJoinAndSelect('project.category', 'category')
+      .leftJoinAndSelect('project.owner', 'owner');
+
+    if (filters?.status && filters.status !== 'all') {
+      qb.where('project.status = :status', { status: filters.status });
+    }
+
+    if (filters?.search?.trim()) {
+      const term = `%${filters.search.trim().toLowerCase()}%`;
+      const condition =
+        '(LOWER(project.title) LIKE :term OR LOWER(owner.fullName) LIKE :term OR LOWER(owner.email) LIKE :term OR LOWER(category.name) LIKE :term)';
+
+      if (qb.expressionMap.wheres.length > 0) {
+        qb.andWhere(condition, { term });
+      } else {
+        qb.where(condition, { term });
+      }
+    }
+
+    const [projects, total] = await qb
+      .orderBy('project.createdAt', 'DESC')
+      .take(pageSize)
+      .skip((page - 1) * pageSize)
+      .getManyAndCount();
+
+    return {
+      items: projects.map((project) => this.serializeProject(project)),
+      page,
+      pageSize,
+      total,
+    };
+  }
+
   async getOwnerProjects(
     ownerIdentifier: string | number,
     page = 1,
@@ -1265,7 +1316,11 @@ export class ProjectsService {
     }));
   }
 
-  async createProjectComment(projectId: number, userId: number, content: string) {
+  async createProjectComment(
+    projectId: number,
+    userId: number,
+    content: string,
+  ) {
     const trimmedContent = content.trim();
     if (!trimmedContent) {
       throw new BadRequestException('content is required');

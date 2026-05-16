@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
@@ -21,6 +22,21 @@ import { GetUser } from '../../common/decorators/get-user.decorator';
 @Controller('admin/projects')
 export class AdminProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
+
+  @Get()
+  getProjects(
+    @Query('search') search?: string,
+    @Query('status') status?: ProjectStatus | 'all',
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+  ) {
+    return this.projectsService.getAdminProjects({
+      search,
+      status,
+      page: page ? Number(page) : undefined,
+      pageSize: pageSize ? Number(pageSize) : undefined,
+    });
+  }
 
   @Get('funding-review')
   getFundedReview() {

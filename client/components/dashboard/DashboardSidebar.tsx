@@ -22,6 +22,7 @@ import {
   LogOut,
   UserCircle,
   Newspaper,
+  FolderKanban,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -60,6 +61,11 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
       name: t("Admin.project-approvals"),
       view: "project-approvals",
       icon: ClipboardCheck,
+    },
+    {
+      name: t("Admin.project-management"),
+      view: "project-management",
+      icon: FolderKanban,
     },
     { name: t("Admin.kyc-audit"), view: "kyc-audit", icon: UserCircle },
     {
