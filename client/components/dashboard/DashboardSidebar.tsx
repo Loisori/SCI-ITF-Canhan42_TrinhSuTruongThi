@@ -23,6 +23,7 @@ import {
   UserCircle,
   Newspaper,
   FolderKanban,
+  Tags,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -66,6 +67,11 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
       name: t("Admin.project-management"),
       view: "project-management",
       icon: FolderKanban,
+    },
+    {
+      name: t("Admin.category-management"),
+      view: "category-management",
+      icon: Tags,
     },
     { name: t("Admin.kyc-audit"), view: "kyc-audit", icon: UserCircle },
     {

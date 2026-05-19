@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProjectsController } from './projects.controller';
-import { ProjectCategoriesController } from './project-categories.controller';
+import {
+  AdminProjectCategoriesController,
+  ProjectCategoriesController,
+} from './project-categories.controller';
 import { ProjectsService } from './projects.service';
 import { ProjectEntity } from './entities/project.entity';
 import { AuthModule } from '../auth/auth.module';
@@ -44,6 +47,7 @@ import { UsersModule } from '../users/users.module';
   controllers: [
     ProjectsController,
     ProjectCategoriesController,
+    AdminProjectCategoriesController,
     AdminProjectsController,
   ],
   providers: [ProjectsService, TasksService, MilestonesService, VotingService],

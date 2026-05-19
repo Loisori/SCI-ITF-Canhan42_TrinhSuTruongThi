@@ -17,6 +17,7 @@ import RepaymentView from "./views/RepaymentView";
 import SystemOverview from "./views/admin/SystemOverview";
 import ProjectApprovals from "./views/admin/ProjectApprovals";
 import ProjectManagement from "./views/admin/ProjectManagement";
+import CategoryManagement from "./views/admin/CategoryManagement";
 import UserManagement from "./views/admin/UserManagement";
 import Disbursements from "./views/admin/Disbursements";
 import KycAudit from "./views/admin/KycAudit";
@@ -63,6 +64,8 @@ export default function DashboardContent({
         return <ProjectApprovals />;
       case "project-management":
         return <ProjectManagement />;
+      case "category-management":
+        return <CategoryManagement />;
       case "user-management":
         return <UserManagement />;
       case "disbursements":

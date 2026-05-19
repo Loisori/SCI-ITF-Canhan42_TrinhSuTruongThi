@@ -258,6 +258,181 @@ export class ProjectsService {
     }));
   }
 
+  async getAdminProjectCategories() {
+    const rows = await this.projectCategoriesRepository
+      .createQueryBuilder('category')
+      .leftJoin('category.projects', 'project')
+      .select('category.id', 'id')
+      .addSelect('category.name', 'name')
+      .addSelect('category.slug', 'slug')
+      .addSelect('category.description', 'description')
+      .addSelect('category.iconUrl', 'iconUrl')
+      .addSelect('category.createdAt', 'createdAt')
+      .addSelect('COUNT(project.id)', 'projectCount')
+      .groupBy('category.id')
+      .addGroupBy('category.name')
+      .addGroupBy('category.slug')
+      .addGroupBy('category.description')
+      .addGroupBy('category.iconUrl')
+      .addGroupBy('category.createdAt')
+      .orderBy('category.name', 'ASC')
+      .getRawMany<{
+        id: string | number;
+        name: string;
+        slug: string;
+        description: string | null;
+        iconUrl: string | null;
+        createdAt: Date;
+        projectCount: string;
+      }>();
+
+    return rows.map((row) => ({
+      id: Number(row.id),
+      name: row.name,
+      slug: row.slug,
+      description: row.description,
+      iconUrl: row.iconUrl,
+      createdAt: row.createdAt,
+      projectCount: Number(row.projectCount ?? 0),
+    }));
+  }
+
+  async createProjectCategory(payload: {
+    name?: string;
+    slug?: string;
+    description?: string | null;
+    iconUrl?: string | null;
+  }) {
+    const name = payload.name?.trim();
+    if (!name) {
+      throw new BadRequestException('Tên danh mục là bắt buộc.');
+    }
+
+    const requestedSlug = payload.slug?.trim();
+    const slug = await this.generateUniqueCategorySlug(requestedSlug || name);
+
+    const category = this.projectCategoriesRepository.create({
+      name,
+      slug,
+      description: payload.description?.trim() || null,
+      iconUrl: payload.iconUrl?.trim() || null,
+    });
+
+    const saved = await this.projectCategoriesRepository.save(category);
+
+    return {
+      id: saved.id,
+      name: saved.name,
+      slug: saved.slug,
+      description: saved.description,
+      iconUrl: saved.iconUrl,
+      createdAt: saved.createdAt,
+      projectCount: 0,
+    };
+  }
+
+  async updateProjectCategory(
+    categoryId: number,
+    payload: {
+      name?: string;
+      slug?: string;
+      description?: string | null;
+      iconUrl?: string | null;
+    },
+  ) {
+    const category = await this.projectCategoriesRepository.findOne({
+      where: { id: categoryId },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Category not found.');
+    }
+
+    if (payload.name !== undefined) {
+      const name = payload.name.trim();
+      if (!name) {
+        throw new BadRequestException('Tên danh mục là bắt buộc.');
+      }
+      category.name = name;
+    }
+
+    if (payload.slug !== undefined) {
+      const slug = this.generateRawSlug(payload.slug);
+      if (!slug) {
+        throw new BadRequestException('Slug danh mục không hợp lệ.');
+      }
+
+      const existing = await this.projectCategoriesRepository.findOne({
+        where: { slug },
+      });
+      if (existing && existing.id !== category.id) {
+        throw new BadRequestException('Slug danh mục đã tồn tại.');
+      }
+
+      category.slug = slug;
+    }
+
+    if (payload.description !== undefined) {
+      category.description = payload.description?.trim() || null;
+    }
+
+    if (payload.iconUrl !== undefined) {
+      category.iconUrl = payload.iconUrl?.trim() || null;
+    }
+
+    const saved = await this.projectCategoriesRepository.save(category);
+    await this.syncProjectsDataJsonFile();
+
+    return {
+      id: saved.id,
+      name: saved.name,
+      slug: saved.slug,
+      description: saved.description,
+      iconUrl: saved.iconUrl,
+      createdAt: saved.createdAt,
+    };
+  }
+
+  async deleteProjectCategory(categoryId: number) {
+    const category = await this.projectCategoriesRepository.findOne({
+      where: { id: categoryId },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Category not found.');
+    }
+
+    const linkedProjects = await this.projectsRepository.count({
+      where: { categoryId },
+    });
+
+    if (linkedProjects > 0) {
+      throw new BadRequestException(
+        'Không thể xóa danh mục đang có dự án sử dụng.',
+      );
+    }
+
+    await this.projectCategoriesRepository.remove(category);
+
+    return {
+      message: 'Category deleted successfully.',
+      id: categoryId,
+    };
+  }
+
+  private async generateUniqueCategorySlug(value: string) {
+    const baseSlug = this.generateRawSlug(value) || 'category';
+    let slug = baseSlug;
+    let counter = 1;
+
+    while (await this.projectCategoriesRepository.findOne({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    return slug;
+  }
+
   async getProjectsByStatus(status: ProjectStatus) {
     const projects = await this.projectsRepository.find({
       where: { status },
