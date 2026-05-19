@@ -23,6 +23,7 @@ import Disbursements from "./views/admin/Disbursements";
 import KycAudit from "./views/admin/KycAudit";
 import WithdrawalAudit from "./views/admin/WithdrawalAudit";
 import BlogManagement from "./views/admin/BlogManagement";
+import AdminDisputesPage from "@/app/(admin)/admin-dashboard/disputes/page";
 
 export default function DashboardContent({
   profile,
@@ -70,6 +71,8 @@ export default function DashboardContent({
         return <UserManagement />;
       case "disbursements":
         return <Disbursements />;
+      case "disputes":
+        return <AdminDisputesPage />;
       case "kyc-audit":
         return <KycAudit />;
       case "withdrawal-audit":

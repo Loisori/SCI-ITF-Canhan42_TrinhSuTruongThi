@@ -24,6 +24,7 @@ import {
   Newspaper,
   FolderKanban,
   Tags,
+  Scale,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -80,6 +81,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
       icon: Wallet,
     },
     { name: t("Admin.disbursements"), view: "disbursements", icon: Banknote },
+    { name: t("Admin.disputes"), view: "disputes", icon: Scale },
     {
       name: t("Admin.blog-management"),
       view: "blog-management",
