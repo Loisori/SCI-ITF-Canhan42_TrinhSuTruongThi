@@ -1,3 +1,5 @@
+USE investpro;
+
 -- 🌟 Delete Tables
 
 -- 1. Vô hiệu hóa kiểm tra khóa ngoại

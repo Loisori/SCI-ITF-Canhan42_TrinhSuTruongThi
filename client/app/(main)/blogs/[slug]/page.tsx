@@ -41,13 +41,14 @@ export default function BlogDetailPage() {
           <>
             <section className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
               <div className="wrapper wrapper--lg">
-                <Link
-                  href="/blogs"
-                  className="inline-flex items-center gap-2 text-smaller font-bold text-primary mb-6"
-                >
-                  <ArrowLeft className="size-4" />
-                  Back to Blog
-                </Link>
+                <h1 className="text-h3 font-semibold text-slate-950 dark:text-white mt-4">
+                  {post.title}
+                </h1>
+                {post.author && (
+                  <p className="text-smaller text-slate-500 mt-4">
+                    By {post.author.fullName}
+                  </p>
+                )}
                 <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold uppercase tracking-wide text-slate-500">
                   <span className="inline-flex items-center gap-1">
                     <Newspaper className="size-3" />
@@ -58,14 +59,6 @@ export default function BlogDetailPage() {
                     {new Date(post.createdAt).toLocaleDateString("vi-VN")}
                   </span>
                 </div>
-                <h1 className="text-h3 font-semibold text-slate-950 dark:text-white mt-4">
-                  {post.title}
-                </h1>
-                {post.author && (
-                  <p className="text-smaller text-slate-500 mt-4">
-                    By {post.author.fullName}
-                  </p>
-                )}
               </div>
             </section>
 
