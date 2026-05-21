@@ -1,15 +1,15 @@
 {
   "Admin": {
     "users": "Users",
-    "usersDesc": "Manage accounts, permissions, and approve withdrawals.",
-    "pendingWithdrawals": "Pending Withdrawals",
+    "usersDesc": "Manage accounts, permissions, and approve deposits/withdrawals.",
+    "pendingWithdrawals": "Pending Deposits/Withdrawals",
     "userList": "User List",
     "system-overview": "System Overview",
     "project-approvals": "Project Approvals",
     "project-management": "Project Management",
     "category-management": "Category Management",
     "kyc-audit": "KYC Audits",
-    "withdrawal-audit": "Withdrawal Audits",
+    "withdrawal-audit": "Deposit/Withdrawal Audits",
     "disbursements": "Disbursements",
     "disputes": "Disputes",
     "blog-management": "Blog Management",

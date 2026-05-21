@@ -6,8 +6,11 @@ import api from "@/lib/axios";
 import { formatVnd } from "@/lib/utils";
 import { AdminDashboardUser } from "@/types/admin";
 import { Transaction } from "@/types/transaction";
+import { isAxiosError } from "axios";
 import toast from "react-hot-toast";
 import {
+  ArrowDownToLine,
+  ArrowUpFromLine,
   Clock,
   UserCog,
   SquarePen,
@@ -18,6 +21,56 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+type PendingTransaction = Transaction & {
+  type: "deposit" | "withdrawal" | string;
+  bankName?: string | null;
+  accountNumber?: string | null;
+  user?: {
+    fullName?: string;
+    email?: string;
+    balance?: number | string;
+  };
+};
+
+type AdminUsersResponse = {
+  items: AdminDashboardUser[];
+  meta: {
+    totalPages: number;
+  };
+};
+
+const getTransactionMeta = (type: PendingTransaction["type"]) => {
+  if (type === "deposit") {
+    return {
+      label: "Nạp tiền",
+      amountLabel: "Số tiền nạp",
+      Icon: ArrowDownToLine,
+      badge:
+        "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800",
+      amountClass: "text-emerald-600 dark:text-emerald-400",
+      sign: "+",
+    };
+  }
+
+  return {
+    label: "Rút tiền",
+    amountLabel: "Số tiền rút",
+    Icon: ArrowUpFromLine,
+    badge:
+      "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800",
+    amountClass: "text-red-600 dark:text-red-400",
+    sign: "-",
+  };
+};
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (isAxiosError<{ message?: string }>(error)) {
+    return error.response?.data?.message || fallback;
+  }
+
+  return fallback;
+};
+
 export default function UserManagement() {
   const t = useTranslations("Admin");
   const [page, setPage] = useState(1);
@@ -27,29 +80,33 @@ export default function UserManagement() {
     "investor",
   );
 
-  const { data: usersData, refetch: refetchUsers } = useQuery({
-    queryKey: ["admin-users", page, selectedRole],
-    queryFn: async () => {
-      const res = await api.get("/api/admin/dashboard/users", {
-        params: {
-          page,
-          limit,
-          role: selectedRole,
-        },
-      });
-      return res.data;
-    },
-  });
+  const { data: usersData, refetch: refetchUsers } =
+    useQuery<AdminUsersResponse>({
+      queryKey: ["admin-users", page, selectedRole],
+      queryFn: async () => {
+        const res = await api.get<AdminUsersResponse>(
+          "/api/admin/dashboard/users",
+          {
+            params: {
+              page,
+              limit,
+              role: selectedRole,
+            },
+          },
+        );
+        return res.data;
+      },
+    });
 
   const users = usersData?.items || [];
   const meta = usersData?.meta || { totalPages: 1 };
 
   const { data: pendingWithdrawals = [], refetch: refetchWithdrawals } =
-    useQuery({
+    useQuery<PendingTransaction[]>({
       queryKey: ["admin-pending-withdrawals"],
       queryFn: async () =>
         (
-          await api.get<Transaction[]>(
+          await api.get<PendingTransaction[]>(
             "/api/wallets/admin/pending-transactions",
           )
         ).data,
@@ -66,13 +123,13 @@ export default function UserManagement() {
       }
       toast.success(
         action === "approve"
-          ? "Đã duyệt yêu cầu rút tiền."
-          : "Đã từ chối yêu cầu rút tiền.",
+          ? "Đã duyệt yêu cầu nạp/rút tiền."
+          : "Đã từ chối yêu cầu nạp/rút tiền.",
       );
       refetchWithdrawals();
       refetchUsers();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Lỗi xử lý yêu cầu.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Lỗi xử lý yêu cầu."));
     }
   };
 
@@ -103,60 +160,101 @@ export default function UserManagement() {
           <Clock className="text-amber-500" />
           {t("pendingWithdrawals")}
         </h2>
-        {/* ... Nội dung bảng rút tiền giữ nguyên ... */}
         <div className="bg-white dark:bg-slate-900 rounded-5 border border-amber-200 dark:border-amber-900/30 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead className="bg-amber-50/50 dark:bg-amber-900/10 text-[11px] uppercase text-amber-600/70 font-bold tracking-widest border-b border-amber-100 dark:border-amber-900/20">
                 <tr>
                   <th className="px-6 py-4">Người dùng</th>
+                  <th className="px-6 py-4">Loại giao dịch</th>
                   <th className="px-6 py-4">Số dư hiện tại</th>
-                  <th className="px-6 py-4">Số tiền rút</th>
+                  <th className="px-6 py-4">Số tiền</th>
+                  <th className="px-6 py-4">Thời gian</th>
                   <th className="px-6 py-4 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-amber-50 dark:divide-amber-900/20">
-                {pendingWithdrawals.map((w: any) => (
-                  <tr
-                    key={w.id}
-                    className="hover:bg-amber-50/30 dark:hover:bg-amber-900/5 transition-colors"
-                  >
-                    <td className="px-6 py-4">
-                      <p className="text-smaller font-bold text-slate-900 dark:text-white">
-                        {w.user?.fullName}
-                      </p>
-                      <p className="text-[10px] text-slate-500 mt-1">
-                        {w.user?.email}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-smaller font-bold text-slate-700 dark:text-slate-200">
-                        {formatVnd(Number(w.user?.balance))}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-smaller font-extrabold text-red-600">
-                        {formatVnd(Number(w.amount))}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => handleWithdraw(w.id, "approve")}
-                          className="px-4 py-1.5 rounded-lg bg-emerald-500 text-white text-[11px] font-bold hover:shadow-lg transition-all"
+                {pendingWithdrawals.map((w) => {
+                  const meta = getTransactionMeta(w.type);
+                  const TypeIcon = meta.Icon;
+
+                  return (
+                    <tr
+                      key={w.id}
+                      className="hover:bg-amber-50/30 dark:hover:bg-amber-900/5 transition-colors"
+                    >
+                      <td className="px-6 py-4">
+                        <p className="text-smaller font-bold text-slate-900 dark:text-white">
+                          {w.user?.fullName}
+                        </p>
+                        <p className="text-[10px] text-slate-500 mt-1">
+                          {w.user?.email}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-wider ${meta.badge}`}
                         >
-                          Duyệt
-                        </button>
-                        <button
-                          onClick={() => handleWithdraw(w.id, "reject")}
-                          className="px-4 py-1.5 rounded-lg border border-red-200 text-red-500 text-[11px] font-bold hover:bg-red-50 transition-all"
+                          <TypeIcon className="w-3.5 h-3.5" />
+                          {meta.label}
+                        </span>
+                        {w.type === "withdrawal" && (
+                          <p className="text-[10px] text-slate-500 mt-1">
+                            {w.bankName || "N/A"} - {w.accountNumber || "N/A"}
+                          </p>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-smaller font-bold text-slate-700 dark:text-slate-200">
+                          {formatVnd(Number(w.user?.balance || 0))}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p
+                          className={`text-smaller font-extrabold ${meta.amountClass}`}
+                          title={meta.amountLabel}
                         >
-                          Từ chối
-                        </button>
-                      </div>
+                          {meta.sign}
+                          {formatVnd(Number(w.amount))}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                          {new Date(w.createdAt).toLocaleDateString("vi-VN")}
+                        </p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          {new Date(w.createdAt).toLocaleTimeString("vi-VN")}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => handleWithdraw(w.id, "approve")}
+                            className="px-4 py-1.5 rounded-lg bg-emerald-500 text-white text-[11px] font-bold hover:shadow-lg transition-all"
+                          >
+                            Duyệt
+                          </button>
+                          <button
+                            onClick={() => handleWithdraw(w.id, "reject")}
+                            className="px-4 py-1.5 rounded-lg border border-red-200 text-red-500 text-[11px] font-bold hover:bg-red-50 transition-all"
+                          >
+                            Từ chối
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {pendingWithdrawals.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-6 py-10 text-center text-slate-500 text-smaller italic"
+                    >
+                      Không có yêu cầu nạp/rút tiền nào đang chờ duyệt.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -207,7 +305,7 @@ export default function UserManagement() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {users.map((user: any) => (
+                {users.map((user) => (
                   <tr
                     key={user.id}
                     className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
