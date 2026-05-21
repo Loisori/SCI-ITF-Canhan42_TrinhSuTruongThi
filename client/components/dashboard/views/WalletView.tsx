@@ -1,20 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { type Dispatch, type SetStateAction, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/axios";
 import { formatVnd } from "@/lib/utils";
 import { UserProfile } from "@/types/user";
 import { Transaction } from "@/types/transaction";
 import toast from "react-hot-toast";
-import Link from "next/link";
 import {
   Banknote,
   Wallet,
   ArrowUpRight,
   ArrowDownLeft,
   Copy,
-  CheckCircle2,
   X,
 } from "lucide-react";
 import AnimatedNumber from "@/components/ui/AnimatedNumber";
@@ -22,15 +20,45 @@ import { motion, AnimatePresence } from "framer-motion";
 import { DepositModal, WithdrawModal } from "../modals/FintechModals";
 import { useKycCheck } from "@/lib/hooks/useKycCheck";
 
+const positiveTransactionTypes = [
+  "deposit",
+  "interest_receive",
+  "refund",
+  "disbursement",
+  "system_fee",
+];
+
+const getTransactionTypeLabel = (type: string) => {
+  if (type === "deposit") return "Nạp tiền";
+  if (type === "withdrawal") return "Rút tiền";
+  if (type === "invest") return "Đầu tư";
+  if (type === "interest_receive") return "Nhận Lợi nhuận";
+  if (type === "refund") return "Hoàn tiền";
+  if (type === "disbursement") return "Nhận Giải Ngân";
+  if (type === "repay_interest") return "Trả Lãi";
+  if (type === "repay_principal") return "Trả Gốc";
+  if (type === "system_fee") return "Phí Hệ Thống";
+  return type;
+};
+
+const getTransactionStatusLabel = (status: string) => {
+  if (status === "success") return "Thành công";
+  if (status === "pending") return "Đang chờ";
+  if (status === "failed") return "Thất bại";
+  return status;
+};
+
 export default function WalletView({ profile }: { profile: UserProfile }) {
   const { isKycApproved, isFrozen } = useKycCheck();
   // Ensure balance is synchronized with profile
   const [showDepositModal, setShowDepositModal] = useState(false);
 
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
 
   const [filterType, setFilterType] = useState<string>("");
-  const [filterStatus, setFilterStatus] = useState<string>("");
+  const filterStatus = "";
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -54,9 +82,17 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
   );
 
   // Reset to first page when filters change
-  const handleFilterChange = (setter: any, value: string) => {
+  const handleFilterChange = (
+    setter: Dispatch<SetStateAction<string>>,
+    value: string,
+  ) => {
     setter(value);
     setCurrentPage(1);
+  };
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Đã sao chép!");
   };
 
   // Calculate total deposits and withdrawals
@@ -194,34 +230,22 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {paginatedTransactions.map((t) => {
-                  const isPositive = [
-                    "deposit",
-                    "interest_receive",
-                    "refund",
-                    "disbursement",
-                    "system_fee",
-                  ].includes(t.type);
-
-                  // Translate types to Vietnamese
-                  let displayType = t.type;
-                  if (t.type === "deposit") displayType = "Nạp tiền";
-                  else if (t.type === "withdrawal") displayType = "Rút tiền";
-                  else if (t.type === "invest") displayType = "Đầu tư";
-                  else if (t.type === "interest_receive")
-                    displayType = "Nhận Lợi nhuận";
-                  else if (t.type === "refund") displayType = "Hoàn tiền";
-                  else if (t.type === "disbursement")
-                    displayType = "Nhận Giải Ngân";
-                  else if (t.type === "repay_interest") displayType = "Trả Lãi";
-                  else if (t.type === "repay_principal")
-                    displayType = "Trả Gốc";
-                  else if (t.type === "system_fee")
-                    displayType = "Phí Hệ Thống";
+                  const isPositive = positiveTransactionTypes.includes(t.type);
+                  const displayType = getTransactionTypeLabel(t.type);
 
                   return (
                     <tr
                       key={t.id}
-                      className="hover:bg-slate-50 dark:hover:bg-white/5 transition-all group"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setSelectedTransaction(t)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelectedTransaction(t);
+                        }
+                      }}
+                      className="hover:bg-slate-50 dark:hover:bg-white/5 transition-all group cursor-pointer focus:outline-none focus:bg-slate-50 dark:focus:bg-white/5"
                     >
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-4">
@@ -347,6 +371,144 @@ export default function WalletView({ profile }: { profile: UserProfile }) {
           window.dispatchEvent(new CustomEvent("profile-update"));
         }}
       />
+
+      <AnimatePresence>
+        {selectedTransaction && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white dark:bg-slate-900 w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden"
+            >
+              <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    Chi tiết giao dịch
+                  </p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                    {getTransactionTypeLabel(selectedTransaction.type)}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setSelectedTransaction(null)}
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-colors"
+                  aria-label="Đóng chi tiết giao dịch"
+                >
+                  <X className="w-5 h-5 text-slate-500" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-5">
+                <div className="flex items-start justify-between gap-4 rounded-2xl bg-slate-50 dark:bg-white/5 p-5">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      Số tiền
+                    </p>
+                    <p
+                      className={`mt-1 text-2xl font-black ${
+                        positiveTransactionTypes.includes(
+                          selectedTransaction.type,
+                        )
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {positiveTransactionTypes.includes(
+                        selectedTransaction.type,
+                      )
+                        ? "+"
+                        : "-"}
+                      {formatVnd(Number(selectedTransaction.amount))}
+                    </p>
+                  </div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                      selectedTransaction.status === "success"
+                        ? "bg-green-500 text-white"
+                        : selectedTransaction.status === "pending"
+                          ? "bg-amber-100 text-amber-700"
+                          : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {getTransactionStatusLabel(selectedTransaction.status)}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      Mã giao dịch
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">
+                        #{selectedTransaction.id}
+                      </p>
+                      <button
+                        onClick={() => handleCopy(String(selectedTransaction.id))}
+                        className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+                        aria-label="Sao chép mã giao dịch"
+                      >
+                        <Copy className="w-4 h-4 text-slate-500" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      Mã tham chiếu
+                    </p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">
+                      {selectedTransaction.referenceId
+                        ? `#${selectedTransaction.referenceId}`
+                        : "-"}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      Loại giao dịch
+                    </p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">
+                      {getTransactionTypeLabel(selectedTransaction.type)}
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      {selectedTransaction.type}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      Trạng thái
+                    </p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">
+                      {getTransactionStatusLabel(selectedTransaction.status)}
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      {selectedTransaction.status}
+                    </p>
+                  </div>
+                  <div className="space-y-1 sm:col-span-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      Thời gian
+                    </p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">
+                      {new Date(selectedTransaction.createdAt).toLocaleString(
+                        "vi-VN",
+                      )}
+                    </p>
+                  </div>
+                  <div className="space-y-1 sm:col-span-2">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      Mô tả
+                    </p>
+                    <p className="text-sm leading-6 text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                      {selectedTransaction.description || "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

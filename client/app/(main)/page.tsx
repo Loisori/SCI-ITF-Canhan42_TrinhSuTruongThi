@@ -65,22 +65,22 @@ export default function Home() {
 
   const statItems = [
     {
-      label: "Total Capital Raised",
+      label: "Tổng vốn huy động",
       value: formatCurrency(stats.totalCapitalRaised),
       icon: Landmark,
     },
     {
-      label: "Active Projects",
+      label: "Dự án đang hoạt động",
       value: Math.round(stats.activeProjects).toLocaleString("vi-VN"),
       icon: Rocket,
     },
     {
-      label: "Investors",
+      label: "Nhà đầu tư",
       value: Math.round(stats.investors).toLocaleString("vi-VN"),
       icon: Users,
     },
     {
-      label: "Average Return Rate",
+      label: "Tỷ lệ sinh lời trung bình",
       value: `${Math.round(stats.averageReturnRate)}%`,
       icon: TrendingUp,
     },
@@ -88,23 +88,23 @@ export default function Home() {
 
   const workflow = [
     {
-      title: "Funding",
-      text: "Investors commit capital into vetted opportunities with clear terms.",
+      title: "Tài trợ",
+      text: "Các nhà đầu tư cam kết vốn vào các cơ hội đã được xem xét kỹ lưỡng với các điều khoản rõ ràng.",
       icon: Landmark,
     },
     {
-      title: "Project Activation",
-      text: "Capital is locked and the approved milestone schedule becomes the operating contract.",
+      title: "Kích hoạt dự án",
+      text: "Vốn được khóa và lịch trình mốc đã được phê duyệt trở thành hợp đồng vận hành.",
       icon: CheckCircle2,
     },
     {
-      title: "Milestone Proof & Voting",
-      text: "Owners submit evidence, investors review progress, and votes decide release readiness.",
+      title: "Bằng chứng mốc & Bỏ phiếu",
+      text: "Chủ sở hữu nộp bằng chứng, nhà đầu tư xem xét tiến độ, và phiếu bầu quyết định tính sẵn sàng giải ngân.",
       icon: Vote,
     },
     {
-      title: "Secure Payout",
-      text: "Funds are released only when milestone conditions are satisfied.",
+      title: "Giải ngân an toàn",
+      text: "Vốn chỉ được giải ngân khi các điều kiện mốc được đáp ứng.",
       icon: LockKeyhole,
     },
   ];
@@ -117,7 +117,7 @@ export default function Home() {
           <div className="wrapper wrapper--lg grid grid-cols-1 lg:grid-cols-[1.1fr_.9fr] gap-10 items-center py-16 lg:py-24">
             <div className="space-y-7">
               <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-smallest font-bold uppercase tracking-wide text-primary">
-                Milestone-secured private credit
+                Tín dụng tư nhân bảo đảm bằng cột mốc giải ngân
               </span>
               <div className="space-y-4">
                 <h1 className="text-h3 lg:text-[6.4rem] font-black leading-tight text-slate-950 dark:text-white">
@@ -209,11 +209,11 @@ export default function Home() {
           <div className="wrapper wrapper--lg">
             <div className="max-w-2xl mb-10">
               <h2 className="text-h4 font-black text-slate-950 dark:text-white">
-                Milestone Security, Built Into Every Deal
+                Bảo mật cột mốc, được tích hợp trong mọi giao dịch
               </h2>
               <p className="text-slate-600 dark:text-slate-400 mt-3">
-                Funding is structured around proof, verification, and controlled
-                disbursement instead of one-time capital release.
+                Việc tài trợ được cấu trúc dựa trên bằng chứng, xác minh và kiểm soát
+                giải ngân thay vì giải ngân vốn một lần.
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -245,30 +245,30 @@ export default function Home() {
             <div>
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-smallest font-bold uppercase tracking-wide text-emerald-300">
                 <Bot className="size-4" />
-                Core technology advantage
+                Lợi thế công nghệ cốt lõi
               </span>
-              <h2 className="text-h4 font-black mt-5">InvestPro AI Insight</h2>
+              <h2 className="text-h4 font-black mt-5">InvestPro AI, Cái nhìn sâu sắc</h2>
               <p className="text-slate-300 mt-4 leading-relaxed">
-                Our AI layer helps investors review risk signals, milestone
-                quality, owner history, and project fundamentals before they
-                commit capital.
+                Lớp AI của chúng tôi giúp các nhà đầu tư xem xét các tín hiệu rủi ro, các mốc quan trọng
+                chất lượng, lịch sử chủ sở hữu và các nguyên tắc cơ bản của dự án trước khi chúng
+                cam kết vốn.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="rounded-lg border border-white/10 bg-white/5 p-5">
                 <ClipboardCheck className="size-7 text-emerald-300 mb-4" />
-                <h3 className="font-black">Risk Analysis</h3>
+                <h3 className="font-black">Phân tích rủi ro</h3>
                 <p className="text-smaller text-slate-300 mt-2">
-                  Structured review of repayment risk, milestone feasibility,
-                  and project execution signals.
+                  Xem xét có cấu trúc về rủi ro trả nợ, khả thi của mốc,
+                  và các tín hiệu thực hiện dự án.
                 </p>
               </div>
               <div className="rounded-lg border border-white/10 bg-white/5 p-5">
                 <BarChart3 className="size-7 text-emerald-300 mb-4" />
-                <h3 className="font-black">Smart Project Scoring</h3>
+                <h3 className="font-black">Đánh giá dự án thông minh</h3>
                 <p className="text-smaller text-slate-300 mt-2">
-                  A clear score helps investors compare opportunities with
-                  consistent decision criteria.
+                  Một điểm số rõ ràng giúp nhà đầu tư so sánh các cơ hội với
+                  tiêu chí quyết định nhất quán.
                 </p>
               </div>
             </div>

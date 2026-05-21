@@ -10,7 +10,7 @@ import { SWRegistration } from "@/components/providers/SWRegistration";
 import AIChatbox from "@/components/client/AIChatbox";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
-import { Toaster } from "sonner";
+// import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -74,7 +74,7 @@ export default async function RootLayout({
                 <SWRegistration />
                 {children}
                 <AIChatbox />
-                <Toaster position="top-right" richColors closeButton />
+                {/* <Toaster position="top-right" richColors closeButton /> */}
               </NotificationProvider>
             </QueryProvider>
           </ThemeProvider>
