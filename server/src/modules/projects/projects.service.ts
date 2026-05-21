@@ -1067,6 +1067,14 @@ export class ProjectsService {
         );
       }
 
+      const currentAmount = Number(project.currentAmount) || 0;
+      const goalAmount = Number(project.goalAmount) || 0;
+      if (goalAmount <= 0 || currentAmount < goalAmount) {
+        throw new BadRequestException(
+          'Chỉ có thể dừng huy động khi dự án đã đạt ít nhất 100% mục tiêu vốn.',
+        );
+      }
+
       // Lấy tất cả investments của dự án (trừ withdrawn).
       const projectInvestments = await investmentsRepo.find({
         where: { projectId },

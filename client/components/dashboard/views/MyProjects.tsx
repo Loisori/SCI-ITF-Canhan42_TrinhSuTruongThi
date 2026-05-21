@@ -8,8 +8,17 @@ import { UserProfile } from "@/types/user";
 import { OwnerProject } from "@/types/dashboard";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { Plus, Image, Rocket, ShieldAlert } from "lucide-react";
+import { Plus, Image as ImageIcon, Rocket, ShieldAlert } from "lucide-react";
 import { useKycCheck } from "@/lib/hooks/useKycCheck";
+import { isAxiosError } from "axios";
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (isAxiosError<{ message?: string }>(error)) {
+    return error.response?.data?.message || fallback;
+  }
+
+  return fallback;
+};
 
 export default function MyProjects({ profile }: { profile: UserProfile }) {
   const { isKycApproved, isFrozen } = useKycCheck();
@@ -35,10 +44,8 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
       await api.put(`/api/projects/${id}/stop-funding`);
       toast.success("Dự án đã dừng huy động vốn thành công.");
       refetch();
-    } catch (err: any) {
-      toast.error(
-        err.response?.data?.message || "Không thể dừng huy động vốn.",
-      );
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Không thể dừng huy động vốn."));
     }
   };
 
@@ -57,8 +64,8 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
       setProofUrl("");
       setActiveProject(null);
       refetch();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Không thể gửi minh chứng");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Không thể gửi minh chứng"));
     } finally {
       setIsSubmitting(false);
     }
@@ -109,89 +116,99 @@ export default function MyProjects({ profile }: { profile: UserProfile }) {
       </div>
 
       <div className="grid grid-cols-1   md:grid-cols-3 gap-6">
-        {projects.map((p) => (
-          <div
-            key={p.id}
-            className="bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
-          >
-            <div className="flex flex-col justify-between gap-6">
-              <div className="min-w-0">
-                {p.thumbnailUrl ? (
-                  <img
-                    src={p.thumbnailUrl}
-                    alt=""
-                    className="w-full h-80 rounded-5 object-cover shrink-0"
-                  />
-                ) : (
-                  <div className="w-full h-80 rounded-5 bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
-                    <Image className="text-slate-300 w-16 h-16" />
-                  </div>
-                )}
-                <div className="min-w-0 mt-5">
-                  <span
-                    className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                      p.status === "funding"
-                        ? "bg-amber-500/10 text-amber-600"
-                        : p.status === "completed"
-                          ? "bg-green-500/10 text-green-600"
-                          : "bg-slate-500/10 text-slate-600"
-                    }`}
-                  >
-                    {p.status}
-                  </span>
-                  <h3 className="text-h5 font-bold text-slate-900 dark:text-white mt-1 truncate">
-                    {p.title}
-                  </h3>
-                  <p className="text-smaller text-slate-500 mt-2 line-clamp-2">
-                    {p.shortDescription}
-                  </p>
+        {projects.map((p) => {
+          const canStopFunding =
+            p.status === "funding" && Number(p.fundingProgress || 0) >= 100;
 
-                  <div className="mt-4 flex items-center gap-6">
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        Tiến độ vốn
-                      </p>
-                      <p className="text-smaller font-bold text-primary dark:text-white mt-1">
-                        {p.fundingProgress}% (
-                        {formatVnd(Number(p.currentAmount))})
-                      </p>
+          return (
+            <div
+              key={p.id}
+              className="bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+            >
+              <div className="flex flex-col justify-between gap-6">
+                <div className="min-w-0">
+                  {p.thumbnailUrl ? (
+                    <img
+                      src={p.thumbnailUrl}
+                      alt=""
+                      className="w-full h-80 rounded-5 object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="w-full h-80 rounded-5 bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                      <ImageIcon className="text-slate-300 w-16 h-16" />
                     </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        Nhà đầu tư
-                      </p>
-                      <p className="text-smaller font-bold text-slate-900 dark:text-white mt-1">
-                        {p.investorsCount} Investor
-                      </p>
+                  )}
+                  <div className="min-w-0 mt-5">
+                    <span
+                      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+                        p.status === "funding"
+                          ? "bg-amber-500/10 text-amber-600"
+                          : p.status === "completed"
+                            ? "bg-green-500/10 text-green-600"
+                            : "bg-slate-500/10 text-slate-600"
+                      }`}
+                    >
+                      {p.status}
+                    </span>
+                    <h3 className="text-h5 font-bold text-slate-900 dark:text-white mt-1 truncate">
+                      {p.title}
+                    </h3>
+                    <p className="text-smaller text-slate-500 mt-2 line-clamp-2">
+                      {p.shortDescription}
+                    </p>
+
+                    <div className="mt-4 flex items-center gap-6">
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                          Tiến độ vốn
+                        </p>
+                        <p className="text-smaller font-bold text-primary dark:text-white mt-1">
+                          {p.fundingProgress}% (
+                          {formatVnd(Number(p.currentAmount))})
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                          Nhà đầu tư
+                        </p>
+                        <p className="text-smaller font-bold text-slate-900 dark:text-white mt-1">
+                          {p.investorsCount} Investor
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-2 shrink-0 md:min-w-40">
-                <button
-                  onClick={() => handleStopFunding(p.id)}
-                  disabled={p.status !== "funding"}
-                  className="w-full py-2.5 rounded-xl border border-red-200 text-red-500 font-bold text-smaller hover:bg-red-50 transition-all disabled:opacity-30"
-                >
-                  Dừng huy động
-                </button>
-                <Link
-                  href={`/dashboard/my-projects/${p.id}/edit`}
-                  className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-700 dark:text-slate-200 font-bold text-smaller text-center hover:bg-slate-50 dark:hover:bg-white/5 transition-all"
-                >
-                  Chỉnh sửa
-                </Link>
-                <Link
-                  href={`/dashboard/my-projects/${p.id}`}
-                  className="w-full py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-smaller text-center transition-all block"
-                >
-                  Quản lý Milestones
-                </Link>
+                <div className="flex flex-col gap-2 shrink-0 md:min-w-40">
+                  <button
+                    onClick={() => handleStopFunding(p.id)}
+                    disabled={!canStopFunding}
+                    title={
+                      p.status === "funding" && !canStopFunding
+                        ? "Chỉ có thể dừng huy động khi dự án đạt ít nhất 100% vốn."
+                        : undefined
+                    }
+                    className="w-full py-2.5 rounded-xl border border-red-200 text-red-500 font-bold text-smaller hover:bg-red-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    Dừng huy động
+                  </button>
+                  <Link
+                    href={`/dashboard/my-projects/${p.id}/edit`}
+                    className="w-full py-2.5 rounded-xl border border-slate-200 text-slate-700 dark:text-slate-200 font-bold text-smaller text-center hover:bg-slate-50 dark:hover:bg-white/5 transition-all"
+                  >
+                    Chỉnh sửa
+                  </Link>
+                  <Link
+                    href={`/dashboard/my-projects/${p.id}`}
+                    className="w-full py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-smaller text-center transition-all block"
+                  >
+                    Quản lý Milestones
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {projects.length === 0 && (
           <div className="py-20 text-center bg-white dark:bg-slate-900 rounded-5 border border-slate-200 dark:border-slate-800 border-dashed">

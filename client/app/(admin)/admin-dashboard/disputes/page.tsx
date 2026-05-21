@@ -116,12 +116,12 @@ export default function AdminDisputesPage() {
 
   return (
     <div className="flex bg-slate-50 min-h-screen">
-      <div className="flex-1 p-8 max-w-7xl mx-auto w-full">
+      <div className="flex-1 p-8 mx-auto w-full">
         <div className="mb-8">
-          <h1 className="text-h4 font-black">
+          <h1 className="text-h3 font-black">
             Trung tâm Trọng tài & Tranh chấp
           </h1>
-          <p className="text-slate-500">
+          <p className="text-body text-slate-500">
             Giải quyết khiếu nại dự án và điều phối Milestone bị phản đối.
           </p>
         </div>
