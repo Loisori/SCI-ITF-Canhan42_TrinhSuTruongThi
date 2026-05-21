@@ -22,6 +22,21 @@ const slugify = (value: string) =>
 
 const getTodayString = () => new Date().toISOString().split("T")[0];
 
+const addDaysToDateString = (dateString: string, days: number) => {
+  if (!dateString) {
+    return "";
+  }
+
+  const [year, month, day] = dateString.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + days);
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+};
+
 export default function CreateProjectPage() {
   const router = useRouter();
   const [loadingAuth, setLoadingAuth] = useState(true);
@@ -40,7 +55,9 @@ export default function CreateProjectPage() {
     "medium",
   );
   const [startDate, setStartDate] = useState(getTodayString());
-  const [endDate, setEndDate] = useState("");
+  const [endDate, setEndDate] = useState(
+    addDaysToDateString(getTodayString(), 7),
+  );
   const [allowOverfunding, setAllowOverfunding] = useState(false);
   const [shortDescription, setShortDescription] = useState("");
   const [content, setContent] = useState("");
@@ -79,6 +96,7 @@ export default function CreateProjectPage() {
     },
   ]);
   const contentSlug = slugify(title);
+  const minEndDate = startDate ? addDaysToDateString(startDate, 7) : "";
 
   // Media Library state
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
@@ -134,8 +152,8 @@ export default function CreateProjectPage() {
       return;
     }
 
-    if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
-      setError("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
+    if (startDate && endDate && endDate < minEndDate) {
+      setError("Ngày kết thúc phải sau ngày bắt đầu ít nhất 1 tuần.");
       setSubmitting(false);
       return;
     }
@@ -358,7 +376,17 @@ export default function CreateProjectPage() {
                 type="date"
                 value={startDate}
                 min={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => {
+                  const nextStartDate = e.target.value;
+                  const nextMinEndDate = addDaysToDateString(nextStartDate, 7);
+
+                  setStartDate(nextStartDate);
+                  setEndDate((currentEndDate) =>
+                    currentEndDate && currentEndDate >= nextMinEndDate
+                      ? currentEndDate
+                      : nextMinEndDate,
+                  );
+                }}
                 className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
               />
             </div>
@@ -369,6 +397,7 @@ export default function CreateProjectPage() {
               <input
                 type="date"
                 value={endDate}
+                min={minEndDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
               />
